@@ -1,0 +1,7 @@
+streamlit>=1.45,<2
+pydantic>=2.11,<3
+SQLAlchemy>=2.0.40,<2.1
+httpx>=0.28,<0.29
+psycopg[binary]>=3.2,<4
+pgvector>=0.4,<0.5
+python-dotenv>=1.1,<2

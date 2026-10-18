@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-18",
+  "schema": "sap_chamados_ai",
+  "before": {
+    "catalog_rows": 631,
+    "sha256": "75b485015c8c815e3e3ff754f2d1990fafc04bbf48f9d866b699623efbb84043"
+  },
+  "after": {
+    "catalog_rows": 631,
+    "sha256": "75b485015c8c815e3e3ff754f2d1990fafc04bbf48f9d866b699623efbb84043"
+  },
+  "outside_catalog_unchanged": true,
+  "project_tables": [
+    "sap_audit",
+    "sap_knowledge",
+    "sap_messages",
+    "sap_project_identity",
+    "sap_proposals",
+    "sap_workspaces"
+  ],
+  "scope": "Metadados de estrutura; dados de tabelas externas n?o foram lidos."
+}

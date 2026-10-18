@@ -1,0 +1,10 @@
+{
+  "date": "2026-10-18",
+  "backend": "Supabase/PostgreSQL",
+  "knowledge_guides": 5,
+  "proposal_before_click": "pendente",
+  "approved_result": "executada",
+  "duplicate_execution_prevented": true,
+  "cross_session_decision_blocked": true,
+  "notes": "Gateway testado com proposta controlada, sem infer?ncia LLM. Somente dados fict?cios em tabelas do projeto."
+}
