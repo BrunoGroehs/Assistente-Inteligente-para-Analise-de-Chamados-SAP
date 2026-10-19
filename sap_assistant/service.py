@@ -7,9 +7,9 @@ import time
 from sqlalchemy import func, select
 
 from .approvals import ApprovalGateway, PolicyError, quantity_text
-from .contracts import Evidence, validate_grounding
+from .contracts import Analysis, Evidence, validate_grounding
 from .citations import cited_knowledge, official_url, safe_answer_text
-from .database import Audit, Message, new_id
+from .database import GENERAL_CHAT, Audit, Message, new_id
 from .provider import ProviderError
 from .grounding import insufficient_analysis, insufficient_assessment, out_of_scope_analysis, supported_ids
 
@@ -62,24 +62,27 @@ class AssistantService:
         if not message.strip() or len(message) > 6000:
             raise ValueError("Envie uma mensagem de até 6.000 caracteres.")
         message = message.strip()
+        channel = ticket_id if ticket_id is not None else GENERAL_CHAT
         submission_id = submission_id or new_id()
         with self.store.transaction() as db:
             workspace = self.store.authorize(db, context, lock=True)
-            ticket = deepcopy(workspace.data["tickets"].get(ticket_id))
-            if not ticket:
+            ticket = deepcopy(workspace.data["tickets"].get(ticket_id)) if ticket_id is not None else None
+            if ticket_id is not None and not ticket:
                 raise ValueError("Chamado não encontrado.")
             existing = db.scalar(select(Message).where(Message.workspace_id == workspace.id,
                                  Message.submission_id == submission_id, Message.role == "user"))
             if existing:
-                if existing.ticket != ticket_id or existing.content != message:
+                if existing.ticket != channel or existing.content != message:
                     raise ValueError("Identificador de submissão já utilizado para outra mensagem.")
                 return {"submission_id": submission_id, "state": existing.details.get("state", "processing")}
             count = db.scalar(select(func.count()).select_from(Message).where(
                 Message.workspace_id == workspace.id, Message.role == "user"))
             if count >= self.max_analyses:
                 raise ValueError("Limite de análises desta sessão atingido.")
-            db.add(Message(workspace_id=workspace.id, ticket=ticket_id, submission_id=submission_id,
-                           role="user", content=message.strip(), details={"state": "processing"}))
+            attachment = {"id": ticket_id, "title": ticket["title"],
+                          "reference": ticket.get("support", {}).get("reference") or f"SIM-{ticket_id}"} if ticket else None
+            db.add(Message(workspace_id=workspace.id, ticket=channel, submission_id=submission_id,
+                           role="user", content=message.strip(), details={"state": "processing", "attachment": attachment}))
             state = deepcopy(workspace.data)
 
         started = time.perf_counter()
@@ -87,20 +90,20 @@ class AssistantService:
         evidence, metadata = [], {}
         try:
             steps.append({"step": "Solicitação recebida", "elapsed_ms": 0})
-            history = self.store.messages(context, ticket_id)[-10:]
-            user_text = "\n".join(dict.fromkeys([ticket["description"], *[
+            history = self.store.messages(context, channel)[-10:]
+            user_text = "\n".join(dict.fromkeys([*([ticket["description"]] if ticket else []), *[
                 x["content"] for x in history if x["role"] == "user"]]))
             reported_context = "\n\nDados informados na abertura (fictícios; não comprovam execução atual):\n" + json.dumps(
-                ticket["support"], ensure_ascii=False) if ticket.get("support") else ""
+                ticket["support"], ensure_ascii=False) if ticket and ticket.get("support") else ""
             evidence.append(Evidence(id="RELATO", title="Relato do usuário", content=user_text + reported_context,
                                      kind="relato_usuario", version=submission_id))
-            order = resolve_order(state, ticket, history)
+            order = resolve_order(state, ticket, history) if ticket else None
             if order:
                 facts = {**order, "remaining": quantity_text(Decimal(order["ordered"]) - Decimal(order["received"]))}
                 evidence.append(Evidence(id="DATA", title="Consulta ao SAP simulado",
                     content=json.dumps(facts, ensure_ascii=False), kind="consulta_simulada", version=str(order["version"])))
                 steps.append({"step": "Pedido e histórico simulados consultados", "elapsed_ms": round((time.perf_counter()-started)*1000)})
-            query = message + "\n" + ticket["title"] + "\n" + ticket["description"]
+            query = message + ("\n" + ticket["title"] + "\n" + ticket["description"] if ticket else "")
             recovered, retrieval_meta = self.retriever.search(query)
             evidence.extend(recovered)
             metadata["retrieval"] = retrieval_meta
@@ -112,7 +115,8 @@ class AssistantService:
                 check_meta = {"method": "server_policy"}
             else:
                 assessment, check_meta = self.provider.assess_knowledge({
-                    "ticket": ticket, "message": message, "environment": "SAP MM simulado; dados fictícios",
+                    "ticket": ticket, "case_attached": ticket is not None, "message": message,
+                    "environment": "SAP MM simulado; dados fictícios",
                     "observations": [x.model_dump() for x in evidence if x.kind in {"consulta_simulada", "relato_usuario"}],
                     "history": [{"role": x["role"], "content": x["content"]} for x in history],
                     "evidence": [x.model_dump() for x in recovered]})
@@ -134,16 +138,26 @@ class AssistantService:
                 generation_evidence = [x for x in evidence if x.kind in {"consulta_simulada", "relato_usuario"}
                                        or x.id in approved_ids]
                 analysis, provider_meta = self.provider.analyze(
-                    {"ticket": ticket, "message": message, "evidence": [x.model_dump() for x in generation_evidence],
+                    {"ticket": ticket, "case_attached": ticket is not None, "message": message,
+                     "evidence": [x.model_dump() for x in generation_evidence],
                      "undocumented_codes": undocumented, "validated_scope": assessment.scope},
                     [{"role": x["role"], "content": x["content"]} for x in history])
-                self._validate_evidence(analysis, generation_evidence, undocumented)
-                if analysis.process != "fora_do_escopo" and not set(analysis.references) & set(approved_ids):
-                    analysis = insufficient_analysis()
-                    provider_meta["server_policy"] = "uncited_knowledge"
+                if ticket is None and analysis.action:
+                    analysis = Analysis(summary="Para solicitar uma alteração, anexe o chamado correspondente. "
+                                        "Nenhuma operação foi proposta ou executada.",
+                        process="recebimento_pedido_compra", facts=[], hypotheses=[], missing_information=[],
+                        next_steps=["Use o botão Chamados para anexar o caso antes de solicitar a alteração."],
+                        references=[], confidence="baixa", confidence_reason="Não há chamado anexado para vincular a operação.",
+                        human_review=False, action=None)
+                    provider_meta["server_policy"] = "attachment_required"
+                else:
+                    self._validate_evidence(analysis, generation_evidence, undocumented)
+                    if analysis.process != "fora_do_escopo" and not set(analysis.references) & set(approved_ids):
+                        analysis = insufficient_analysis()
+                        provider_meta["server_policy"] = "uncited_knowledge"
             self._validate_evidence(analysis, evidence, undocumented)
             steps.append({"step": "Resposta estruturada e referências validadas", "elapsed_ms": round((time.perf_counter()-started)*1000)})
-            metadata = {"retrieval": retrieval_meta, "provider": provider_meta, "knowledge_check": knowledge_check,
+            metadata = {"attachment": attachment, "retrieval": retrieval_meta, "provider": provider_meta, "knowledge_check": knowledge_check,
                         "analysis": analysis.model_dump(mode="json")}
             content = render_analysis(analysis, evidence)
             with self.store.transaction() as db:
@@ -167,11 +181,11 @@ class AssistantService:
                         steps.append({"step": "Proposta impedida pela política do servidor"})
                 details = {**metadata, "evidence": [x.model_dump() for x in evidence],
                            "steps": steps, "latency_ms": round((time.perf_counter()-started)*1000)}
-                db.add(Message(workspace_id=workspace.id, ticket=ticket_id, submission_id=submission_id,
+                db.add(Message(workspace_id=workspace.id, ticket=channel, submission_id=submission_id,
                                role="assistant", content=content, details=details))
                 row = db.scalar(select(Message).where(Message.workspace_id == workspace.id,
                                 Message.submission_id == submission_id, Message.role == "user"))
-                row.details = {"state": "completed"}
+                row.details = {"state": "completed", "attachment": attachment}
                 db.add(Audit(workspace_id=workspace.id, event="analise_concluida",
                              details={"submission_id": submission_id, "ticket": ticket_id,
                                       "references": analysis.references, "latency_ms": details["latency_ms"]}))
@@ -181,15 +195,15 @@ class AssistantService:
             content = str(exc) if isinstance(exc, ProviderError) else "Não foi possível validar a análise. Nenhuma ação executada."
             with self.store.transaction() as db:
                 workspace = self.store.authorize(db, context, lock=True)
-                failure_details = {"error": True, "steps": steps, "evidence": [x.model_dump() for x in evidence],
+                failure_details = {"error": True, "attachment": attachment, "steps": steps, "evidence": [x.model_dump() for x in evidence],
                                    "retrieval": metadata.get("retrieval"),
                                    "provider": getattr(exc, "metadata", {}),
                                    "latency_ms": round((time.perf_counter()-started)*1000)}
-                db.add(Message(workspace_id=workspace.id, ticket=ticket_id, submission_id=submission_id,
+                db.add(Message(workspace_id=workspace.id, ticket=channel, submission_id=submission_id,
                                role="assistant", content=content, details=failure_details))
                 row = db.scalar(select(Message).where(Message.workspace_id == workspace.id,
                                 Message.submission_id == submission_id, Message.role == "user"))
-                row.details = {"state": "failed"}
+                row.details = {"state": "failed", "attachment": attachment}
                 db.add(Audit(workspace_id=workspace.id, event="analise_falhou",
                              details={"submission_id": submission_id, "error": type(exc).__name__}))
             return {"submission_id": submission_id, "state": "failed"}

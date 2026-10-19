@@ -10,6 +10,8 @@
 
 **Ajuste do rascunho 2026-10-18.7:** uma resposta real válida propôs o recebimento, mas orientou aguardar uma “frase exata”, confundindo o texto obrigatório da pergunta com a forma de consentimento. Explicitar que `confirmation_phrase` é a pergunta no cartão; a próxima etapa é clicar nos botões, nunca digitar uma senha/frase. A regra determinística de autorização permanece independente dessa redação. O perfil fictício de abertura integra o relato, não o conhecimento nem a prova de execução atual.
 
+**Ajuste do rascunho 2026-10-18.8:** chamado é um anexo opcional. Com `case_attached=false` e `ticket=null`, responder perguntas gerais do escopo somente com o RAG e `action=null`. Pedir anexo antes de solicitar alteração. Não inferir um chamado a partir de mensagens anteriores. O servidor filtra o histórico por contexto e bloqueia propostas sem anexo independentemente do prompt.
+
 **Decisão confirmada e implementada:** [knowledge.txt](../prompts/knowledge.txt) verifica a cobertura antes da geração. O esquema `KnowledgeAssessment` exige escopo, suficiência, IDs de documento/parágrafo e motivo. Prova inválida ou ausência de suporte encerra o caminho de geração com mensagem padronizada de insuficiência. O prompt de análise também proíbe completar lacunas com conhecimento prévio; todos os rascunhos permanecem abertos à discussão. A etapa extra aumenta latência e consumo, registrados separadamente.
 
 Quando o modelo classifica uma solicitação como fora do escopo, o servidor aplica uma resposta curta padronizada, descartando fatos e ações alheios ao produto. Essa política evita transformar um limite de escopo em um diagnóstico sem fontes. A aplicação continua registrando a chamada real, sem respostas mockadas como substituição do provedor.

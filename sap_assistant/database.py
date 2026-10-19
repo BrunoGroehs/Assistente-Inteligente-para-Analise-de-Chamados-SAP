@@ -16,6 +16,7 @@ from .fixtures import initial_state
 
 PROJECT_SCHEMA = "sap_chamados_ai"
 PROJECT_KEY = "assistente-inteligente-chamados-sap-v1"
+GENERAL_CHAT = "__geral__"  # Canal de mensagens; nunca é um chamado de negócio.
 
 
 class DatabaseSetupError(ValueError):
@@ -191,26 +192,30 @@ class Store:
         with Session(self.engine) as db:
             return deepcopy(self.authorize(db, context).data)
 
-    def messages(self, context, ticket):
+    def messages(self, context, ticket=None):
         with Session(self.engine) as db:
             self.authorize(db, context)
-            rows = db.scalars(select(Message).where(Message.workspace_id == context.workspace_id,
-                              Message.ticket == ticket).order_by(Message.created_at, Message.id)).all()
-            return [{"id": x.id, "role": x.role, "content": x.content, "details": deepcopy(x.details),
+            query = select(Message).where(Message.workspace_id == context.workspace_id)
+            if ticket is not None:
+                query = query.where(Message.ticket == ticket)
+            rows = db.scalars(query.order_by(Message.created_at, Message.id)).all()
+            return [{"id": x.id, "ticket": x.ticket, "role": x.role, "content": x.content, "details": deepcopy(x.details),
                      "created_at": x.created_at} for x in rows]
 
-    def proposals(self, context, ticket, now=None):
+    def proposals(self, context, ticket=None, now=None):
         with self.transaction() as db:
             self.authorize(db, context, lock=True)
-            rows = db.scalars(select(Proposal).where(Proposal.workspace_id == context.workspace_id,
-                              Proposal.ticket == ticket).order_by(Proposal.created_at)).all()
+            query = select(Proposal).where(Proposal.workspace_id == context.workspace_id)
+            if ticket is not None:
+                query = query.where(Proposal.ticket == ticket)
+            rows = db.scalars(query.order_by(Proposal.created_at)).all()
             result = []
             for row in rows:
                 if row.state == "pendente" and datetime.fromisoformat(row.expires_at) <= (now or utcnow()):
                     row.state = "expirada"
                     db.add(Audit(workspace_id=context.workspace_id, event="proposta_expirada",
                                  details={"proposal_id": row.id}))
-                result.append({"id": row.id, "payload": deepcopy(row.payload), "state": row.state,
+                result.append({"id": row.id, "ticket": row.ticket, "payload": deepcopy(row.payload), "state": row.state,
                                "expires_at": row.expires_at, "result": deepcopy(row.result)})
             return result
 

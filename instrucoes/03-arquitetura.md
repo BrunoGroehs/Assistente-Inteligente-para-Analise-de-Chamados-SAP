@@ -10,6 +10,12 @@
 
 **Atualização implementada:** `cases.py` faz busca, filtragem e apresentação de chamados em memória, sem escrita de negócio. `fixtures.py` acrescenta perfis de suporte inspirados no SAP for Me somente às novas sessões, no JSON de `sap_workspaces`; não requer tabelas adicionais nem migração SQL. Sessões antigas sem perfil permanecem válidas. `service.py` trata os metadados de abertura como relato fictício, separado de dados atuais e conhecimento. Seletores de chat/lista são estado de interface e não invocam o atendimento automaticamente.
 
+**Decisão confirmada e implementada, substituindo a seleção obrigatória:** chat único com anexo de chamado opcional. `analyze(context, None, message)` atende perguntas gerais do escopo pelo RAG, sem consultar pedidos simulados ou carregar o histórico de chamados anteriores. Mensagens gerais usam o canal interno `__geral__` no campo de texto existente; não é um chamado nem um novo registro de negócio. Não há migração SQL.
+
+A apresentação carrega a linha do tempo completa da sessão por `messages(context)`; o contexto enviado ao modelo continua filtrado pelo chamado anexado ou pelo canal geral. Cada mensagem nova guarda `details.attachment` com ID, referência e título, ou `null`. Remover o anexo afeta apenas as próximas perguntas e não reescreve mensagens, propostas ou dados do chamado. Leituras globais de mensagens/propostas continuam exigindo autorização da sessão. Histórico antigo segue legível pelo vínculo já persistido.
+
+Sem anexo, `ticket=null` e `case_attached=false` chegam ao provedor; a recuperação usa a pergunta, sem título/relato de um caso anterior e sem evidência `DATA`. A exigência de suporte no RAG permanece. Propostas sem chamado são bloqueadas pelo servidor antes do gateway; o modelo não escolhe um chamado por conta própria. Aprovação pendente só mostra botões de decisão quando seu chamado está anexado; remover o anexo permite conversar no canal geral sem conceder ou cancelar autorização.
+
 Contratos implementados: `Analysis`, `Evidence`, `ReceiptRequest`, `StatusRequest` e `SessionContext`; `Proposal` representa o envelope persistido no servidor. O LLM retorna JSON tipado com proposta opcional. Não recebe executor, mecanismo de decisão, SQL ou cliente HTTP como ferramentas. O esquema é enviado também no prompt, pois o endpoint pode traduzir saída estruturada para JSON mode; a validação Pydantic e de referências permanece obrigatória. O raciocínio interno do modelo foi desativado para essa interação estruturada e não é usado como trilha de execução.
 
 **Recomendação:** usar Pydantic para contratos, cliente HTTP com timeout para o OpenRouter e acesso transacional ao PostgreSQL. Manter um único fluxo de atendimento com estados explícitos. Não adicionar multiagentes, Redis, fila ou framework de agentes sem necessidade demonstrada.
@@ -31,7 +37,7 @@ Fluxo conceitual da implementação atual:
 
 ```mermaid
 flowchart TD
-    U[Usuário] --> UI[Streamlit: lista e chat]
+    U[Usuário] --> UI[Streamlit: chat e anexo opcional de chamado]
     UI --> A[Atendimento Python]
     A --> R[Recuperação híbrida]
     R <--> DB[(Supabase: PostgreSQL e pgvector)]

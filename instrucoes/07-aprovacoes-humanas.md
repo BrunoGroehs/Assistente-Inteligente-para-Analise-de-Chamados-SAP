@@ -23,6 +23,8 @@ Sinalizar necessidade de revisão na resposta e criar evento técnico pode ocorr
 
 **Decisão confirmada:** registrar operação, parâmetros, frase, chamado, sessão, versões dos dados, validade de 15 minutos e estado. O servidor cria ID e timestamps, calcula o resumo concreto da alteração e vincula a decisão à proposta exata.
 
+**Decisão confirmada para o chat com anexo:** perguntas sem chamado anexado são somente consultas ao RAG; uma saída de IA com operação nesse contexto não cria proposta executável. Anexar/remover um caso é estado de apresentação, não uma alteração de negócio. Remover ou substituir o anexo não aprova, recusa, renova ou reatribui uma proposta existente. O cartão permanece junto à mensagem original; para decidir, reanexar o chamado correspondente. Um botão de revisão pode reanexá-lo, mas não decide a operação. A validade original e todas as verificações do gateway permanecem obrigatórias.
+
 **Recomendação:** canonicalizar operação/parâmetros/identidade/versões para um hash de integridade, armazenado no servidor. O hash não é credencial de aprovação. Usar contexto de sessão validado e proteção contra requisições forjadas/replay; o LLM não recebe segredos ou mecanismos de decisão.
 
 **Estado implementado após os testes ampliados:** o hash cobre também ID da proposta, emissão, vencimento, sessão e chamado. O servidor confere a correspondência entre esse envelope e as colunas persistidas antes de decidir. Alterar isoladamente a validade, copiar a proposta com outro ID ou trocar seu chamado invalida a solicitação. O snapshot inclui hashes do chamado e do pedido completos, além das versões, para detectar mudanças mesmo sem incremento de versão. Uma alteração em outro chamado não invalida um recebimento independente.
