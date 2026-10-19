@@ -46,6 +46,10 @@ Inicializar/verificar somente o schema do projeto e ingerir documentos alterados
 
 ## Riscos e evolução
 
+**Diagnóstico de inicialização:** o runtime informa códigos `SAP_STARTUP_*` para configuração, conexão/autenticação/permissão PostgreSQL, vector, identificação do schema, arquivos/conteúdo de conhecimento e cliente HTTP. Mensagens são fixas, sem DSN, senha, SQL ou exceção bruta. Recursos parcialmente criados são fechados; falha continua impedindo inicialização. Procedimento e códigos no [README](../README.md#falha-de-inicialização-da-api).
+
+**Configuração de rede:** conexão direta `db.PROJECT_REF.supabase.co:5432` não é pooler e usa IPv6 por padrão. Na configuração atual Vercel/Supabase, copiar a URL completa do Session pooler (host, porta e usuário `postgres.PROJECT_REF`), com SSL; não construir o host por suposição. Alterar `DATABASE_URL` no ambiente correspondente e fazer novo deploy. [Supabase: IPv4/IPv6](https://supabase.com/docs/guides/troubleshooting/supabase--your-network-ipv4-and-ipv6-compatibility-cHe3BP). Não registrar credenciais em documentos, comandos ou logs.
+
 | Risco ou limitação | Tratamento recomendado |
 | --- | --- |
 | Diferenças de versão e configuração SAP | Metadados, orientações delimitadas e revisão humana; não alegar validação em SAP real. |

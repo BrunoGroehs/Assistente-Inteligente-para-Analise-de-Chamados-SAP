@@ -1,5 +1,9 @@
 # Evidências de validação
 
+## Diagnóstico de inicialização — 19/10/2026
+
+**211 testes Python aprovados.** Dezesseis novos testes distinguem conexão, autenticação, permissão, vector, identificação do schema, arquivos/conteúdo de conhecimento, provedor e configuração; verificam descarte dos recursos parciais e ausência de SQL/segredos nas exceções formatadas. [XML](testes-inicializacao.xml). Falhas controladas, sem uso da credencial enviada pelo chat e sem alterar o banco remoto. Não houve deploy ou comprovação de recuperação da função hospedada. A configuração da URL do pooler e o novo deploy precisam ser realizados no ambiente Vercel.
+
 ## Configuração Vercel Services — 19/10/2026
 
 **195 testes Python e 14 React aprovados**, build Vite/TypeScript e Ruff aprovados, `pip check` sem conflitos. Oito novos testes cobrem origem pública atrás do proxy, cookie seguro, recusa de cabeçalho forjado, URL de runtime e configuração de origem inválida. [XML Python](testes-vercel-services.xml), [relatório de configuração e smoke](vercel-services.json).

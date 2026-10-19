@@ -19,6 +19,7 @@ from .database import AccessDenied, SessionContext, new_id, validate_chat_id
 from .web_views import public_snapshot
 from .approvals import PolicyError
 from .corrections import CorrectionInput, prepare_correction
+from .startup import StartupError, startup_error
 
 COOKIE = "sap_session"
 CLIENT_HEADER = "sap-assistant"
@@ -55,12 +56,17 @@ def chat_key(value):
 def create_app(settings=None, services=None, frontend_path=None):
     @asynccontextmanager
     async def lifespan(app):
-        current = settings or Settings.load()
-        current.validate()
+        try:
+            current = settings or Settings.load()
+            current.validate()
+        except Exception as error:
+            raise startup_error("configuracao", error) from None
         try:
             app.state.services = services or runtime.create_runtime(current)
-        except Exception:
-            raise RuntimeError("Não foi possível preparar o aplicativo. Confira a configuração do servidor.") from None
+        except StartupError:
+            raise
+        except Exception as error:
+            raise startup_error("runtime", error) from None
         app.state.settings = current
         app.state.executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="sap-analysis")
         app.state.active = set()

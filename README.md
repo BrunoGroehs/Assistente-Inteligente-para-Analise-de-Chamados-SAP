@@ -36,6 +36,8 @@ APP_ENV=local
 
 Se precisar codificar uma senha, use uma ferramenta local, não um site externo. [Conexões Supabase](https://supabase.com/docs/guides/database/connecting-to-postgres).
 
+**Na Vercel:** `db.PROJECT_REF.supabase.co:5432` é conexão direta, não Session pooler. Ela usa IPv6 por padrão; o pooler compartilhado é acessível por IPv4. Copie a URL completa em **Connect → Session pooler**, incluindo usuário `postgres.PROJECT_REF` e o host/porta indicados no painel, sem deduzir o host pela região. Acrescente `sslmode=require` e cadastre em `DATABASE_URL` para o ambiente do deploy (por exemplo, Production). Alterar uma variável exige novo deploy para atualizar a função. [Compatibilidade de rede](https://supabase.com/docs/guides/troubleshooting/supabase--your-network-ipv4-and-ipv6-compatibility-cHe3BP).
+
 ### Preparar e iniciar
 
 ```powershell
@@ -166,6 +168,22 @@ O limite de quatro análises simultâneas e uma por sessão é por instância Py
 A execução portátil fora da Vercel permanece disponível: compile o React em `frontend/dist` e inicie `python -m uvicorn app:app --host 0.0.0.0 --port PORTA_ESCOLHIDA`. Nesse modo, o FastAPI serve também o build da interface.
 
 Referências oficiais: [Services](https://vercel.com/docs/services), [roteamento](https://vercel.com/docs/services/routing), [bindings](https://vercel.com/docs/services/bindings) e [FastAPI](https://vercel.com/docs/frameworks/backend/fastapi).
+
+### Falha de inicialização da API
+
+Se `/api/config` falhar em `lifespan`, a função ainda não conseguiu preparar seus serviços. Os logs usam códigos de diagnóstico com orientações fixas, sem imprimir conexão, senha, SQL ou resposta bruta de provedor:
+
+| Código | O que conferir |
+| --- | --- |
+| `SAP_STARTUP_CONFIG` | Variáveis do ambiente do deploy; `APP_ENV=cloud`, código de acesso e origem pública. |
+| `SAP_STARTUP_DB_CONNECTION` | URL completa do pooler, SSL e rede. Uma URL direta pode depender de IPv6. |
+| `SAP_STARTUP_DB_AUTH` | Usuário completo do pooler e senha atual do banco, com caracteres reservados codificados. |
+| `SAP_STARTUP_DB_PERMISSION` | Permissões necessárias somente ao schema do projeto. |
+| `SAP_STARTUP_DB_VECTOR` | Extensão vector no projeto Supabase correto. |
+| `SAP_STARTUP_DB_IDENTITY` | Identificação do schema próprio; não apagar ou sobrescrever schema incompatível. |
+| `SAP_STARTUP_KNOWLEDGE_FILES` | `conhecimento/catalogo.json` e os arquivos referenciados no pacote. |
+
+Outros códigos distinguem preparação do banco, sincronização do conhecimento e criação do cliente HTTP. O processo continua recusando inicialização incompleta; nenhuma alternativa local ou resposta mockada é ativada. Uma falha de `vc_handler` após a falha do lifespan pode ser secundária: corrigir primeiro o diagnóstico de inicialização e verificar novamente. Não foi comprovada a recuperação hospedada apenas pelos testes locais.
 
 ## Correções e citações
 
