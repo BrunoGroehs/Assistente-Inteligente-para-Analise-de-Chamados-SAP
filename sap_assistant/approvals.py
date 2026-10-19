@@ -8,7 +8,7 @@ import json
 from sqlalchemy import select
 
 from .contracts import ReceiptRequest, StatusRequest
-from .database import AccessDenied, Audit, Proposal, new_id, utcnow
+from .database import AccessDenied, Audit, Proposal, new_id, utcnow, validate_chat_id
 
 
 class PolicyError(ValueError):
@@ -83,13 +83,14 @@ class ApprovalGateway:
     def __init__(self, store):
         self.store = store
 
-    def prepare(self, db, workspace, ticket, request, now=None):
+    def prepare(self, db, workspace, ticket, request, now=None, chat_id=None):
         from pydantic import TypeAdapter
         from .contracts import ActionRequest
 
         # Revalidar na fronteira, mesmo se um objeto Python tiver sido alterado
         # depois da validação inicial do adaptador de LLM.
         request = TypeAdapter(ActionRequest).validate_python(request.model_dump(mode="json"))
+        validate_chat_id(chat_id)
         now = now or utcnow()
         snapshot, effect = build_snapshot(workspace.data, ticket, request)
         phrase = canonical_phrase(request, ticket)
@@ -98,6 +99,8 @@ class ApprovalGateway:
             raise PolicyError("A frase de confirmação diverge do formato e dos dados da operação. Reformule a proposta.")
         payload = {"workspace_id": workspace.id, "ticket": ticket,
                    "request": request.model_dump(mode="json"), "snapshot": snapshot, "effect": effect}
+        if chat_id is not None:
+            payload["chat_id"] = chat_id
         # Evita cartões pendentes duplicados para exatamente o mesmo payload.
         candidates = db.scalars(select(Proposal).where(Proposal.workspace_id == workspace.id,
                                Proposal.ticket == ticket, Proposal.state == "pendente")).all()
@@ -117,14 +120,15 @@ class ApprovalGateway:
                      details={"proposal_id": proposal.id, "operation": request.operation}))
         return proposal
 
-    def propose(self, context, ticket, request, now=None):
+    def propose(self, context, ticket, request, now=None, chat_id=None):
         with self.store.transaction() as db:
             workspace = self.store.authorize(db, context, lock=True)
-            return self.prepare(db, workspace, ticket, request, now).id
+            return self.prepare(db, workspace, ticket, request, now, chat_id).id
 
-    def decide(self, context, proposal_id, approve, now=None):
+    def decide(self, context, proposal_id, approve, now=None, chat_id=None):
         if type(approve) is not bool:
             raise PolicyError("Decisão humana deve ser Sim ou Não.")
+        validate_chat_id(chat_id)
         now = now or utcnow()
         with self.store.transaction() as db:
             workspace = self.store.authorize(db, context, lock=True)
@@ -132,6 +136,8 @@ class ApprovalGateway:
                                  Proposal.workspace_id == context.workspace_id).with_for_update())
             if proposal is None:
                 raise AccessDenied("Proposta não encontrada nesta sessão.")
+            if proposal.payload.get("chat_id") != chat_id:
+                raise AccessDenied("A proposta pertence a outra conversa.")
             if proposal.state != "pendente":
                 return {"state": proposal.state, **proposal.result}
 

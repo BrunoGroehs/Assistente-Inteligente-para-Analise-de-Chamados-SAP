@@ -16,6 +16,12 @@ A apresentação carrega a linha do tempo completa da sessão por `messages(cont
 
 Sem anexo, `ticket=null` e `case_attached=false` chegam ao provedor; a recuperação usa a pergunta, sem título/relato de um caso anterior e sem evidência `DATA`. A exigência de suporte no RAG permanece. Propostas sem chamado são bloqueadas pelo servidor antes do gateway; o modelo não escolhe um chamado por conta própria. Aprovação pendente só mostra botões de decisão quando seu chamado está anexado; remover o anexo permite conversar no canal geral sem conceder ou cancelar autorização.
 
+**Decisão confirmada — conversas independentes:** Novo chat cria um UUID no servidor, limpa o contexto visual e mantém o mesmo workspace/dados de negócio. `details.chat_id` identifica mensagens; `payload.chat_id` identifica a proposta e integra seu hash de integridade. Mensagens e propostas legadas, sem campo ou com `null`, pertencem à conversa inicial. Filtros JSON selecionam a conversa atual na leitura de apresentação e no histórico do LLM; a autorização de workspace permanece obrigatória. O cache inclui o ID de conversa. Não há novas tabelas, alteração de schema ou migração SQL.
+
+O identificador vem da sessão do servidor, fora dos argumentos do modelo. A chave de submissão não pode ser reutilizada em outra conversa. Deduplicar propostas somente dentro da mesma conversa; decidir exige correspondência com a conversa da proposta, além de todas as validações anteriores. Conversas vazias só precisam do estado de interface; os registros persistem quando há mensagens/propostas. Novo chat não apaga nem resolve o atendimento anterior, não renova sua aprovação e não reinicia cotas da sessão.
+
+**Apresentação compacta:** `render_analysis` produz resumo, citações e um único próximo passo ou pergunta de esclarecimento, preservando avisos obrigatórios. `detailed=True` disponibiliza os fatos e verificações completos para o expansível da UI. O contrato estruturado e os snapshots de evidências continuam integrais. Respostas históricas já salvas não são reescritas.
+
 ## Desempenho da apresentação
 
 **Diagnóstico medido:** cada rerun da tela repetia cinco SELECTs em três acessos separados ao Supabase (`state`, `messages`, `proposals`), com nova autorização/conexão/transação por acesso. No AppTest com banco real, selecionar/anexar/remover demorava cerca de 2,7 segundos, sem LLM. O [modelo de execução do Streamlit](https://docs.streamlit.io/develop/concepts/architecture/caching) contribui ao reexecutar o script nas interações; o custo de rede repetido era evitável.

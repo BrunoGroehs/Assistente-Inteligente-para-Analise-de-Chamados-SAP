@@ -48,6 +48,8 @@ Abra `http://127.0.0.1:8507`. O chat inicia sem chamado anexado e permite pergun
 
 Não há painel lateral. Use **Chamados** no compositor para listar/buscar os casos, **Ver detalhes** para consultar e **Anexar ao chat** para incluir o contexto. O chamado aparece como um cartão removível, semelhante a um arquivo anexado. Você pode substituir ou **Remover anexo** e continuar perguntando na mesma conversa. Cada mensagem preserva seu contexto; novas perguntas sem anexo não herdam dados do caso anterior. Para analisar o anexo, escreva ou clique em **Analisar chamado**. Anexar/remover não chama a IA nem decide aprovações.
 
+**Novo chat**, no cabeçalho, inicia uma conversa vazia e sem anexo, mantendo os dados dos chamados e os registros anteriores no banco. Perguntas e propostas de outra conversa não são reutilizadas. As respostas mostram o resumo e, quando útil, um próximo passo; fontes e verificações completas ficam em um único **Fontes e detalhes**, fechado por padrão. Alertas e cartões de aprovação permanecem visíveis.
+
 Os registros das novas sessões seguem um formato inspirado no SAP for Me: ambiente, componente sugerido, prioridade, impacto e reprodução. IDs `SIM-Cxx` e situações são locais; nenhum case é enviado à SAP. Sessões já abertas mantêm seus dados anteriores; abra uma nova sessão para receber os novos perfis. [Fontes e limites](instrucoes/02-processo-sap.md).
 
 Para conferir os modelos com uma chamada real de cada tipo:
@@ -98,6 +100,8 @@ Para reproduzir a verificação ampliada com os serviços reais configurados no 
 Esse comando **consome créditos** e cria sessões fictícias próprias no schema do projeto. Verifica fontes diretas, novos conteúdos, perguntas sem suporte, regressões dos chamados e cliques Sim/Não, além de concorrência, isolamento, adulteração, expiração e rollback. Não altera tabelas externas nem injeta documentos na base compartilhada. Resultados atuais em [verificação de fontes/RAG](evidencias/verificacao-fontes-rag.json); cobertura e limites em [verificação dos requisitos](evidencias/verificacao-requisitos.md). Propostas pendentes anteriores ao novo envelope de integridade exigem nova análise; não são executadas usando o formato antigo.
 
 Para verificar especificamente o chat único, perguntas gerais e anexos opcionais com os serviços reais: `.\.venv\Scripts\python.exe scripts/verify_chat_attachments_live.py`. Resultado desta rodada em [verificação dos anexos](evidencias/verificacao-anexos-chat.json). Os cliques são automatizados pelo AppTest; não representam revisão visual ou consentimento de uma pessoa.
+
+Novo chat, isolamento de conversas e resposta compacta: `.\.venv\Scripts\python.exe scripts/verify_new_chat_live.py`, também com consumo de créditos. [Resultado real](evidencias/verificacao-novo-chat.json).
 
 ## Publicar posteriormente
 

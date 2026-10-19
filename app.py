@@ -12,6 +12,8 @@ from sap_assistant.cases import (
 )
 from sap_assistant.database import AccessDenied, DatabaseSetupError, new_id
 from sap_assistant.presentation import visible_proposals
+from sap_assistant.contracts import Analysis, Evidence
+from sap_assistant.service import render_analysis
 from sap_assistant import runtime
 
 st.set_page_config(page_title="Assistente SAP", page_icon="◦", layout="wide")
@@ -48,14 +50,22 @@ def invalidate_view():
 
 def get_view(store, context):
     cached = st.session_state.get("ui_view")
-    if cached is None or cached["context"] != context:
-        cached = {"context": context, "snapshot": store.snapshot(context)}
+    chat_id = st.session_state.get("active_chat_id")
+    if cached is None or cached["context"] != context or cached.get("chat_id") != chat_id:
+        cached = {"context": context, "chat_id": chat_id, "snapshot": store.snapshot(context, chat_id)}
         st.session_state.ui_view = cached
     return cached["snapshot"]
 
 
 def close_case_selector():
     st.session_state.case_selector_open = False
+
+
+def new_chat():
+    st.session_state.active_chat_id = new_id()
+    st.session_state.attached_case = None
+    close_case_selector()
+    invalidate_view()
 
 
 def clear_case_row(table_key):
@@ -165,43 +175,50 @@ def case_selector(state):
         st.rerun()
 
 
-def display_citations(message):
-    citations = message_citations(message["details"])
+def display_citations(details):
+    citations = message_citations(details)
     if not citations:
         return
-    with st.expander("Fontes citadas", expanded=True):
-        for group in source_groups(message["details"]):
-            numbers = ", ".join(str(x) for x in group["numbers"])
-            st.link_button(f"[{numbers}] {group['title']}", group["url"], type="tertiary")
-        policies = [f"[{i}] {item.title}" for i, item in enumerate(citations, 1) if item.kind == "politica_da_simulacao"]
-        if policies:
-            st.caption("Regras internas da simulação: " + "; ".join(policies))
-        st.caption("Os links abrem a documentação oficial. As respostas usam sínteses próprias dessas fontes.")
+    st.markdown("**Fontes citadas**")
+    for group in source_groups(details):
+        numbers = ", ".join(str(x) for x in group["numbers"])
+        st.link_button(f"[{numbers}] {group['title']}", group["url"], type="tertiary")
+    policies = [f"[{i}] {item.title}" for i, item in enumerate(citations, 1) if item.kind == "politica_da_simulacao"]
+    if policies:
+        st.caption("Regras internas da simulação: " + "; ".join(policies))
 
 
 def display_details(details):
-    analysis = details.get("analysis", {})
-    if analysis:
-        confidence = {"alta": "Alta", "media": "Média", "baixa": "Baixa"}.get(analysis["confidence"])
-        st.caption(f"Confiança {confidence.lower()} · {safe_answer_text(analysis['confidence_reason'])}")
-    evidence = details.get("evidence", [])
-    transactions = [item for item in evidence if item["kind"] == "consulta_simulada"]
-    if transactions:
-        with st.expander("Dados consultados"):
+    if not details.get("analysis") and not details.get("steps"):
+        return
+    with st.expander("Fontes e detalhes", expanded=False):
+        analysis = details.get("analysis")
+        evidence = [Evidence.model_validate(item) for item in details.get("evidence", [])]
+        if analysis:
+            parsed = Analysis.model_validate(analysis)
+            confidence = {"alta": "Alta", "media": "Média", "baixa": "Baixa"}[parsed.confidence]
+            st.caption(f"Confiança {confidence.lower()} · {safe_answer_text(parsed.confidence_reason)}")
+            supporting = render_analysis(parsed, evidence, detailed=True)
+            if supporting:
+                st.markdown(supporting)
+        display_citations(details)
+        transactions = [item for item in evidence if item.kind == "consulta_simulada"]
+        if transactions:
             import json
+            st.markdown("**Dados consultados**")
             for item in transactions:
-                data = json.loads(item["content"])
+                data = json.loads(item.content)
                 st.write(f"Pedido {data['purchase_order']} · Item {data['item']} · {data['material']}")
                 st.write(f"Pedido: {data['ordered']} {data['unit']} · Recebido: {data['received']} {data['unit']} · Saldo: {data['remaining']} {data['unit']}")
                 st.caption(f"SAP simulado · Centro {data['plant']} · Depósito {data['storage_location']}")
-    extra_sources = source_groups(details, cited=False)
-    if extra_sources:
-        with st.expander("Referências consultadas"):
-            st.caption("Recuperadas na busca; não utilizadas como fundamento desta resposta.")
+        extra_sources = source_groups(details, cited=False)
+        if extra_sources:
+            st.markdown("**Referências consultadas**")
+            st.caption("Recuperadas na busca; não usadas como fundamento desta resposta.")
             for group in extra_sources:
                 st.link_button(group["title"], group["url"], type="tertiary")
-    if details.get("steps"):
-        with st.expander("Etapas do atendimento"):
+        if details.get("steps"):
+            st.markdown("**Etapas do atendimento**")
             for step in details["steps"]:
                 st.write(step["step"])
             if "latency_ms" in details:
@@ -237,7 +254,7 @@ def approval_card(proposal, gateway, context, attached_case, tickets):
                 decision = False
             if decision is not None:
                 try:
-                    gateway.decide(context, proposal["id"], decision)
+                    gateway.decide(context, proposal["id"], decision, chat_id=st.session_state.get("active_chat_id"))
                 finally:
                     invalidate_view()
                 st.rerun()
@@ -295,7 +312,9 @@ def main():
     proposals = visible_proposals(view["proposals"])
     proposals_by_id = {item["id"]: item for item in proposals}
     pending = any(x["state"] == "pendente" and x["ticket"] == selected for x in proposals)
-    st.title("Assistente SAP")
+    heading, actions = st.columns([4, 1])
+    heading.title("Assistente SAP")
+    actions.button("Novo chat", icon=":material/edit_square:", key="new_chat", on_click=new_chat)
     st.caption("MM · Recebimento de mercadorias · Ambiente simulado")
     if not messages:
         st.write("Pergunte sobre o processo ou anexe um chamado para analisar o caso.")
@@ -315,8 +334,6 @@ def main():
                 st.error(message["content"])
             else:
                 st.markdown(message["content"])
-            if message["role"] == "assistant" and not message["details"].get("error"):
-                display_citations(message)
             display_details(message["details"])
             proposal_id = message["details"].get("proposal_id")
             if proposal_id in proposals_by_id:
@@ -350,7 +367,8 @@ def main():
             if not ticket:
                 st.caption("Sem chamado anexado")
         typed = st.chat_input("Pergunte sobre o chamado…" if ticket else "Faça uma pergunta sobre SAP MM…",
-                              key="chat_draft", disabled=not settings.api_key or pending, max_chars=6000)
+                              key="chat_draft_" + (st.session_state.get("active_chat_id") or "inicial"),
+                              disabled=not settings.api_key or pending, max_chars=6000)
     if st.session_state.get("case_selector_open"):
         case_selector(state)
     if typed:
@@ -358,7 +376,8 @@ def main():
     if request:
         try:
             with st.status("Consultando dados e fontes…", expanded=False) as status:
-                assistant.analyze(context, selected, request, new_id(), on_progress=lambda label: status.update(label=label))
+                assistant.analyze(context, selected, request, new_id(), on_progress=lambda label: status.update(label=label),
+                                  chat_id=st.session_state.get("active_chat_id"))
                 status.update(label="Atendimento atualizado", state="complete")
             st.rerun()
         except ValueError as exc:

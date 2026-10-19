@@ -9,7 +9,7 @@ from sqlalchemy import func, select
 from .approvals import ApprovalGateway, PolicyError, quantity_text
 from .contracts import Analysis, Evidence, validate_grounding
 from .citations import cited_knowledge, official_url, safe_answer_text
-from .database import GENERAL_CHAT, Audit, Message, new_id
+from .database import GENERAL_CHAT, Audit, Message, new_id, validate_chat_id
 from .provider import ProviderError
 from .grounding import insufficient_analysis, insufficient_assessment, out_of_scope_analysis, supported_ids
 
@@ -31,10 +31,22 @@ def resolve_order(state, ticket, history):
     return deepcopy(state["orders"].get(f"{ticket['purchase_order']}/{ticket['item']}"))
 
 
-def render_analysis(analysis, evidence=()):
+def render_analysis(analysis, evidence=(), detailed=False):
     numbers = {item.id: (f"[{index}]({official_url(item.source_url)})" if official_url(item.source_url) else f"[{index}]")
                for index, item in enumerate(cited_knowledge(analysis, evidence), 1)}
-    lines = [safe_answer_text(analysis.summary)]
+    if not detailed:
+        citations = " ".join(numbers.values())
+        lines = [safe_answer_text(analysis.summary) + (" " + citations if citations else "")]
+        if analysis.missing_information:
+            lines.extend(["", " ".join(safe_answer_text(x) for x in analysis.missing_information)])
+        elif analysis.next_steps and not analysis.action:
+            lines.extend(["", safe_answer_text(analysis.next_steps[0])])
+        if analysis.human_review:
+            lines.extend(["", "Este caso precisa de validação humana."])
+        if analysis.action:
+            lines.extend(["", "Revise a solicitação no cartão de aprovação abaixo."])
+        return "\n".join(lines)
+    lines = []
     if analysis.facts:
         lines.extend(["", "**Fatos consultados**"])
         for fact in analysis.facts:
@@ -45,10 +57,6 @@ def render_analysis(analysis, evidence=()):
                           ("Próximos passos", analysis.next_steps)]:
         if values:
             lines.extend(["", f"**{title}**", *[f"- {safe_answer_text(x)}" for x in values]])
-    if analysis.human_review:
-        lines.extend(["", "Este caso precisa de validação humana."])
-    if analysis.action:
-        lines.extend(["", "A operação solicitada depende de aprovação no cartão abaixo."])
     return "\n".join(lines)
 
 
@@ -58,7 +66,8 @@ class AssistantService:
         self.max_analyses = max_analyses
         self.gateway = ApprovalGateway(store)
 
-    def analyze(self, context, ticket_id, message, submission_id=None, on_progress=None):
+    def analyze(self, context, ticket_id, message, submission_id=None, on_progress=None, chat_id=None):
+        validate_chat_id(chat_id)
         if not message.strip() or len(message) > 6000:
             raise ValueError("Envie uma mensagem de até 6.000 caracteres.")
         message = message.strip()
@@ -72,7 +81,7 @@ class AssistantService:
             existing = db.scalar(select(Message).where(Message.workspace_id == workspace.id,
                                  Message.submission_id == submission_id, Message.role == "user"))
             if existing:
-                if existing.ticket != channel or existing.content != message:
+                if existing.ticket != channel or existing.content != message or existing.details.get("chat_id") != chat_id:
                     raise ValueError("Identificador de submissão já utilizado para outra mensagem.")
                 return {"submission_id": submission_id, "state": existing.details.get("state", "processing")}
             count = db.scalar(select(func.count()).select_from(Message).where(
@@ -82,7 +91,8 @@ class AssistantService:
             attachment = {"id": ticket_id, "title": ticket["title"],
                           "reference": ticket.get("support", {}).get("reference") or f"SIM-{ticket_id}"} if ticket else None
             db.add(Message(workspace_id=workspace.id, ticket=channel, submission_id=submission_id,
-                           role="user", content=message.strip(), details={"state": "processing", "attachment": attachment}))
+                           role="user", content=message.strip(),
+                           details={"state": "processing", "attachment": attachment, "chat_id": chat_id}))
             state = deepcopy(workspace.data)
 
         started = time.perf_counter()
@@ -92,7 +102,7 @@ class AssistantService:
         try:
             progress("Consultando o contexto…")
             steps.append({"step": "Solicitação recebida", "elapsed_ms": 0})
-            history = self.store.messages(context, channel)[-10:]
+            history = self.store.messages(context, channel, chat_id=chat_id)[-10:]
             user_text = "\n".join(dict.fromkeys([*([ticket["description"]] if ticket else []), *[
                 x["content"] for x in history if x["role"] == "user"]]))
             reported_context = "\n\nDados informados na abertura (fictícios; não comprovam execução atual):\n" + json.dumps(
@@ -163,7 +173,8 @@ class AssistantService:
                         provider_meta["server_policy"] = "uncited_knowledge"
             self._validate_evidence(analysis, evidence, undocumented)
             steps.append({"step": "Resposta estruturada e referências validadas", "elapsed_ms": round((time.perf_counter()-started)*1000)})
-            metadata = {"attachment": attachment, "retrieval": retrieval_meta, "provider": provider_meta, "knowledge_check": knowledge_check,
+            metadata = {"chat_id": chat_id, "attachment": attachment, "retrieval": retrieval_meta,
+                        "provider": provider_meta, "knowledge_check": knowledge_check,
                         "analysis": analysis.model_dump(mode="json")}
             content = render_analysis(analysis, evidence)
             progress("Salvando o atendimento…")
@@ -179,7 +190,7 @@ class AssistantService:
                             parameters = analysis.action.parameters
                             if not order or (parameters.purchase_order, parameters.item) != (order["purchase_order"], order["item"]):
                                 raise PolicyError("A proposta não corresponde ao pedido/item consultado nesta análise.")
-                        proposal = self.gateway.prepare(db, workspace, ticket_id, analysis.action)
+                        proposal = self.gateway.prepare(db, workspace, ticket_id, analysis.action, chat_id=chat_id)
                         metadata["proposal_id"] = proposal.id
                         steps.append({"step": "Proposta validada; aguardando decisão humana"})
                     except PolicyError as exc:
@@ -192,9 +203,9 @@ class AssistantService:
                                role="assistant", content=content, details=details))
                 row = db.scalar(select(Message).where(Message.workspace_id == workspace.id,
                                 Message.submission_id == submission_id, Message.role == "user"))
-                row.details = {"state": "completed", "attachment": attachment}
+                row.details = {"state": "completed", "attachment": attachment, "chat_id": chat_id}
                 db.add(Audit(workspace_id=workspace.id, event="analise_concluida",
-                             details={"submission_id": submission_id, "ticket": ticket_id,
+                             details={"submission_id": submission_id, "ticket": ticket_id, "chat_id": chat_id,
                                       "references": analysis.references, "latency_ms": details["latency_ms"]}))
             return {"submission_id": submission_id, "state": "completed"}
         except (ProviderError, ValueError) as exc:
@@ -202,7 +213,8 @@ class AssistantService:
             content = str(exc) if isinstance(exc, ProviderError) else "Não foi possível validar a análise. Nenhuma ação executada."
             with self.store.transaction() as db:
                 workspace = self.store.authorize(db, context, lock=True)
-                failure_details = {"error": True, "attachment": attachment, "steps": steps, "evidence": [x.model_dump() for x in evidence],
+                failure_details = {"error": True, "attachment": attachment, "chat_id": chat_id,
+                                   "steps": steps, "evidence": [x.model_dump() for x in evidence],
                                    "retrieval": metadata.get("retrieval"),
                                    "provider": getattr(exc, "metadata", {}),
                                    "latency_ms": round((time.perf_counter()-started)*1000)}
@@ -210,7 +222,7 @@ class AssistantService:
                                role="assistant", content=content, details=failure_details))
                 row = db.scalar(select(Message).where(Message.workspace_id == workspace.id,
                                 Message.submission_id == submission_id, Message.role == "user"))
-                row.details = {"state": "failed", "attachment": attachment}
+                row.details = {"state": "failed", "attachment": attachment, "chat_id": chat_id}
                 db.add(Audit(workspace_id=workspace.id, event="analise_falhou",
                              details={"submission_id": submission_id, "error": type(exc).__name__}))
             return {"submission_id": submission_id, "state": "failed"}

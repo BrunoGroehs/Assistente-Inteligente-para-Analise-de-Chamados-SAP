@@ -29,7 +29,7 @@ def test_only_cited_knowledge_generates_citations():
 
 
 def test_numbering_matches_order_of_valid_citations():
-    result = render_analysis(analysis(["K05", "DATA", "K02"]), evidence())
+    result = render_analysis(analysis(["K05", "DATA", "K02"]), evidence(), detailed=True)
     assert "Conferir a quantidade [2]" in result
     assert "DATA" not in result
 
@@ -86,3 +86,23 @@ def test_unused_sources_are_separate_and_unsafe_links_rejected():
     for url in ["javascript:alert(1)", "https://example.invalid", "https://learning.sap.com@evil.invalid/",
                 "http://learning.sap.com/", "https://user:password@help.sap.com/"]:
         assert official_url(url) is None
+
+
+def test_compact_answer_has_citations_and_one_next_step_with_full_details_available():
+    answer = analysis(["K02", "DATA"])
+    answer.next_steps = ["Confira a quantidade entregue.", "Segunda verificação de apoio."]
+    compact = render_analysis(answer, evidence())
+    detailed = render_analysis(answer, evidence(), detailed=True)
+    assert compact.startswith(answer.summary) and "[1](https://learning.sap.com/)" in compact
+    assert "Confira a quantidade entregue." in compact and "Segunda verificação" not in compact
+    assert "Fatos consultados" not in compact and "Próximos passos" not in compact
+    assert "Conferir a quantidade" in detailed and "Segunda verificação" in detailed
+
+
+def test_compact_answer_keeps_clarification_and_human_review_visible():
+    answer = analysis([])
+    answer.missing_information = ["Qual é a mensagem completa?", "Em qual aplicativo ocorreu?"]
+    answer.human_review = True
+    compact = render_analysis(answer)
+    assert all(item in compact for item in answer.missing_information)
+    assert "validação humana" in compact

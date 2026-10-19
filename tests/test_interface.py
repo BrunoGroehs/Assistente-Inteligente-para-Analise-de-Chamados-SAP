@@ -69,7 +69,8 @@ def test_single_chat_starts_without_sidebar_or_attachment(ui):
     assert not any(x.label.startswith("Sim") or x.label.startswith("Não") for x in app.button)
     app.chat_input[0].set_value("O que é recebimento com referência ao pedido?").run()
     assert len(app.chat_message) == 2
-    assert any(x.label == "Fontes citadas" for x in app.expander)
+    assert [x.label for x in app.expander] == ["Fontes e detalhes"]
+    assert not app.expander[0].proto.expanded
     attach(app, "C01")
     assert len(app.chat_message) == 2
     button(app, "Analisar chamado").click().run()
@@ -416,3 +417,50 @@ def test_cached_proposal_expires_visually_without_database_query(ui, monkeypatch
     assert not any(x.label == "Sim, autorizar" for x in app.button)
     assert any(x.value == "**Expirada**" for x in app.markdown)
     assert cached["proposals"][0]["state"] == "pendente"  # Derivação não altera snapshot/persistência.
+
+
+def test_new_chat_clears_timeline_attachment_and_cache_without_changing_tickets(ui):
+    store, service, _ = ui
+    app = AppTest.from_file(str(APP), default_timeout=15).run()
+    attach(app, "C01")
+    button(app, "Analisar chamado").click().run()
+    context = app.session_state["context"]
+    before = store.state(context)
+    old_messages = store.messages(context)
+    app.chat_input[0].set_value("Rascunho antigo que não deve ser enviado no novo chat.")
+    button(app, "Novo chat").click().run()
+    assert not app.exception and not app.error and not app.chat_message
+    assert app.session_state["context"] == context and app.session_state["attached_case"] is None
+    first = app.session_state["active_chat_id"]
+    assert not app.chat_input[0].disabled
+    assert store.state(context) == before and store.messages(context) == old_messages
+    assert service.provider.calls == 1
+    app.chat_input[0].set_value("Explique recebimento.").run()
+    assert len(app.chat_message) == 2 and len(store.messages(context)) == 4
+    assert all(x["details"]["chat_id"] == first for x in store.snapshot(context, first)["messages"])
+    button(app, "Novo chat").click().run()
+    assert app.session_state["active_chat_id"] != first and not app.chat_message
+
+
+def test_new_chat_keeps_old_pending_proposal_without_displaying_or_reusing_it(ui):
+    store, service, _ = ui
+    provider = ReceiptProvider()
+    service.provider, service.retriever = provider, Retriever(store, provider)
+    app = AppTest.from_file(str(APP), default_timeout=15).run()
+    attach(app, "C07")
+    button(app, "Analisar chamado").click().run()
+    context = app.session_state["context"]
+    previous = store.proposals(context, "C07")[0]
+    before = store.state(context)
+    button(app, "Novo chat").click().run()
+    assert not app.chat_input[0].disabled and not app.chat_message
+    assert not any(x.label in {"Sim, autorizar", "Não, recusar", "Anexar SIM-C07"} for x in app.button)
+    assert store.proposals(context, "C07")[0] == previous and store.state(context) == before
+    attach(app, "C07")
+    assert not app.chat_input[0].disabled
+    button(app, "Analisar chamado").click().run()
+    current = store.snapshot(context, app.session_state["active_chat_id"])["proposals"][0]
+    assert current["id"] != previous["id"] and len(app.chat_message) == 2
+    button(app, "Não, recusar").click().run()
+    assert store.snapshot(context, app.session_state["active_chat_id"])["proposals"][0]["state"] == "recusada"
+    assert store.proposals(context, "C07")[0]["state"] == "pendente" and store.state(context) == before

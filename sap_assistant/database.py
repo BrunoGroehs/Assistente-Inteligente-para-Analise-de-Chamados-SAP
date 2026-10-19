@@ -6,7 +6,7 @@ import hashlib
 import hmac
 from pathlib import Path
 import secrets
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import JSON, ForeignKey, MetaData, String, Text, UniqueConstraint, create_engine, event, inspect, select, text
@@ -17,6 +17,16 @@ from .fixtures import initial_state
 PROJECT_SCHEMA = "sap_chamados_ai"
 PROJECT_KEY = "assistente-inteligente-chamados-sap-v1"
 GENERAL_CHAT = "__geral__"  # Canal de mensagens; nunca é um chamado de negócio.
+ALL_CHATS = object()
+
+
+def validate_chat_id(chat_id):
+    if chat_id is not None:
+        try:
+            if str(UUID(chat_id)) != chat_id:
+                raise ValueError()
+        except (ValueError, TypeError, AttributeError):
+            raise ValueError("Identificador de conversa inválido.") from None
 
 
 class DatabaseSetupError(ValueError):
@@ -192,13 +202,16 @@ class Store:
         with Session(self.engine) as db:
             return deepcopy(self.authorize(db, context).data)
 
-    def snapshot(self, context):
+    def snapshot(self, context, chat_id=None):
         """Leitura de apresentação em uma conexão, sem decidir ou bloquear propostas."""
+        validate_chat_id(chat_id)
         with Session(self.engine) as db:
             workspace = self.authorize(db, context)
-            messages = db.scalars(select(Message).where(Message.workspace_id == context.workspace_id)
+            messages = db.scalars(select(Message).where(Message.workspace_id == context.workspace_id,
+                                  Message.details["chat_id"].as_string() == chat_id)
                                   .order_by(Message.created_at, Message.id)).all()
-            proposals = db.scalars(select(Proposal).where(Proposal.workspace_id == context.workspace_id)
+            proposals = db.scalars(select(Proposal).where(Proposal.workspace_id == context.workspace_id,
+                                   Proposal.payload["chat_id"].as_string() == chat_id)
                                    .order_by(Proposal.created_at)).all()
             return {"state": deepcopy(workspace.data),
                     "messages": [self._message_view(row) for row in messages],
@@ -214,12 +227,15 @@ class Store:
         return {"id": row.id, "ticket": row.ticket, "payload": deepcopy(row.payload), "state": row.state,
                 "expires_at": row.expires_at, "result": deepcopy(row.result)}
 
-    def messages(self, context, ticket=None):
+    def messages(self, context, ticket=None, *, chat_id=ALL_CHATS):
         with Session(self.engine) as db:
             self.authorize(db, context)
             query = select(Message).where(Message.workspace_id == context.workspace_id)
             if ticket is not None:
                 query = query.where(Message.ticket == ticket)
+            if chat_id is not ALL_CHATS:
+                validate_chat_id(chat_id)
+                query = query.where(Message.details["chat_id"].as_string() == chat_id)
             rows = db.scalars(query.order_by(Message.created_at, Message.id)).all()
             return [self._message_view(row) for row in rows]
 
