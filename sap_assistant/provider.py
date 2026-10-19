@@ -7,6 +7,7 @@ import httpx
 from pydantic import ValidationError
 
 from .contracts import Analysis, Evidence, validate_grounding
+from .grounding import KnowledgeAssessment, insufficient_assessment, knowledge_spans, out_of_scope_analysis
 
 PROMPT_PATH = Path(__file__).resolve().parents[1] / "prompts" / "system.txt"
 
@@ -66,6 +67,35 @@ class OpenRouter:
         except (ValueError, TypeError, KeyError):
             raise ProviderError("Embeddings inválidos ou incompatíveis retornados pelo provedor.") from None
 
+    def assess_knowledge(self, context):
+        prompt = (PROMPT_PATH.parent / "knowledge.txt").read_text(encoding="utf-8")
+        schema = KnowledgeAssessment.model_json_schema()
+        payload = {**context, "evidence": [
+            {"id": item.id, "title": item.title, "kind": item.kind, "version": item.version,
+             "spans": knowledge_spans(item)} for item in [Evidence.model_validate(x) for x in context.get("evidence", [])]]}
+        # Restringir também o esquema enviado: DATA/RELATO e IDs inventados não
+        # são opções de suporte. A correspondência documento/parágrafo continua no servidor.
+        span_ids = [span["id"] for item in payload["evidence"] for span in item["spans"]]
+        if span_ids:
+            fields = schema["$defs"]["KnowledgeSupport"]["properties"]
+            fields["evidence_id"]["enum"] = [item["id"] for item in payload["evidence"] if item["spans"]]
+            fields["span_id"]["enum"] = span_ids
+        data = self._post("chat/completions", {
+            "model": self.settings.chat_model, "temperature": 0, "max_tokens": 1800,
+            "reasoning": {"enabled": False, "exclude": True}, "provider": {"require_parameters": True},
+            "messages": [{"role": "system", "content": prompt + "\nJSON_SCHEMA:\n" + json.dumps(schema, ensure_ascii=False)},
+                         {"role": "user", "content": json.dumps(payload, ensure_ascii=False)}],
+            "response_format": {"type": "json_schema", "json_schema": {
+                "name": "knowledge_coverage", "strict": True, "schema": schema}}})
+        metadata = {"prompt_version": prompt.splitlines()[0], "model": data.get("model", self.settings.chat_model),
+                    "usage": data.get("usage"), "request_id": data.get("id")}
+        try:
+            assessment = KnowledgeAssessment.model_validate_json(data["choices"][0]["message"]["content"])
+        except (ValidationError, KeyError, IndexError, TypeError, ValueError):
+            assessment = insufficient_assessment("Verificação de cobertura inválida; resposta técnica bloqueada.")
+            metadata["invalid_response"] = True
+        return assessment, metadata
+
     def analyze(self, context, history):
         prompt = PROMPT_PATH.read_text(encoding="utf-8")
         schema = Analysis.model_json_schema()
@@ -88,15 +118,14 @@ class OpenRouter:
                 content = data["choices"][0]["message"]["content"]
                 raw = json.loads(content)
                 scope_policy = isinstance(raw, dict) and raw.get("process") == "fora_do_escopo"
+                if scope_policy and context.get("validated_scope") == "recebimento_pedido_compra":
+                    raise ValueError("O escopo de recebimento foi validado. Use process=recebimento_pedido_compra e "
+                                     "responda à pergunta atual somente com os documentos fornecidos. Não confunda "
+                                     "ausência de execução do simulador com ausência de suporte conceitual.")
                 if scope_policy:
                     # Limite de produto determinado no servidor. Descarta fatos,
                     # recomendações externas e qualquer ação dessa classificação.
-                    analysis = Analysis(summary="Este assistente atende recebimento de mercadorias com referência "
-                        "a pedidos de compra em SAP MM. Sua solicitação está fora desse escopo.",
-                        process="fora_do_escopo", facts=[], hypotheses=[], missing_information=[],
-                        next_steps=["Para analisar um recebimento, informe o pedido, o item e o problema apresentado."],
-                        references=[], confidence="alta", confidence_reason="Aplicação do escopo configurado, sem diagnóstico SAP.",
-                        human_review=False, action=None)
+                    analysis = out_of_scope_analysis()
                 else:
                     analysis = Analysis.model_validate(raw)
                 validate_grounding(analysis, [Evidence.model_validate(x) for x in context.get("evidence", [])],

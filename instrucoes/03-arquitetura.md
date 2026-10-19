@@ -6,6 +6,8 @@
 
 **Estado implementado em 18/10/2026:** núcleo em `sap_assistant/`, interface em `app.py`, fontes em `conhecimento/` e prompt versionado em `prompts/system.txt`. Persistência SQLAlchemy com seis tabelas no schema exclusivo `sap_chamados_ai`. SQLite é usado somente nos testes; a configuração de execução exige PostgreSQL/Supabase. A inicialização recusa schema sem identificação compatível e não altera objetos de outros projetos.
 
+**Atualização implementada:** 12 guias; recuperação de até quatro sínteses oficiais e duas políticas do simulador. `grounding.py` verifica a suficiência antes da geração, com contrato `KnowledgeAssessment` e parágrafos identificados. O adaptador OpenRouter faz uma chamada de cobertura e, somente se aprovada, uma chamada de análise. Ausência ou prova inválida de suporte produz abstinência padronizada, sem proposta. A UI mostra links diretos, sem conteúdo ou popup de fonte.
+
 Contratos implementados: `Analysis`, `Evidence`, `ReceiptRequest`, `StatusRequest` e `SessionContext`; `Proposal` representa o envelope persistido no servidor. O LLM retorna JSON tipado com proposta opcional. Não recebe executor, mecanismo de decisão, SQL ou cliente HTTP como ferramentas. O esquema é enviado também no prompt, pois o endpoint pode traduzir saída estruturada para JSON mode; a validação Pydantic e de referências permanece obrigatória. O raciocínio interno do modelo foi desativado para essa interação estruturada e não é usado como trilha de execução.
 
 **Recomendação:** usar Pydantic para contratos, cliente HTTP com timeout para o OpenRouter e acesso transacional ao PostgreSQL. Manter um único fluxo de atendimento com estados explícitos. Não adicionar multiagentes, Redis, fila ou framework de agentes sem necessidade demonstrada.
@@ -15,6 +17,7 @@ Contratos implementados: `Analysis`, `Evidence`, `ReceiptRequest`, `StatusReques
 | Interface Streamlit | Seleção do chamado, mensagens, evidências e decisão humana | Não decide autorização pelo texto do modelo. |
 | Atendimento | Coordena interpretação, consultas, esclarecimento e resposta | Não executa escritas diretamente. |
 | Recuperação | Busca textual/vetorial e seleção de evidências | Não indexa instruções do projeto ou gabaritos. |
+| Cobertura | Avaliação semântica dos trechos e validação de seus IDs de parágrafo | Não gerar análise técnica sem suporte; políticas simuladas não provam comportamento do SAP real. |
 | Adaptador OpenRouter | Envia entradas, recebe e valida respostas | Não recebe credenciais do banco nem ferramenta de aprovação. |
 | Aprovações | Valida propostas, registra decisão e controla execução | Política determinística detalhada em [HITL](07-aprovacoes-humanas.md). |
 | SAP simulado | Consultas e operações permitidas sobre dados fictícios | Executor de escrita acessível apenas pelo módulo de aprovações. |
@@ -32,9 +35,13 @@ flowchart TD
     R <--> DB[(Supabase: PostgreSQL e pgvector)]
     A --> READ[Consulta ao SAP simulado]
     READ --> DB
-    A <--> L[OpenRouter: Qwen3.6 Plus]
+    R --> C[OpenRouter: verificação de cobertura]
+    C --> Q{Suporte suficiente e IDs válidos?}
+    Q -->|Não| F[Mensagem de informações insuficientes]
+    F --> UI
+    Q -->|Sim| L[OpenRouter: Qwen3.6 Plus gera análise]
     R <--> E[OpenRouter: embeddings]
-    A --> V[Validação da resposta e das fontes]
+    L --> V[Validação da resposta e das fontes]
     V --> UI
     V --> P[Validação de proposta permitida]
     P --> DB
@@ -64,7 +71,7 @@ Não manter uma requisição ou chamada de LLM aberta enquanto se espera o human
 | `DecisaoHumana` | ID da proposta e escolha Sim/Não; contexto do usuário/sessão obtido no servidor. Não aceita parâmetros novos da operação. |
 | `ResultadoDaExecucao` | Estado final, ID da execução, efeito confirmado pelo simulador ou erro; não afirmar sucesso antes do commit. |
 
-Interfaces previstas: `analisar_chamado(contexto, mensagem)`, `consultar_pedido(contexto, pedido, item)`, `buscar_evidencias(consulta, filtros)`, `propor_acao(contexto, pedido_de_acao)` e `decidir_aprovacao(contexto, proposta_id, escolha)`. `executar_acao_aprovada` é exclusivamente interno ao gateway. O registro de ferramentas do LLM oferece somente consultas e proposta.
+Interfaces conceituais: analisar chamado, consultar pedido, buscar evidências, verificar cobertura, propor ação e decidir aprovação. A execução é exclusivamente interna ao gateway. O código atual fornece consultas no contexto e recebe a proposta no JSON; não envia ferramentas de aprovação ou execução ao LLM.
 
 ## Persistência e isolamento
 

@@ -15,15 +15,20 @@ from conftest import ControlledProvider
 def test_documents_cached_and_model_change_reindexes(store):
     provider = ControlledProvider()
     retriever = Retriever(store, provider)
-    assert retriever.ensure_embeddings() == 5
+    assert retriever.ensure_embeddings() == 12
     assert retriever.ensure_embeddings() == 0
     provider.embedding_model = "teste/outro-modelo"
-    assert retriever.ensure_embeddings() == 5
+    assert retriever.ensure_embeddings() == 12
     assert provider.embed_calls == 2
 
 
 def test_hybrid_retrieval_selects_relevant_source(store):
-    provider = ControlledProvider()
+    class RelevantProvider(ControlledProvider):
+        def embed(self, texts):
+            return [[1., 0.] if "\n" not in value or value.startswith("MIGO e aplicativo") else [0., 1.]
+                    for value in texts]
+
+    provider = RelevantProvider()
     evidence, metadata = Retriever(store, provider).search("MIGO aplicativo indicador entrega concluída")
     assert "K03" in [x.id for x in evidence]
     assert metadata["method"] == "hibrida_rrf"
@@ -38,7 +43,7 @@ def test_sync_is_idempotent_and_does_not_touch_foreign_table(store):
     synchronize_knowledge(store)
     store.initialize()
     with Session(store.engine) as db:
-        assert len(db.scalars(select(Chunk)).all()) == 5
+        assert len(db.scalars(select(Chunk)).all()) == 12
         assert db.scalar(text("SELECT value FROM unrelated_customer_data WHERE id=1")) == "preservar"
 
 

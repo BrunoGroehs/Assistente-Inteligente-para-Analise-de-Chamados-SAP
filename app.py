@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 import streamlit as st
 
 from sap_assistant.config import Settings
-from sap_assistant.citations import message_citations
+from sap_assistant.citations import message_citations, safe_answer_text, source_groups
 from sap_assistant.database import AccessDenied, DatabaseSetupError, new_id
 from sap_assistant import runtime
 
@@ -38,56 +38,41 @@ def configuration_screen(message):
     st.stop()
 
 
-@st.dialog("Fonte da resposta", width="medium")
-def show_source(citation, number):
-    st.markdown(f"**[{number}] {citation.title}**")
-    origin = "Síntese própria de documentação SAP" if citation.kind == "sintese_de_fonte_oficial" else "Política da demonstração"
-    st.caption(f"{origin} · Versão {citation.version}")
-    st.caption("Trecho exato recuperado e enviado à IA neste atendimento")
-    # Texto literal: documentos não podem inserir links, imagens ou controles no popup.
-    st.text(citation.content)
-    if citation.source_url:
-        st.link_button("Abrir documento oficial", citation.source_url)
-    if st.button("Fechar", key="close_source_dialog"):
-        st.rerun()
-
-
 def display_citations(message):
     citations = message_citations(message["details"])
     if not citations:
         return
-    st.caption("Fontes citadas · clique para ver o trecho")
-    for index, citation in enumerate(citations, 1):
-        if st.button(f"[{index}] {citation.title}", type="tertiary",
-                     key=f"source_{message['id']}_{citation.id}"):
-            show_source(citation, index)
+    with st.expander("Fontes citadas", expanded=True):
+        for group in source_groups(message["details"]):
+            numbers = ", ".join(str(x) for x in group["numbers"])
+            st.link_button(f"[{numbers}] {group['title']}", group["url"], type="tertiary")
+        policies = [f"[{i}] {item.title}" for i, item in enumerate(citations, 1) if item.kind == "politica_da_simulacao"]
+        if policies:
+            st.caption("Regras internas da simulação: " + "; ".join(policies))
+        st.caption("Os links abrem a documentação oficial. As respostas usam sínteses próprias dessas fontes.")
 
 
 def display_details(details):
     analysis = details.get("analysis", {})
     if analysis:
         confidence = {"alta": "Alta", "media": "Média", "baixa": "Baixa"}.get(analysis["confidence"])
-        st.caption(f"Confiança {confidence.lower()} · {analysis['confidence_reason']}")
+        st.caption(f"Confiança {confidence.lower()} · {safe_answer_text(analysis['confidence_reason'])}")
     evidence = details.get("evidence", [])
-    if evidence:
-        with st.expander("Fontes e evidências"):
-            used = set(analysis.get("references", []))
-            for item in evidence:
-                st.markdown(f"**{item['id']} · {item['title']}**")
-                st.caption("Usada na resposta" if item["id"] in used else "Recuperada para consulta")
-                if item["kind"] == "consulta_simulada":
-                    import json
-                    data = json.loads(item["content"])
-                    st.write(f"Pedido {data['purchase_order']} · Item {data['item']} · {data['material']}")
-                    st.write(f"Pedido: {data['ordered']} {data['unit']} · Recebido: {data['received']} {data['unit']} · Saldo: {data['remaining']} {data['unit']}")
-                    st.caption(f"Centro {data['plant']} · Depósito {data['storage_location']}")
-                else:
-                    st.text(item["content"])
-                if item.get("source_url"):
-                    st.link_button("Consultar fonte oficial", item["source_url"])
-                else:
-                    origins = {"consulta_simulada": "Dados do simulador", "relato_usuario": "Informação fornecida pelo usuário"}
-                    st.caption(origins.get(item["kind"], "Política da demonstração"))
+    transactions = [item for item in evidence if item["kind"] == "consulta_simulada"]
+    if transactions:
+        with st.expander("Dados consultados"):
+            import json
+            for item in transactions:
+                data = json.loads(item["content"])
+                st.write(f"Pedido {data['purchase_order']} · Item {data['item']} · {data['material']}")
+                st.write(f"Pedido: {data['ordered']} {data['unit']} · Recebido: {data['received']} {data['unit']} · Saldo: {data['remaining']} {data['unit']}")
+                st.caption(f"SAP simulado · Centro {data['plant']} · Depósito {data['storage_location']}")
+    extra_sources = source_groups(details, cited=False)
+    if extra_sources:
+        with st.expander("Referências consultadas"):
+            st.caption("Recuperadas na busca; não utilizadas como fundamento desta resposta.")
+            for group in extra_sources:
+                st.link_button(group["title"], group["url"], type="tertiary")
     if details.get("steps"):
         with st.expander("Etapas do atendimento"):
             for step in details["steps"]:

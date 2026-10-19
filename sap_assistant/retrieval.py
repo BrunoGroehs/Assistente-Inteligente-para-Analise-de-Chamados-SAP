@@ -73,11 +73,13 @@ class Retriever:
 
     def search(self, query, limit=4):
         created = self.ensure_embeddings()
-        vector = self.provider.embed([query])[0]
         with Session(self.store.engine) as db:
             rows = db.scalars(select(Chunk).where(Chunk.embedding_model == self.provider.embedding_model)).all()
-            if not rows:
-                raise ValueError("Base não indexada.")
+        if not rows:
+            return [], {"method": "hibrida_rrf", "embedding_model": self.provider.embedding_model,
+                        "new_document_embeddings": created, "selected_ids": []}
+        vector = self.provider.embed([query])[0]
+        with Session(self.store.engine) as db:
             if any(len(r.embedding) != len(vector) for r in rows):
                 raise ValueError("Dimensão do modelo mudou. Reindexe o conhecimento.")
             terms = Counter(tokens(query))
@@ -93,7 +95,10 @@ class Retriever:
             for ranking in (lexical, semantic):
                 for rank, row in enumerate(ranking, 1):
                     scores[row.id] += 1 / (60 + rank)
-            ordered = sorted(rows, key=lambda r: (-scores[r.id], r.id))[:limit]
+            ordered = sorted([r for r in rows if r.attributes["kind"] == "sintese_de_fonte_oficial"],
+                             key=lambda r: (-scores[r.id], r.id))[:limit]
+            policies = sorted([r for r in rows if r.attributes["kind"] == "politica_da_simulacao"], key=lambda r: r.id)
+            ordered.extend(policies)
             evidence = [Evidence(id=r.id, title=r.title, content=r.content, kind=r.attributes["kind"],
                                  source_url=r.attributes.get("source_url"), version=r.attributes["version"])
                         for r in ordered]

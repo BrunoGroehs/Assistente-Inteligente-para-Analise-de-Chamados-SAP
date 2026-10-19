@@ -67,8 +67,8 @@ def test_provider_failure_is_explicit_and_does_not_write(store, context):
     provider = FailingProvider()
     service = AssistantService(store, Retriever(store, provider), provider)
     before = store.state(context)
-    assert service.analyze(context, "C06", "Analise")["state"] == "failed"
-    assert store.messages(context, "C06")[-1]["details"]["error"]
+    assert service.analyze(context, "C01", "Analise")["state"] == "failed"
+    assert store.messages(context, "C01")[-1]["details"]["error"]
     assert store.state(context) == before
 
 
@@ -153,6 +153,13 @@ def test_prompt_context_never_contains_session_token(store, context):
     import json
 
     class InspectProvider(ControlledProvider):
+        def assess_knowledge(self, ctx):
+            assert context.token not in json.dumps(ctx)
+            assert context.workspace_id not in json.dumps(ctx)
+            assert ctx["environment"] == "SAP MM simulado; dados fictícios"
+            assert any(x["id"] == "DATA" for x in ctx["observations"])
+            return super().assess_knowledge(ctx)
+
         def analyze(self, ctx, history):
             assert context.token not in json.dumps(ctx)
             assert context.workspace_id not in json.dumps(ctx)
@@ -172,7 +179,9 @@ def test_unknown_custom_code_cannot_receive_speculative_cause(store, context):
 
     provider = SpeculativeProvider()
     service = AssistantService(store, Retriever(store, provider), provider)
-    assert service.analyze(context, "C06", "O código é ZMM_999.")["state"] == "failed"
+    assert service.analyze(context, "C06", "O código é ZMM_999.")["state"] == "completed"
+    assert provider.calls == 0  # O servidor não pede diagnóstico de código sem documentação.
+    assert not store.messages(context, "C06")[-1]["details"]["analysis"]["hypotheses"]
     assert not store.proposals(context, "C06")
 
 

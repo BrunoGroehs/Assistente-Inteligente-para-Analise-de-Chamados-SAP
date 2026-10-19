@@ -2,13 +2,19 @@
 
 ## Catálogo inicial
 
-**Decisão confirmada:** conhecimento sobre recebimento de pedidos de compra em SAP MM. As três fontes abaixo fundamentam as sínteses próprias já catalogadas em [conhecimento](../conhecimento/catalogo.json). Consulta de pesquisa: 18/10/2026. As páginas S01 a S03 foram acessadas; nenhuma release numérica foi confirmada nessa leitura. Os sites integrais não foram copiados nem indexados.
+**Decisão confirmada:** conhecimento sobre recebimento de pedidos de compra em SAP MM. Nove fontes oficiais fundamentam as sínteses próprias catalogadas em [conhecimento](../conhecimento/catalogo.json). Consulta de pesquisa: 18/10/2026. As páginas SAP Learning foram acessadas; nenhuma release numérica específica do ambiente foi confirmada. Os sites integrais não foram copiados nem indexados.
 
 | ID | Fonte oficial | Uso na base futura | Limites de aplicação |
 | --- | --- | --- | --- |
 | S01 | SAP Learning: [Posting a Goods Receipt](https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt) | Conceitos de conferência, vínculo com pedido e atualização do histórico. | SAP S/4HANA; validar edição/release antes de orientações específicas. |
 | S02 | SAP Learning: [Posting a Goods Receipt with Reference](https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-a-goods-receipt-with-reference) | Referências de recebimento, dados necessários e diferenças entre MIGO e aplicativos Fiori. | Distinguir as restrições de cada aplicativo; não universalizar limitações. |
 | S03 | SAP Learning: [Using the Advanced Transaction for Goods Receipt](https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/using-the-advanced-transaction-for-goods-receipt) | Contexto de uso da MIGO e consulta da situação do estoque. | Material didático; não comprova configuração de um cliente real. |
+| S04 | SAP Learning: [Tolerâncias e entrega concluída](https://learning.sap.com/courses/inventory-management-in-sap-cloud-erp/applying-tolerances-and-the-delivery-complete-indicator-1) | K06: limites e indicador. | Não assumir tolerância ou bloqueio universal. |
+| S05 | SAP Learning: [Processamento do recebimento](https://learning.sap.com/courses/executing-basic-erp-processes-with-sap-s-4hana/processing-a-goods-receipt-for-a-purchase-order) | K08: documentos gerados. | Contexto do processo de armazém descrito. |
+| S06 | SAP Learning: [Gestão de faturas](https://learning.sap.com/courses/sap-s-4hana-sourcing-procurement-innovations/working-with-invoice-management_b94460d9-dd35-48cc-9c58-8a13ca751cd4) | K09: relação entre recebimento e fatura. | Consulta conceitual; não executar MIRO ou liberar fatura. |
+| S07 | SAP Learning: [Números de série](https://learning.sap.com/courses/managing-technical-objects-in-sap-s-4hana-asset-management/working-with-serial-numbers_d13369ff-6846-4d1b-874f-c7eb6f127679) | K10: identificação e perfil. | Não presumir perfil do material do cliente. |
+| S08 | SAP Learning: [Verificações de datas](https://learning.sap.com/courses/inventory-management-in-sap-cloud-erp/using-date-checks-in-goods-receipt-processing-1) | K11: validade mínima e entrega. | Resultado depende de dados e configuração. |
+| S09 | SAP Learning: [Estornos e devoluções](https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-cancellations-return-deliveries-and-returns) | K12: diferença dos fluxos. | Consulta somente; executor do protótipo não ampliado. |
 
 **Recomendação:** complementar com SAP Help Portal para a versão escolhida e documentação de tolerâncias apenas quando necessário ao recorte. SAP Notes e KBAs restritos são referências de descoberta; prévia pública não equivale ao texto completo. Conteúdo comunitário pode ajudar a localizar uma hipótese, mas não substituir uma fonte técnica validada.
 
@@ -16,7 +22,7 @@ Não há corpus de chamados reais fornecido. Os chamados e o estado do simulador
 
 ## Material a preparar
 
-**Estado implementado:** cinco guias curtos em português, separados destas instruções: visão do recebimento; conferência de pedido/item e quantidades; aplicativo e indicador de entrega concluída; esclarecimento e escalonamento; políticas do SAP simulado. Cada guia pequeno corresponde a um trecho, com metadados no catálogo.
+**Estado implementado após a ampliação solicitada:** 12 guias curtos em português: dez sínteses de fontes oficiais e duas políticas próprias. K01–K05 preservam o corpus inicial. K06–K12 acrescentam tolerâncias, estoques, documentos gerados, relação com fatura, séries, validade/datas e estorno/devolução. K07 também usa S02. Cada guia pequeno corresponde a um trecho recuperável, com parágrafos identificados para a verificação de cobertura.
 
 Cada guia deve conter origem e seção de referência, título, idioma, produto/edição, release identificada ou explicitamente desconhecida, data de consulta, tipo de conteúdo, revisão e assuntos cobertos. Usar os tipos `sintese_de_fonte_oficial` e `politica_da_simulacao`; a política simulada não deve parecer um documento publicado pela SAP.
 
@@ -30,7 +36,9 @@ Preservar o vínculo entre guia, trecho e URL. Citar a síntese local com o docu
 
 **Atualização confirmada:** a versão 8B substituiu a escolha original 0.6B após o endpoint desta retornar HTTP 404; o usuário aprovou a troca. A integração real retornou dimensão 4.096. O código não troca modelos silenciosamente.
 
-**Estado implementado:** normalização textual em português, contagem de termos, busca vetorial por cosseno no pgvector e fusão RRF com constante 60; até quatro guias por consulta. O corpus pequeno usa varredura exata, sem índice ANN. Conteúdo/metadados recebem hash, e embeddings são reutilizados enquanto hash e modelo não mudarem. A dimensão é verificada antes da busca. Esses parâmetros iniciais estão disponíveis para calibração posterior.
+**Estado implementado:** normalização textual em português, contagem de termos, busca vetorial por cosseno no pgvector e fusão RRF com constante 60; até quatro sínteses oficiais por consulta, acrescidas das duas políticas da demonstração como contexto obrigatório. Essa seleção substitui o limite anterior de quatro guias misturados, que podia omitir regras do simulador. A busca usa a mensagem atual e o relato do chamado; a verificação de cobertura prioriza a pergunta atual, com histórico para resolver referências.
+
+O corpus pequeno usa varredura exata, sem índice ANN. Conteúdo/metadados recebem hash, e embeddings são reutilizados enquanto hash e modelo não mudarem. A dimensão é verificada antes da busca. Base vazia produz resposta explícita de insuficiência, sem chamada de geração ou proposta.
 
 **Recomendação:** dividir guias por seção coerente, preservar cabeçalhos e termos SAP e gerar IDs estáveis. Deduplicar por hash do conteúdo e registrar modelo e revisão dos embeddings. Reindexar quando modelo, dimensão ou conteúdo mudar; não misturar espaços vetoriais incompatíveis.
 
@@ -46,11 +54,15 @@ Documentação de integração: [embeddings no OpenRouter](https://openrouter.ai
 
 Mostrar quais documentos foram recuperados e quais foram efetivamente citados. Dados transacionais devem aparecer como consulta ao simulador, com ID e versão, sem URL oficial fictícia. Não enviar a base inteira ao modelo.
 
-**Estado implementado:** `DATA` identifica a consulta simulada; `RELATO` identifica o que foi informado pelo usuário, sem comprová-lo como fato SAP; K01 a K05 identificam conhecimento curado. O servidor verifica IDs e cobertura de referências e aplica política de abstinência para códigos customizados não documentados. Isso não substitui revisão semântica da sustentação de cada frase.
+**Estado implementado:** `DATA` identifica a consulta simulada; `RELATO` identifica o que foi informado pelo usuário, sem comprová-lo como fato SAP; K01 a K12 identificam conhecimento curado. O servidor verifica IDs e cobertura de referências e aplica abstinência para códigos customizados não documentados.
 
-**Decisão confirmada e implementada:** fontes de conhecimento efetivamente citadas recebem números na resposta e botões correspondentes. O clique abre um popup com o trecho exato enviado ao modelo, título, origem e versão, usando o snapshot salvo junto à mensagem. Uma atualização posterior da base não altera o trecho de uma resposta anterior. Nenhuma busca ou chamada ao OpenRouter ocorre ao abrir ou fechar a fonte.
+**Decisão confirmada e implementada, substituindo o popup:** referências numeradas e links de fontes levam diretamente ao site oficial. Agrupar documentos com a mesma URL e distinguir fontes citadas das apenas recuperadas. Não exibir o campo `content`, parágrafos ou popup. Conteúdo, versão e URL do atendimento permanecem salvos internamente; mudanças futuras da base não trocam a URL de uma resposta anterior.
 
-As fontes apenas recuperadas continuam nos detalhes, sem virar citações de uso. Políticas próprias são identificadas como simulação, sem link oficial inventado. Links de fontes são obtidos dos metadados catalogados; URLs/imagens livres geradas no texto da resposta são removidas. O trecho é exibido como texto literal, sem transformar instruções do documento em controles ou links ativos.
+Políticas próprias são identificadas como regras da simulação, sem link oficial inventado. URLs vêm dos metadados catalogados e são validadas como HTTPS em domínios SAP permitidos; URLs/imagens livres geradas pelo modelo são removidas. Não carregar documentos externos automaticamente na interface.
+
+**Decisão confirmada e implementada:** antes da geração, uma chamada estruturada ao Qwen3.6 Plus avalia se os trechos cobrem a solicitação atual. O verificador seleciona IDs de documento/parágrafo; o servidor confere sua existência no texto recuperado. Não aceitar `DATA` ou `RELATO` como prova de conhecimento. A geração recebe somente os documentos aprovados e deve citar pelo menos um deles. Sem cobertura, com prova inválida ou código sem documentação, o servidor devolve “Não tenho informações suficientes na base de conhecimento...” com confiança baixa, sem hipóteses, fatos técnicos ou proposta.
+
+Uma pergunta parcialmente coberta também deve receber abstinência. Instruções em documentos, termos em comum e similaridade não bastam. A suficiência semântica ainda é avaliada por LLM e deve continuar sendo medida; a validação de IDs não prova logicamente a sustentação de toda frase. Erros de rede mantêm o tratamento de falha explícita, nunca resposta técnica inventada.
 
 | Confiança recomendada | Evidência necessária | Comportamento |
 | --- | --- | --- |

@@ -63,7 +63,7 @@ def test_clean_sidebar_chat_and_sources(ui):
     button(app, "Analisar chamado").click().run()
     assert not app.exception
     assert len(app.chat_message) == 2
-    assert any(x.label == "Fontes e evidências" for x in app.expander)
+    assert any(x.label == "Fontes citadas" for x in app.expander)
     assert any(x.label == "Etapas do atendimento" for x in app.expander)
     app.sidebar.radio[0].set_value("C02").run()
     assert not app.chat_message
@@ -121,35 +121,27 @@ def test_shared_access_gate_precedes_runtime(ui):
     assert app.chat_input
 
 
-def source_button(app, message_id=None):
-    return next(x for x in app.button if x.key and str(x.key).startswith(
-        f"source_{message_id}_" if message_id else "source_"))
-
-
-def test_citation_opens_exact_snapshot_without_calling_model_again(ui):
+def test_sources_link_directly_without_showing_content(ui):
     store, service, _ = ui
     app = AppTest.from_file(str(APP), default_timeout=15).run()
     button(app, "Analisar chamado").click().run()
     context = app.session_state["context"]
     message = store.messages(context, "C01")[-1]
-    key = source_button(app).key
-    evidence_id = key.rsplit("_", 1)[-1]
-    expected = next(x for x in message["details"]["evidence"] if x["id"] == evidence_id)
+    expected = [x for x in message["details"]["evidence"] if x.get("source_url")]
+    links = app.get("link_button")
+    assert links and {x.proto.url for x in links} <= {x["source_url"] for x in expected}
+    assert not app.get("dialog") and not app.text
+    assert not any(x.key and str(x.key).startswith("source_") for x in app.button)
     before = store.state(context)
     calls = service.provider.calls
-    source_button(app).click().run()
+    app.run()
     assert not app.exception
-    assert any(x.value == expected["content"].strip() for x in app.text)
-    assert next(x for x in store.messages(context, "C01")[-1]["details"]["evidence"]
-                if x["id"] == evidence_id)["content"] == expected["content"]
-    assert any(expected["version"] in x.value for x in app.caption)
+    assert store.messages(context, "C01")[-1]["details"]["evidence"] == message["details"]["evidence"]
     assert service.provider.calls == calls
     assert store.state(context) == before
-    button(app, "Fechar").click().run()
-    assert not app.exception and service.provider.calls == calls
 
 
-def test_source_popup_does_not_authorize_pending_action(ui):
+def test_source_links_do_not_authorize_pending_action(ui):
     store, service, _ = ui
     provider = ReceiptProvider()
     service.provider, service.retriever = provider, Retriever(store, provider)
@@ -157,17 +149,17 @@ def test_source_popup_does_not_authorize_pending_action(ui):
     app.sidebar.radio[0].set_value("C07").run()
     button(app, "Analisar chamado").click().run()
     context = app.session_state["context"]
-    source_button(app).click().run()
+    assert app.get("link_button")
+    app.run()
     assert not app.exception
     assert not store.state(context)["receipts"]
     assert store.proposals(context, "C07")[0]["state"] == "pendente"
     assert provider.calls == 1
-    button(app, "Fechar").click().run()
     button(app, "Sim, autorizar").click().run()
     assert len(store.state(context)["receipts"]) == 1
 
 
-def test_sources_remain_bound_to_each_message_and_original_version(ui):
+def test_sources_keep_original_url_when_knowledge_changes(ui):
     from sqlalchemy import select
     from sap_assistant.database import Chunk
 
@@ -176,17 +168,13 @@ def test_sources_remain_bound_to_each_message_and_original_version(ui):
     button(app, "Analisar chamado").click().run()
     context = app.session_state["context"]
     original = store.messages(context, "C01")[-1]
-    first_button_key = source_button(app).key
-    original_id = first_button_key.rsplit("_", 1)[-1]
-    expected = next(x["content"] for x in original["details"]["evidence"] if x["id"] == original_id)
+    expected = {x["source_url"] for x in original["details"]["evidence"] if x.get("source_url")}
     # Simula nova revisão da base: o snapshot antigo deve continuar legível.
     with store.transaction() as db:
         for row in db.scalars(select(Chunk)):
             row.content = "Nova revisão que não pertence ao atendimento antigo."
-    service.analyze(context, "C01", "Confirme o contexto.")
+            row.attributes = {**row.attributes, "source_url": "https://help.sap.com/nova-revisao"}
     app.run()
-    keys = [x.key for x in app.button if x.key and str(x.key).startswith("source_")]
-    assert len(keys) == len(set(keys))
-    app.button(key=first_button_key).click().run()
     assert not app.exception
-    assert any(x.value == expected.strip() for x in app.text)
+    assert {x.proto.url for x in app.get("link_button")} <= expected
+    assert not app.text

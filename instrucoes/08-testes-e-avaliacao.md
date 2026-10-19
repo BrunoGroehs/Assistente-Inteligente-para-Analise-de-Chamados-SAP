@@ -4,7 +4,7 @@
 
 **Requisito do PDF:** demonstrar ao menos um sucesso e duas exceções e apresentar evidências reais de testes.
 
-**Estado atual:** implementação autorizada após a etapa documental. A suíte ampliada executou **101 testes automatizados**, sem falhas. A primeira rodada real avaliou oito chamados e duas exceções com Supabase/OpenRouter; a rodada ampliada cobre ataques, consentimento, concorrência, rollback e popup. Consulte [evidências e limitações](../evidencias/README.md) e a [cobertura por requisito](../evidencias/verificacao-requisitos.md). Não apresentar testes com provedor controlado como chamadas reais, nem generalizar a amostra fictícia para qualidade de produção.
+**Estado atual:** a suíte de fontes/RAG executou **121 testes automatizados**, sem falhas, em [testes-fontes-rag.xml](../evidencias/testes-fontes-rag.xml). A primeira rodada real avaliou oito chamados e duas exceções; a rodada de 20 verificações e 101 testes permanece como histórico. A verificação atual usa o corpus ampliado, fontes diretas e barreira de cobertura. Consulte [evidências e limitações](../evidencias/README.md) e a [cobertura por requisito](../evidencias/verificacao-requisitos.md). Não generalizar a amostra fictícia para qualidade de produção.
 
 ## Matriz de aceitação
 
@@ -37,7 +37,7 @@
 | T23 | Silêncio, “sim” no chat ou operação fora da lista | Silêncio não consente; texto não substitui clique; operação proibida não se torna permitida mesmo com tentativa de aprovação. |
 | T24 | Fonte necessária inacessível | Registrar tentativas e lacuna; buscar alternativa oficial e, se necessário, solicitar conteúdo/base/mocks ao usuário. Não fabricar conteúdo. |
 
-**Decisão confirmada:** ampliar a verificação com uso autorizado da API real. Os testes de citações verificam somente fontes utilizadas, numeração, ausência de referências inventadas, trecho/versão históricos, isolamento entre mensagens e abertura do popup sem nova chamada ao provedor ou aprovação de ação. Os testes de HITL também cobrem alterações no envelope (ID, chamado, emissão e validade) e nos dados sem incremento de versão.
+**Decisão confirmada:** ampliar a verificação com uso autorizado da API real. Os testes de fontes verificam numeração, URLs oficiais, agrupamento de URLs, distinção citada/consultada, ausência de conteúdo/popup e preservação de metadados históricos. Os testes de cobertura verificam base vazia, documentos insuficientes, prova inventada, `DATA` usado indevidamente como conhecimento, nova pergunta após resposta anterior, saída inválida do verificador e ausência de citação aprovada. Nenhum desses casos pode gerar diagnóstico ou proposta. Os testes de HITL também cobrem alterações no envelope (ID, chamado, emissão e validade) e nos dados sem incremento de versão.
 
 ## Camadas de validação
 
@@ -69,7 +69,7 @@ Registrar somente verificações realmente executadas, distinguindo testes locai
 
 **Histórico da primeira rodada:** resultados em [testes.xml](../evidencias/testes.xml), [avaliação integrada](../evidencias/avaliacao-integrada.json) e [resumo](../evidencias/resumo-validacao.json). T01 a T08 tiveram avaliação real dos atendimentos; aceitação e recusa do gateway foram verificadas no Supabase com proposta controlada. A avaliação E02 usa uma instrução maliciosa no chat. A rodada ampliada acrescenta documento malicioso ao contexto da API real, sem indexá-lo na base compartilhada. Revisão visual em navegador, calibração ampla do RAG e teste com SAP real não foram realizados.
 
-A [interface integrada inicial](../evidencias/interface-integrada.json) foi testada via AppTest com os serviços reais: lista, geração de proposta C08, chat pausado, botão Não e preservação do estado de negócio. A [rodada ampliada](../evidencias/verificacao-ampliada.json) adiciona popup histórico, autorização e recusa, rerun e testes de transação/concorrência no Supabase. [testes-ampliados.xml](../evidencias/testes-ampliados.xml) registra os 101 casos locais; o XML de 75 casos permanece como histórico inicial.
+A [interface integrada inicial](../evidencias/interface-integrada.json) foi testada via AppTest com serviços reais. A [rodada ampliada anterior](../evidencias/verificacao-ampliada.json) verifica o popup da versão anterior e HITL; esse relatório é histórico, pois o usuário substituiu o popup por links diretos. Os XMLs de 75 e 101 casos também são históricos. A rodada atual é registrada separadamente em [verificacao-fontes-rag.json](../evidencias/verificacao-fontes-rag.json), sem sobrescrever as anteriores.
 
 A [matriz de verificação](../evidencias/verificacao-requisitos.md) distingue requisitos cobertos, casos parcialmente verificados e procedimentos ainda não exercitados. A revisão visual/teclado (T21), um pedido ao usuário por fonte indisponível (T24), a comparação manual/assistida e o ensaio cronometrado não são apresentados como testes concluídos.
 

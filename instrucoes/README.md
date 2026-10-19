@@ -34,6 +34,8 @@ O rótulo de uma seção vale para seus itens, salvo indicação diferente. Link
 
 **Decisões confirmadas:** SAP MM, recebimento com referência a pedido de compra; Python + Streamlit; PostgreSQL/pgvector no Supabase em desenvolvimento e hospedagem; Qwen3.6 Plus e embeddings Qwen3 Embedding 8B pelo OpenRouter; HITL em módulo do servidor; oito chamados fictícios; lista lateral e chat; estilo clean inspirado em iOS; protótipo mais completo, desenvolvido por etapas. Todas as tabelas próprias ficam em `sap_chamados_ai`, preservando os demais projetos.
 
+**Atualização confirmada:** corpus ampliado para 12 guias; fontes agrupadas com links diretos, sem conteúdo/popup na interface; verificação de cobertura antes da geração e mensagem explícita de insuficiência quando o RAG não sustentar a pergunta atual. Essas decisões substituem a apresentação anterior por popup.
+
 **Pendências principais:** revisão visual em navegador e teclado, calibração com corpus maior, discussão dos prompts e publicação quando solicitada. A avaliação funcional integrada está registrada nas [evidências](../evidencias/README.md), com [cobertura dos requisitos](../evidencias/verificacao-requisitos.md). Configuração real e resultados de testes devem ser consultados nesses relatórios, sem confundir histórico documental com estado atual.
 
 Novas solicitações devem atualizar seu documento responsável e, se alterarem uma escolha, o [histórico](10-decisoes-e-pendencias.md).

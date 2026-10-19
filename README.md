@@ -62,11 +62,13 @@ O LLM devolve uma proposta tipada, sem URL/SQL arbitrário. O gateway valida ope
 
 O “passo a passo” mostra operações observáveis, evidências e justificativas resumidas. Raciocínio interno bruto não é exibido ou usado como auditoria.
 
-As respostas indicam as fontes do RAG por números e botões correspondentes. Clique em uma fonte para abrir o popup com o trecho exato utilizado, sua origem e versão. O trecho fica salvo no atendimento: abrir a fonte não consulta novamente a IA e não autoriza a operação pendente.
+As respostas indicam as fontes do RAG por números e links que abrem diretamente a documentação oficial. URLs repetidas são agrupadas; fontes citadas, referências apenas consultadas e dados simulados têm áreas próprias. Não há exibição de `content`, trechos ou popup. Textos e metadados permanecem salvos internamente para recuperação e auditoria.
+
+Antes de gerar a análise, uma chamada estruturada verifica se os trechos cobrem a pergunta atual. O servidor valida os IDs de parágrafo selecionados e exige citação do conhecimento aprovado. Sem suporte, retorna **“Não tenho informações suficientes na base de conhecimento...”**, sem diagnóstico, hipóteses ou proposta. Base vazia, código não documentado e prova inválida também bloqueiam a geração. A verificação semântica usa LLM e continua sujeita à avaliação de qualidade.
 
 ## Conhecimento, testes e decisões
 
-- [Catálogo do conhecimento](conhecimento/catalogo.json): cinco guias próprios, com fontes oficiais e políticas simuladas identificadas; nenhum gabarito é indexado.
+- [Catálogo do conhecimento](conhecimento/catalogo.json): 12 guias próprios, sendo dez sínteses de nove fontes oficiais e duas políticas simuladas; nenhum gabarito é indexado.
 - [Instruções e decisões](instrucoes/README.md): requisitos, arquitetura, diagramas, prompts e limites.
 - [Evidências](evidencias/README.md): resultados locais e integrados, com limitações explícitas.
 - [Roteiro de demonstração](instrucoes/09-execucao-e-entrega.md): sequência de até 20 minutos.
@@ -85,7 +87,7 @@ Para reproduzir a verificação ampliada com os serviços reais configurados no 
 .\.venv\Scripts\python.exe scripts/verify_live.py
 ```
 
-Esse comando **consome créditos** e cria sessões fictícias próprias no schema do projeto. Simula cliques Sim/Não para verificar execução, recusa, concorrência, isolamento, adulteração, expiração, rollback e popup do RAG. Não altera tabelas externas nem injeta documentos na base compartilhada. Resultados em [verificação ampliada](evidencias/verificacao-ampliada.json); cobertura e limites em [verificação dos requisitos](evidencias/verificacao-requisitos.md). Propostas pendentes anteriores ao novo envelope de integridade exigem nova análise; não são executadas usando o formato antigo.
+Esse comando **consome créditos** e cria sessões fictícias próprias no schema do projeto. Verifica fontes diretas, novos conteúdos, perguntas sem suporte, regressões dos chamados e cliques Sim/Não, além de concorrência, isolamento, adulteração, expiração e rollback. Não altera tabelas externas nem injeta documentos na base compartilhada. Resultados atuais em [verificação de fontes/RAG](evidencias/verificacao-fontes-rag.json); cobertura e limites em [verificação dos requisitos](evidencias/verificacao-requisitos.md). Propostas pendentes anteriores ao novo envelope de integridade exigem nova análise; não são executadas usando o formato antigo.
 
 ## Publicar posteriormente
 

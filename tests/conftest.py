@@ -4,10 +4,11 @@ import json
 import pytest
 
 from sap_assistant.approvals import canonical_phrase
-from sap_assistant.contracts import Analysis, ReceiptRequest
+from sap_assistant.contracts import Analysis, Evidence, ReceiptRequest
 from sap_assistant.database import Store
 from sap_assistant.retrieval import Retriever, synchronize_knowledge
 from sap_assistant.service import AssistantService
+from sap_assistant.grounding import KnowledgeAssessment, knowledge_spans
 
 
 @pytest.fixture
@@ -44,6 +45,12 @@ class ControlledProvider:
     def embed(self, texts):
         self.embed_calls += 1
         return [[(x+1)/256 for x in hashlib.sha256(t.encode()).digest()[:8]] for t in texts]
+
+    def assess_knowledge(self, context):
+        return KnowledgeAssessment(scope="recebimento_pedido_compra", sufficient=True,
+            supports=[{"evidence_id": x["id"], "span_id": knowledge_spans(Evidence.model_validate(x))[0]["id"]}
+                      for x in context["evidence"]],
+            reason="Cobertura controlada para testar o fluxo."), {"model": "teste/controlled"}
 
     def analyze(self, context, history):
         self.calls += 1

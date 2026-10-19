@@ -7,9 +7,10 @@ from sqlalchemy import func, select
 
 from .approvals import ApprovalGateway, PolicyError, quantity_text
 from .contracts import Evidence, validate_grounding
-from .citations import cited_knowledge, safe_answer_text
+from .citations import cited_knowledge, official_url, safe_answer_text
 from .database import Audit, Message, new_id
 from .provider import ProviderError
+from .grounding import insufficient_analysis, insufficient_assessment, out_of_scope_analysis, supported_ids
 
 
 def resolve_order(state, ticket, history):
@@ -30,12 +31,13 @@ def resolve_order(state, ticket, history):
 
 
 def render_analysis(analysis, evidence=()):
-    numbers = {item.id: index for index, item in enumerate(cited_knowledge(analysis, evidence), 1)}
+    numbers = {item.id: (f"[{index}]({official_url(item.source_url)})" if official_url(item.source_url) else f"[{index}]")
+               for index, item in enumerate(cited_knowledge(analysis, evidence), 1)}
     lines = [safe_answer_text(analysis.summary)]
     if analysis.facts:
         lines.extend(["", "**Fatos consultados**"])
         for fact in analysis.facts:
-            citations = " ".join(f"[{numbers[key]}]" for key in dict.fromkeys(fact.evidence_ids) if key in numbers)
+            citations = " ".join(numbers[key] for key in dict.fromkeys(fact.evidence_ids) if key in numbers)
             lines.append(f"- {safe_answer_text(fact.text)}" + (f" {citations}" if citations else ""))
     for title, values in [("Possíveis causas", analysis.hypotheses),
                           ("Precisamos esclarecer", analysis.missing_information),
@@ -96,20 +98,50 @@ class AssistantService:
                 evidence.append(Evidence(id="DATA", title="Consulta ao SAP simulado",
                     content=json.dumps(facts, ensure_ascii=False), kind="consulta_simulada", version=str(order["version"])))
                 steps.append({"step": "Pedido e histórico simulados consultados", "elapsed_ms": round((time.perf_counter()-started)*1000)})
-            query = ticket["description"] + "\n" + "\n".join(x["content"] for x in history if x["role"] == "user")
+            query = message + "\n" + ticket["title"] + "\n" + ticket["description"]
             recovered, retrieval_meta = self.retriever.search(query)
             evidence.extend(recovered)
             metadata["retrieval"] = retrieval_meta
             codes = set(re.findall(r"\b[ZY][A-Z0-9_]*\d[A-Z0-9_]*\b", user_text))
             undocumented = sorted(code for code in codes if not any(code in x.content for x in recovered))
             steps.append({"step": "Busca híbrida e seleção de evidências concluídas", "elapsed_ms": round((time.perf_counter()-started)*1000)})
-            analysis, provider_meta = self.provider.analyze(
-                {"ticket": ticket, "message": message, "evidence": [x.model_dump() for x in evidence],
-                 "undocumented_codes": undocumented},
-                [{"role": x["role"], "content": x["content"]} for x in history])
+            if not recovered or undocumented:
+                assessment = insufficient_assessment("Base vazia ou código customizado sem documentação.")
+                check_meta = {"method": "server_policy"}
+            else:
+                assessment, check_meta = self.provider.assess_knowledge({
+                    "ticket": ticket, "message": message, "environment": "SAP MM simulado; dados fictícios",
+                    "observations": [x.model_dump() for x in evidence if x.kind in {"consulta_simulada", "relato_usuario"}],
+                    "history": [{"role": x["role"], "content": x["content"]} for x in history],
+                    "evidence": [x.model_dump() for x in recovered]})
+            try:
+                approved_ids = supported_ids(assessment, recovered)
+            except ValueError:
+                check_meta["rejected_supports"] = [x.model_dump() for x in assessment.supports]
+                assessment = insufficient_assessment("Prova de cobertura inválida; resposta técnica bloqueada.")
+                approved_ids = []
+            knowledge_check = {**assessment.model_dump(), "provider": check_meta}
+            steps.append({"step": "Cobertura do conhecimento verificada para a pergunta atual"})
+            provider_meta = {"server_policy": "insufficient_knowledge"}
+            if assessment.scope == "fora_do_escopo":
+                analysis = out_of_scope_analysis()
+                provider_meta = {"server_policy": "fora_do_escopo"}
+            elif not approved_ids:
+                analysis = insufficient_analysis()
+            else:
+                generation_evidence = [x for x in evidence if x.kind in {"consulta_simulada", "relato_usuario"}
+                                       or x.id in approved_ids]
+                analysis, provider_meta = self.provider.analyze(
+                    {"ticket": ticket, "message": message, "evidence": [x.model_dump() for x in generation_evidence],
+                     "undocumented_codes": undocumented, "validated_scope": assessment.scope},
+                    [{"role": x["role"], "content": x["content"]} for x in history])
+                self._validate_evidence(analysis, generation_evidence, undocumented)
+                if analysis.process != "fora_do_escopo" and not set(analysis.references) & set(approved_ids):
+                    analysis = insufficient_analysis()
+                    provider_meta["server_policy"] = "uncited_knowledge"
             self._validate_evidence(analysis, evidence, undocumented)
             steps.append({"step": "Resposta estruturada e referências validadas", "elapsed_ms": round((time.perf_counter()-started)*1000)})
-            metadata = {"retrieval": retrieval_meta, "provider": provider_meta,
+            metadata = {"retrieval": retrieval_meta, "provider": provider_meta, "knowledge_check": knowledge_check,
                         "analysis": analysis.model_dump(mode="json")}
             content = render_analysis(analysis, evidence)
             with self.store.transaction() as db:

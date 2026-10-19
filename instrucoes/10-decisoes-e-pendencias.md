@@ -26,8 +26,12 @@
 | D18 | Preservar tabelas e dados de outros projetos | Schema exclusivo `sap_chamados_ai`, identificação própria e ausência de DROP/reset global. Extensão vector ativada pelo usuário. |
 | D19 | Substituir embeddings 0.6B por 8B | API real retornou ausência de endpoint para 0.6B; usuário aprovou `qwen/qwen3-embedding-8b`. Chat permanece Qwen3.6 Plus; atualiza o detalhe de embeddings de D07. |
 | D20 | Criar commits locais em português durante o trabalho | Pedido explícito do usuário para manter histórico; separar mudanças coerentes e excluir segredos. Push/publicação requerem solicitação correspondente. |
-| D21 | Citações do RAG com popup do trecho utilizado | Pedido do usuário: referências clicáveis na resposta, vinculadas ao snapshot histórico, sem nova consulta ou efeito de negócio; [interface](06-interface.md). |
+| D21 | Citações do RAG com popup do trecho utilizado — substituída por D23 | Histórico do primeiro pedido; snapshots permanecem internos para auditoria. |
 | D22 | Ampliar testes e utilizar a API real | Pedido explícito para verificar HITL e demais critérios; autorização para consumo da API nos testes, com evidências e decisões humanas simuladas identificadas. |
+| D23 | Substituir popup e conteúdo exibido por links diretos organizados | Novo pedido: agrupar URLs, separar fontes citadas/consultadas e abrir documentação oficial; manter textos apenas internamente. |
+| D24 | Ampliar o corpus de conhecimento | Novo pedido: 12 guias, com sete novos conteúdos oficiais relacionados ao recebimento; sem ampliar operações executáveis. |
+| D25 | Exigir suporte no RAG antes de responder | Novo pedido: mensagem explícita de insuficiência sem diagnóstico/proposta; verificação de cobertura e de IDs antes da geração. |
+| D26 | Quatro sínteses oficiais mais as duas políticas como contexto obrigatório | Detalhe técnico da recuperação após a expansão: a primeira rodada omitiu as regras do simulador e bloqueou uma proposta válida; substitui o limite anterior de quatro guias misturados. |
 
 ## Pendências e tratamento
 
@@ -36,13 +40,13 @@
 | ID | Informação ou trabalho pendente | Próxima ação |
 | --- | --- | --- |
 | P01 | Edição/release precisa das fontes SAP | Catalogar antes de produzir instruções dependentes de versão; perguntar ao usuário se for necessário escolher ambiente específico. |
-| P02 | Corpus inicial concluído; expansão pendente | Cinco sínteses/políticas próprias catalogadas e indexadas; manter atribuição e pedir conteúdo ao usuário se uma expansão necessária não puder ser acessada. |
+| P02 | Corpus ampliado para 12 guias | Dez sínteses de nove fontes oficiais e duas políticas próprias; manter atribuição e pedir conteúdo ao usuário se uma expansão necessária não puder ser acessada. |
 | P03 | Prompts finais e apresentação das respostas | Debater rascunhos com o usuário e avaliar versões; [prompts](05-prompts.md). |
 | P04 | Configuração autenticada concluída localmente | Usuário configurou `.env`; Supabase e OpenRouter verificados sem versionar credenciais. Configuração de hospedagem ainda pendente. |
 | P05 | Modelos atuais verificados | Chat Qwen3.6 Plus e embeddings 8B/4.096 dimensões testados; saídas e referências validadas pelo servidor. Revalidar se o provedor mudar. |
-| P06 | Parâmetros iniciais implementados; calibração ampla pendente | Quatro guias por consulta, busca textual/cosseno e RRF 60; avaliar corpus maior com rótulos fora do índice. |
+| P06 | Parâmetros iniciais implementados; calibração ampla pendente | Quatro sínteses mais duas políticas, busca textual/cosseno, RRF 60 e checagem de cobertura; avaliar relevância, falsos bloqueios e sustentação com rótulos fora do índice. |
 | P07 | Fixtures executáveis concluídas | Oito chamados com datas explícitas em C07/C08 e gabaritos fora da base. |
-| P08 | Código e validação funcional concluídos; revisão estética pendente | 101 testes locais e 20 verificações ampliadas aprovados, além dos dez atendimentos da rodada inicial. AppTest real verifica popup, Sim/Não e rerun; revisão visual em navegador/teclado precisa ocorrer na interface em execução. |
+| P08 | Código e validação funcional; revisão estética pendente | 121 testes locais aprovados; rodadas reais e limites nas evidências atuais. A UI agora usa links diretos, sem popup/conteúdo. Revisão visual em navegador/teclado precisa ocorrer na interface em execução. |
 | P09 | Publicação, acesso da banca e limites de consumo | Configurar na etapa de publicação, validar hospedado e ensaiar apresentação. |
 
 ## Como incorporar novos pedidos

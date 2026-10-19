@@ -40,7 +40,8 @@ Antes de trabalhar, ler o [índice das instruções](instrucoes/README.md) e os 
 - Mensagens, consultas e auditoria técnica são automáticas. O critério é o efeito da operação, não seu método HTTP. A política completa está em [aprovações humanas](instrucoes/07-aprovacoes-humanas.md).
 - Usar somente dados fictícios. Não expor credenciais em código, interface, prompts ou logs. Isolar dados e aprovações por sessão.
 - Apresentar fontes, etapas observáveis e justificativas resumidas. Não usar raciocínio interno bruto do modelo como trilha de auditoria.
-- **Decisão confirmada:** respostas podem citar fontes do RAG por referências numeradas com botões que abrem um popup. O popup deve mostrar o trecho do snapshot daquele atendimento, sua versão e origem; abri-lo não consulta a IA nem autoriza ações. Ver [interface](instrucoes/06-interface.md).
+- **Decisão confirmada, substituindo o popup:** referências e botões abrem diretamente o site oficial catalogado. Agrupar URLs repetidas e separar fontes citadas, referências apenas consultadas e dados simulados. Não mostrar `content`, trechos ou popup na interface; preservar os textos internamente para RAG e auditoria. Ver [interface](instrucoes/06-interface.md).
+- **Decisão confirmada:** sem suporte suficiente no RAG para a pergunta atual, informar falta de informações, sem resposta técnica, hipóteses ou proposta. Verificar cobertura antes de gerar, validar os IDs dos parágrafos e exigir citação do conhecimento aprovado. Conhecimento prévio do modelo, histórico e políticas simuladas não substituem uma fonte SAP aplicável.
 - Não indexar instruções de desenvolvimento, gabaritos, prompts ou resultados esperados como conhecimento SAP.
 - **Decisão confirmada:** interface organizada, clean, inspirada em iOS, com pouco ruído visual. Seguir [interface](instrucoes/06-interface.md).
 
