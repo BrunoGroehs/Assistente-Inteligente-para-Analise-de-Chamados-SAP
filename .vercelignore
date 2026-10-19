@@ -1,0 +1,17 @@
+.git/
+.venv/
+.local/
+.env
+.env.*
+!.env.example
+.streamlit/
+**/__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+test-results/
+playwright-report/

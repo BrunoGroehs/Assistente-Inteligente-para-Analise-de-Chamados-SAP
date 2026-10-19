@@ -46,6 +46,6 @@ O rótulo de uma seção vale para seus itens, salvo indicação diferente. Link
 
 Novas solicitações devem atualizar seu documento responsável e, se alterarem uma escolha, o [histórico](10-decisoes-e-pendencias.md).
 
-**Atualização confirmada:** Streamlit removido. Aplicação portátil com frontend compilado servido pela API, navegação local no navegador e sem plataforma de hospedagem definida. Deploy manual posterior pelo usuário. [Arquitetura](03-arquitetura.md), [execução](09-execucao-e-entrega.md) e decisão D33.
+**Atualização confirmada:** Streamlit removido. Aplicação portátil com frontend compilado servido pela API e navegação local no navegador. A D37 substitui a ausência de plataforma em D33: preparar Vercel Services, com API e frontend construídos separadamente no mesmo projeto/domínio. Nomes, rotas públicas e ausência de bindings internos são uma proposta aguardando confirmação explícita. Não houve publicação. [Arquitetura](03-arquitetura.md) e [execução](09-execucao-e-entrega.md).
 
 **Atualização confirmada:** correções executáveis sempre oferecem preparação/Sim/Não, sem inventar parâmetros; citações numéricas conhecidas são clicáveis, inclusive em mensagens antigas. Decisão D34 e documentos de interface, aprovações e prompts atualizados.

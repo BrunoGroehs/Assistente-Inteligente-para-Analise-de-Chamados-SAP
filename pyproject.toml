@@ -1,3 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "assistente-sap-mm"
+version = "1.0.0"
+requires-python = ">=3.12,<3.13"
+dynamic = ["dependencies"]
+
+[tool.setuptools]
+packages = ["sap_assistant"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]

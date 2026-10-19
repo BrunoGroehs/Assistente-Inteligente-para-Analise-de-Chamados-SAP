@@ -1,6 +1,14 @@
 # Evidências de validação
 
-## Rodada mais recente: jornadas de usuário
+## Configuração Vercel Services — 19/10/2026
+
+**195 testes Python e 14 React aprovados**, build Vite/TypeScript e Ruff aprovados, `pip check` sem conflitos. Oito novos testes cobrem origem pública atrás do proxy, cookie seguro, recusa de cabeçalho forjado, URL de runtime e configuração de origem inválida. [XML Python](testes-vercel-services.xml), [relatório de configuração e smoke](vercel-services.json).
+
+`vercel dev -L` com CLI 64.5.0 reconheceu `app` e `frontend`. Foram verificados frontend/script, sessão/cookie, Novo chat, oito chamados, resposta NDJSON sem LLM e 404 da API sem fallback para HTML. A verificação encontrou e corrigiu instalação Python e validação Origin/Host atrás do proxy de serviços. O smoke usou uma sessão fictícia própria no Supabase; não executou alteração de negócio, nem chamadas ao OpenRouter. Os processos locais foram encerrados. JSON conferido com o schema oficial e instalação Python com dependências centralizadas em `requirements.txt`.
+
+**Limites:** nomes, rotas públicas e ausência de bindings aguardam confirmação explícita do usuário. Não houve deploy, push ou vínculo de projeto; testes locais não comprovam o ambiente hospedado, cold start ou escala. Os limites de tarefas/conexões são por instância.
+
+## Jornadas de usuário — 19/10/2026
 
 Em 19/10/2026 foram feitas **38 perguntas**, em execuções de navegador com serviços reais. São **15 cenários únicos** e 27 execuções contando retestes. A última evidência de cada cenário está aprovada. A primeira rodada teve 15 passes; a segunda, nove passes e uma falha de asserção do harness, preservada; as duas execuções adicionais de C04 estão registradas separadamente. A revisão de conteúdo encontrou ajustes mesmo em testes inicialmente aprovados. [Relatório, achados e capturas](jornadas-usuario/README.md) e [consolidado](jornadas-usuario/resumo.json).
 

@@ -24,7 +24,9 @@ O identificador vem do endpoint de conversa no servidor, fora dos argumentos do 
 
 ## Fronteira web atual
 
-**Decisão confirmada:** Streamlit removido por solicitação do usuário devido às travadas percebidas. React mantém interações locais; FastAPI fornece API e serve o build Vite. Hospedagem sem plataforma definida, com deploy manual posterior pelo usuário. Não houve alteração de tabelas ou migração do banco.
+**Decisão confirmada:** Streamlit removido por solicitação do usuário devido às travadas percebidas. React mantém interações locais; FastAPI fornece API e serve o build Vite na execução portátil. A preparação para Vercel Services foi solicitada posteriormente, substituindo a ausência de plataforma definida. Não houve alteração de tabelas ou migração do banco.
+
+**Configuração proposta, pendente de confirmação:** serviço `app` (FastAPI na raiz) público somente em `/api` e `/api/*`; serviço `frontend` (Vite em `frontend/`) público nos demais caminhos. Rewrites preservam o caminho original, inclusive `/api`; os contratos abaixo continuam válidos. Builds são independentes: o bundle Python não inclui o frontend. Não há chamadas entre funções dos serviços: o navegador acessa `/api` na mesma origem, portanto não há bindings internos. Supabase/OpenRouter são integrações externas. Um futuro chamador interno deve declarar seu binding e ler a URL injetada em runtime, nunca no navegador/build/middleware. Ver [configuração e comandos](../README.md#deploy-na-vercel-com-dois-serviços).
 
 | Endpoint | Contrato |
 | --- | --- |
@@ -35,7 +37,7 @@ O identificador vem do endpoint de conversa no servidor, fora dos argumentos do 
 | `POST /api/chats/{id}/messages` | Mensagem, anexo opcional e UUID de submissão; NDJSON com etapas, heartbeat e resultado validado. |
 | `POST /api/chats/{id}/proposals/{id}/decision` | Somente `approve: boolean`; operação e parâmetros vêm da proposta persistida. |
 
-Mutações exigem cabeçalho da aplicação e verificação de Origin/Host quando Origin está presente. Sem CORS aberto. Sessão é autorizada no banco; a identidade nunca vem do modelo. A resposta pública omite tokens, DSN, conteúdo de documentos e envelopes internos. Erros não expõem stack trace ou detalhes do provedor.
+Mutações exigem cabeçalho da aplicação e verificação de Origin/Host quando Origin está presente. Atrás de Vercel Services, aceitar também a origem pública exata definida no servidor (`APP_PUBLIC_ORIGIN`, ou `VERCEL_URL` de runtime), pois o proxy local troca o Host. Não confiar em `X-Forwarded-Host` do cliente. Sem CORS aberto. Sessão é autorizada no banco; a identidade nunca vem do modelo. A resposta pública omite tokens, DSN, conteúdo de documentos e envelopes internos. Erros não expõem stack trace ou detalhes do provedor.
 
 As análises rodam em executor limitado a quatro tarefas por processo e uma por workspace; a API continua atendendo consultas e navegação. Falha de rede não reenvia a análise automaticamente. Após falha ou sucesso, a tela tenta reler o estado durável. Etapas não contêm resposta técnica parcial. Aguardar humano não ocupa tarefa: o resultado pendente é persistido e a requisição termina.
 

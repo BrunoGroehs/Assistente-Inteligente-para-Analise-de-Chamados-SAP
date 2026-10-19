@@ -79,8 +79,17 @@ def create_app(settings=None, services=None, frontend_path=None):
             if request.headers.get("x-requested-with") != CLIENT_HEADER:
                 return JSONResponse({"detail": "Requisição de interface inválida."}, status_code=403)
             origin = request.headers.get("origin")
-            if origin and urlsplit(origin).netloc != request.headers.get("host"):
-                return JSONResponse({"detail": "Origem da requisição inválida."}, status_code=403)
+            if origin:
+                try:
+                    # Vercel Services pode trocar Host pelo endereço interno do serviço.
+                    # Aceitar somente a origem configurada no servidor ou o Host direto;
+                    # nunca confiar em X-Forwarded-Host fornecido pela requisição.
+                    allowed = (origin == request.app.state.settings.public_origin
+                               or urlsplit(origin).netloc == request.headers.get("host"))
+                except ValueError:
+                    allowed = False
+                if not allowed:
+                    return JSONResponse({"detail": "Origem da requisição inválida."}, status_code=403)
         try:
             response = await call_next(request)
         except Exception:

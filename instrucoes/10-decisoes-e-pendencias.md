@@ -49,6 +49,8 @@
 
 ## Pendências e tratamento
 
+**Decisão confirmada — D37, 19/10/2026:** preparar o repositório para um único projeto Vercel com múltiplos serviços; substitui a ausência de plataforma em D33, sem alterar RAG, HITL ou Supabase. **Pendente de confirmação explícita:** nomes `app`/`frontend`, API pública em `/api` e `/api/*`, frontend público nos demais caminhos e ausência de bindings por não haver chamadas entre funções de serviços. O usuário pediu revisar a configuração final antes de encerrar. Não realizar deploy ou push por essa autorização. [Configuração](../vercel.json) e [execução](09-execucao-e-entrega.md).
+
 **Estado atualizado:** itens concluídos e pendências remanescentes; consultar as evidências antes de declarar uma nova capacidade validada.
 
 | ID | Informação ou trabalho pendente | Próxima ação |
@@ -61,7 +63,7 @@
 | P06 | Parâmetros iniciais implementados; calibração ampla pendente | Quatro sínteses mais duas políticas, busca textual/cosseno, RRF 60 e checagem de cobertura; avaliar relevância, falsos bloqueios e sustentação com rótulos fora do índice. |
 | P07 | Fixtures executáveis concluídas | Oito chamados com datas explícitas em C07/C08, perfis de suporte fictícios para novas sessões e gabaritos fora da base; C05 preserva lacunas. |
 | P08 | Jornadas e revisão funcional realizadas; validação ampla pendente | 187 Python, 14 React e 15 cenários de navegador com evidência final aprovada; 38 perguntas e capturas desktop/estreitas inspecionadas. Acessibilidade completa, outros navegadores e dispositivos reais continuam pendentes. |
-| P09 | Publicação, acesso da banca e limites de consumo | Configurar na etapa de publicação, validar o ambiente hospedado. |
+| P09 | Confirmar topologia Vercel, publicar e validar hospedado | Configuração preparada como proposta D37; confirmar nomes, exposição e bindings. Depois configurar segredos no painel e validar o ambiente publicado quando autorizado. |
 | P10 | PDF original ausente no diretório de trabalho | Remoção já existente fora desta migração; mantida fora dos commits. O link em `01-desafio.md` depende de disponibilizar novamente o arquivo. Requisitos transcritos foram preservados. |
 
 ## Como incorporar novos pedidos

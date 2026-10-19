@@ -113,3 +113,7 @@ Testes adicionais da fronteira: cookie seguro, origem indevida, sessões e conve
 **Executado:** 15 cenários iniciais, dez retestes e duas execuções adicionais de C04; 38 perguntas, com a última evidência dos 15 cenários aprovada. Uma falha lexical do harness e uma resposta ainda excessiva foram preservadas na [revisão](../evidencias/jornadas-usuario/README.md). Os cenários incluem os oito chamados, consultas gerais, mensagens maliciosas, anexo removido, Novo chat, Sim/Não e fontes. Nove páginas oficiais foram abertas e conferidas; DOM e nova aba foram verificados pelo Edge.
 
 T21 foi parcialmente exercitado: desktop e viewport estreito, captura inspecionada, Enter/Escape, detalhes, botões e ausência de overflow nos casos testados. Acessibilidade completa e dispositivos reais continuam pendentes.
+
+## Preparação Vercel Services
+
+**Executado em 19/10/2026:** 195 testes Python e 14 React aprovados, build e Ruff aprovados. Oito testes adicionais exercitam origem pública atrás de Host interno, cookie seguro, bloqueio de origem externa/cabeçalho forjado, variável Vercel e origem inválida. Configuração validada no schema oficial; `vercel dev -L` 64.5.0 detectou os dois serviços e passou verificações de interface, sessão, Novo chat, chamados, streaming NDJSON sem LLM e 404 da API. [Resultados e limites](../evidencias/vercel-services.json). Não houve deploy, alteração de negócio ou nova avaliação de qualidade do modelo nessa rodada. A suíte mantém os testes de HITL; o smoke do proxy não executou propostas.

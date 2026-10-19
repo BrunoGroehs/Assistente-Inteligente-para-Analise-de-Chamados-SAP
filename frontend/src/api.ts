@@ -13,6 +13,8 @@ async function checked(response: Response): Promise<Response> {
 }
 
 async function request<T>(path: string, body?: unknown): Promise<T> {
+  // Mesmo domínio em execução local e na Vercel: /api é roteado ao FastAPI.
+  // Bindings internos são exclusivos de funções no servidor, nunca do navegador.
   const response = await checked(await fetch('/api' + path, {
     credentials: 'same-origin', method: body === undefined ? 'GET' : 'POST',
     headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'sap-assistant' },

@@ -8,9 +8,11 @@ __pycache__/
 !.env.example
 .streamlit/secrets.toml
 .local/
+.vercel/
 test-results/
 playwright-report/
 *.egg-info/
+/build/
 node_modules/
 frontend/dist/
 frontend/coverage/

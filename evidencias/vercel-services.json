@@ -1,0 +1,91 @@
+{
+  "data": "2026-10-19",
+  "estado": "configuracao_preparada_aguardando_confirmacao",
+  "configuracao_sha256": "7631ae23543724b7720c156b1060441ba8ea4e928b1c4350b81cc617b720cc0b",
+  "schema": {
+    "url": "https://openapi.vercel.sh/vercel.json",
+    "sha256": "3741c921b14f42c50ca8b676229b9cfdf72e33704bc5f375e6be923d16c3f913",
+    "resultado": "valido"
+  },
+  "servicos": {
+    "app": {
+      "framework": "fastapi",
+      "raiz": ".",
+      "entrada": "app:app",
+      "publico": [
+        "/api",
+        "/api/*"
+      ]
+    },
+    "frontend": {
+      "framework": "vite",
+      "raiz": "frontend",
+      "publico": [
+        "demais caminhos"
+      ]
+    }
+  },
+  "bindings": [],
+  "motivo_sem_bindings": "A API é chamada pelo navegador em /api, não por funções de outro serviço. Supabase/OpenRouter são externos.",
+  "python": "3.12.10",
+  "node": "24.14.0",
+  "vercel_cli": "64.5.0",
+  "testes": {
+    "python_aprovados": 195,
+    "react_aprovados": 14,
+    "ruff": "aprovado",
+    "pip_check": "aprovado",
+    "build_vite_typescript": "aprovado",
+    "empacotamento_python": "instalado pela CLI; metadados conferidos com requirements.txt"
+  },
+  "vercel_dev": {
+    "modo": "local sem vinculo (-L)",
+    "servicos_detectados": [
+      "app",
+      "frontend"
+    ],
+    "verificacoes": [
+      {
+        "check": "frontend_e_script",
+        "status": "passed"
+      },
+      {
+        "check": "origem_incorreta_bloqueada",
+        "status": 403
+      },
+      {
+        "check": "sessao_cookie_mesma_origem",
+        "status": "passed"
+      },
+      {
+        "check": "novo_chat_oito_chamados",
+        "status": "passed"
+      },
+      {
+        "check": "streaming_ndjson_estado_aplicacao_sem_llm",
+        "status": "passed"
+      },
+      {
+        "check": "api_404_sem_fallback_html",
+        "status": "passed"
+      }
+    ],
+    "servicos_externos": "Supabase real, somente sessão fictícia própria; pergunta sobre estado da aplicação sem LLM/embeddings.",
+    "correcao_encontrada": "Proxy altera Host; aceitar origem pública exata configurada no servidor, mantendo bloqueio de origem externa e de X-Forwarded-Host forjado.",
+    "servidores_encerrados": true
+  },
+  "limites": [
+    "Nenhum deploy, push ou vinculação de projeto Vercel.",
+    "Nome, rotas públicas e ausência de bindings aguardam confirmação solicitada pelo usuário.",
+    "Não comprova execução hospedada, cold start, domínio personalizado ou limites de escala.",
+    "HITL e isolamento verificados na suíte Python; o smoke via vercel dev não executou alterações de negócio.",
+    "Limites de tarefas e pool de conexões são por instância, sem coordenação global."
+  ],
+  "referencias": [
+    "https://vercel.com/docs/services",
+    "https://vercel.com/docs/services/routing",
+    "https://vercel.com/docs/services/bindings",
+    "https://vercel.com/docs/services/config-reference",
+    "https://vercel.com/docs/frameworks/backend/fastapi"
+  ]
+}

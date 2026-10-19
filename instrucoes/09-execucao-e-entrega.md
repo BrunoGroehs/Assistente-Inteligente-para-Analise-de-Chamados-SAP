@@ -13,8 +13,9 @@
 | `OPENROUTER_EMBEDDING_MODEL` | `qwen/qwen3-embedding-8b` | Validar disponibilidade e dimensão antes de criar o índice. |
 | `DATABASE_URL` | PostgreSQL no Supabase | Conexão segura com pool adequado ao ambiente e privilégio mínimo. |
 | `DEMO_ACCESS_CODE` | Acesso restrito à demonstração | Recomendação de acesso simples para banca, validado no servidor e nunca enviado ao LLM. |
+| `APP_PUBLIC_ORIGIN` | Origem pública exata do navegador | Protocolo e domínio/porta, sem caminho; não é segredo. Fallback para `VERCEL_URL` quando fornecido pela plataforma. |
 
-Não solicitar segredos no chat. O usuário configurou `.env` localmente e ativou vector. O aplicativo usa Supabase em desenvolvimento e hospedagem; somente os testes usam SQLite temporário. Todos os objetos próprios ficam em `sap_chamados_ai`, com verificação de identificação; não modificar tabelas dos outros projetos, executar DROP ou reset global. O usuário fará o deploy manual posteriormente; não publicar nem escolher plataforma nesta etapa. Para uso público além da banca, reavaliar autenticação, limites e privacidade.
+Não solicitar segredos no chat. O usuário configurou `.env` localmente e ativou vector. O aplicativo usa Supabase em desenvolvimento e hospedagem; somente os testes usam SQLite temporário. Todos os objetos próprios ficam em `sap_chamados_ai`, com verificação de identificação; não modificar tabelas dos outros projetos, executar DROP ou reset global. O usuário solicitou posteriormente preparar a Vercel com múltiplos serviços; publicação ainda não foi autorizada. Para uso público além da banca, reavaliar autenticação, limites e privacidade.
 
 ## Etapas e saídas verificáveis
 
@@ -29,15 +30,19 @@ Não solicitar segredos no chat. O usuário configurou `.env` localmente e ativo
 
 O fluxo HITL pode ser testado antes do LLM real, usando propostas controladas. Isso valida a barreira; não substitui a rodada integrada com o OpenRouter.
 
-## Aplicação portátil e publicação manual
+## Vercel Services e execução portátil
 
-**Decisão confirmada, substituindo Streamlit/Community Cloud:** entregar aplicativo normal sem plataforma definida. React é compilado em `frontend/dist`; FastAPI serve a interface e `/api` na mesma origem. Comandos completos no [README](../README.md). Python 3.12 e Node.js 24.14 foram usados na validação. O usuário escolherá e configurará a hospedagem pelo site do serviço posteriormente.
+**Decisão confirmada, substituindo a ausência de plataforma da D33:** preparar um projeto Vercel com múltiplos serviços, sem publicar. **Configuração proposta para confirmação do usuário:** `app`, FastAPI na raiz, recebe `/api` e `/api/*`; `frontend`, Vite em `frontend/`, recebe o restante. Nenhum serviço exclusivamente interno nesta configuração; nenhum binding, porque todas as chamadas à API partem do navegador, não de funções de outro serviço. A solicitação de confirmação dos nomes, exposição e bindings é explícita do usuário. Detalhes e comandos no [README](../README.md#deploy-na-vercel-com-dois-serviços).
 
-**Recomendação:** executar build antes de iniciar Uvicorn; manter o diretório compilado no artefato; instalar dependências Python no servidor; configurar somente os segredos do `.env.example` no ambiente. Usar HTTPS, `APP_ENV=cloud` e código de demonstração de pelo menos 12 caracteres. Proxy deve preservar origem/host e streaming NDJSON, sem buffering e com timeout adequado. Não colocar chave ou conexão de banco em variáveis Vite do navegador.
+Na Vercel, cada serviço é construído independentemente. Instância FastAPI `app:app`, Python 3.12 definido em `.python-version`/`pyproject.toml`, dependências de runtime obtidas de `requirements.txt`, duração de função de 300 s. Frontend com Node.js 24, `npm ci`, `npm run build` e saída `dist`. Rewrites públicos permanecem no topo de `vercel.json`; configurações de build/runtime ficam em cada serviço. Não incluir o frontend no bundle Python; preservar `conhecimento/` e `prompts/`. Arquivos locais e segredos ficam fora do envio via `.vercelignore`.
 
-Para execução normal há um único processo Uvicorn, sem Vite ativo. O servidor de desenvolvimento do Vite é opcional. Não deixar servidores locais de teste rodando ao encerrar o trabalho. Não há publicação automática, Docker obrigatório, configuração de plataforma ou mudança do Supabase nesta etapa.
+Configurar os segredos do `.env.example` no ambiente Vercel correspondente, com HTTPS, `APP_ENV=cloud` e código de acesso de pelo menos 12 caracteres. Não colocar chave ou conexão de banco em variáveis Vite. `/api` mantém o prefixo e a origem pública, preservando cookie e validação Origin/Host. Testar os serviços juntos com `vercel dev` ou `vercel dev -L` para modo local sem vínculo. Bindings, se surgirem no futuro, são injetados pela Vercel no chamador, apenas em funções no runtime; não definir manualmente a variável nem utilizá-la no navegador/build/middleware.
 
-Inicializar/verificar somente o schema do projeto e ingerir documentos alterados sem reconstruir embeddings desnecessariamente. A fila limitada é por processo; usar um processo inicialmente e avaliar coordenação distribuída antes de escalar. Testes React/HTTP não equivalem a revisão estética em navegador ou validação do ambiente hospedado.
+**Correção verificada em desenvolvimento:** o proxy de serviços usa um Host interno diferente do Origin do navegador. Aceitar adicionalmente a origem exata configurada no servidor por `APP_PUBLIC_ORIGIN` (ou URL de runtime Vercel) preserva o bloqueio de origens externas; não confiar em `X-Forwarded-Host` da requisição. No teste local, usar a origem e porta indicadas no comando do README. Na publicação, preencher o domínio efetivamente utilizado, sem inventar URL do projeto.
+
+A alternativa portátil permanece: compilar em `frontend/dist` e iniciar um processo Uvicorn que também serve a interface, sem Vite ativo. Não deixar servidores locais de teste rodando ao encerrar o trabalho. Não há publicação automática, Docker obrigatório ou mudança do Supabase nesta etapa.
+
+Inicializar/verificar somente o schema do projeto e ingerir documentos alterados sem reconstruir embeddings desnecessariamente. Limite de tarefas e pool de conexões são por instância; Vercel pode criar várias instâncias. Avaliar coordenação distribuída para limite global e capacidade do Supabase antes de ampliar tráfego. Testes locais não equivalem à validação do ambiente hospedado.
 
 ## Riscos e evolução
 

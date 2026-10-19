@@ -133,13 +133,39 @@ Busca, filtros, detalhes e anexos são estado React local; não chamam Python ne
 
 Para desenvolver a interface com atualização automática, mantenha a API na porta 8000 e execute `npm.cmd run dev` em `frontend/` em outro terminal. Abra a URL indicada pelo Vite (normalmente porta 5173); o proxy encaminha `/api` sem expor segredos. Para executar normalmente, basta o build e um processo Uvicorn, sem servidor Vite. No Linux/macOS, use `npm` em lugar de `npm.cmd` e o Python do ambiente correspondente.
 
-## Deploy manual, sem plataforma definida
+## Deploy na Vercel com dois serviços
 
-O usuário escolherá a hospedagem posteriormente. O contrato portátil é: instalar dependências Python, executar `npm ci && npm run build` em `frontend/`, manter `frontend/dist` junto do projeto e iniciar `python -m uvicorn app:app --host 0.0.0.0 --port PORTA_ESCOLHIDA`. Compilar antes de iniciar a API. Nenhum arquivo específico de plataforma foi imposto; não houve publicação automática.
+O [vercel.json](vercel.json) prepara um único projeto Vercel com builds independentes. **Configuração proposta, aguardando confirmação dos nomes e rotas pelo usuário:**
 
-Configure as variáveis do `.env.example` somente no servidor, `APP_ENV=cloud`, `DEMO_ACCESS_CODE` com pelo menos 12 caracteres e HTTPS. O cookie de sessão é HttpOnly, SameSite estrito e Secure fora do ambiente local. Mantenha interface e `/api` na mesma origem, preservando Host/Origin no proxy, streaming sem buffering e timeout compatível com a análise. O código de demonstração não substitui login individual de produção.
+| Serviço | Raiz e framework | Caminhos públicos |
+| --- | --- | --- |
+| `app` | `.`; FastAPI; entrada `app:app`; Python 3.12 | `/api` e `/api/*`, preservando o prefixo. |
+| `frontend` | `frontend`; Vite; Node.js 24; build em `dist` | Todos os demais caminhos, incluindo `/` e `/assets/*`. |
 
-O limite de quatro análises simultâneas e uma por sessão é por processo. Use inicialmente um processo; escalar exigirá coordenação compartilhada de tarefas. A idempotência de escritas continua transacional no Supabase. Nenhuma migração adicional ou tabela nova foi necessária nesta troca de interface.
+As regras específicas da API vêm antes do catch-all. Um endpoint inexistente em `/api/*` retorna o erro da API, sem cair na interface. O navegador continua usando URLs relativas `/api`, com cookie HttpOnly na mesma origem. O frontend Vite é estático: não há chamadas de uma função de um serviço para outro e, portanto, **nenhum binding interno é necessário**. Supabase e OpenRouter são serviços externos, configurados por segredos; não são bindings Vercel. Se futuramente houver comunicação entre funções de serviços distintos, declarar o binding no chamador e ler a URL injetada somente em runtime, sem defini-la manualmente ou expô-la por `VITE_*`.
+
+No painel Vercel, importe o repositório com **Root Directory na raiz (`.`)**, mantendo os dois serviços do arquivo. Não crie um projeto separado só para `frontend` nem defina build/framework/output globais: essas opções pertencem a cada serviço. O frontend executa `npm ci` e `npm run build`; a API instala as dependências Python. `.python-version` e `pyproject.toml` fixam Python 3.12; `frontend/package.json` especifica Node.js 24. As dependências Python de runtime continuam centralizadas em `requirements.txt`, lidas pelo empacotamento do projeto.
+
+Cadastre as variáveis do `.env.example` no ambiente Vercel correspondente: conexão Supabase com SSL, chave OpenRouter, modelos, `APP_ENV=cloud`, `DEMO_ACCESS_CODE` com pelo menos 12 caracteres e limite por sessão. Não envie `.env` ao Git e não use prefixo `VITE_` para segredos. Use ambientes Supabase separados se os previews não puderem compartilhar as sessões e o corpus do ambiente principal. O cookie é HttpOnly, SameSite estrito e Secure fora de local. O código de acesso não substitui login individual de produção.
+
+Defina `APP_PUBLIC_ORIGIN` como a origem pública exata usada no navegador, por exemplo `https://SEU_PROJETO.vercel.app`, sem caminho. Isso permite validar Origin mesmo quando o proxy de serviços usa um Host interno. Na ausência desse valor, a aplicação usa `VERCEL_URL` quando a plataforma o fornece; aliases/domínios personalizados podem exigir o valor explícito por ambiente. Nenhum cabeçalho `X-Forwarded-Host` enviado pelo cliente concede essa permissão.
+
+O serviço FastAPI tem duração máxima configurada em 300 segundos. O progresso do chat continua em NDJSON; uma aprovação humana pendente é persistida e encerra a requisição, sem aguardar o clique dentro da função. `.vercelignore` exclui segredos, ambiente virtual e artefatos locais do envio; `functions.app.py.excludeFiles` remove frontend e materiais de desenvolvimento do bundle Python, preservando `conhecimento/` e `prompts/`. Na Vercel, a interface é servida pelo serviço Vite; não depende de `frontend/dist` dentro do backend.
+
+Para conferir os serviços juntos localmente, na raiz, com `.env` configurado e `APP_ENV=local`:
+
+```powershell
+$env:APP_PUBLIC_ORIGIN='http://127.0.0.1:3000'
+npx.cmd --yes vercel@64.5.0 dev -L --listen 127.0.0.1:3000
+```
+
+`-L` executa sem vincular ou publicar um projeto e sem buscar segredos da conta Vercel. Sem essa opção, `vercel dev` pode solicitar vínculo ao projeto. As duas formas coordenam os serviços e injetam os bindings que existirem; a configuração atual não declara nenhum. Teste `/`, `/api/health`, sessão e aprovação; encerre com Ctrl+C. Esse comando pode instalar dependências locais e, ao inicializar a API, prepara somente o schema próprio do projeto. Perguntas ao modelo consomem créditos. O proxy localhost em `vite.config.ts` atende somente o desenvolvimento isolado com `npm run dev`, não chamadas internas da Vercel.
+
+O limite de quatro análises simultâneas e uma por sessão é por instância Python, sem coordenação global entre instâncias Vercel. A idempotência de escritas continua transacional no Supabase. O pool de conexões também é por instância; acompanhe os limites do Supabase ao ampliar o tráfego. Não houve nova migração, deploy ou push nesta configuração. Publicação e validação hospedada são etapas separadas.
+
+A execução portátil fora da Vercel permanece disponível: compile o React em `frontend/dist` e inicie `python -m uvicorn app:app --host 0.0.0.0 --port PORTA_ESCOLHIDA`. Nesse modo, o FastAPI serve também o build da interface.
+
+Referências oficiais: [Services](https://vercel.com/docs/services), [roteamento](https://vercel.com/docs/services/routing), [bindings](https://vercel.com/docs/services/bindings) e [FastAPI](https://vercel.com/docs/frameworks/backend/fastapi).
 
 ## Correções e citações
 
