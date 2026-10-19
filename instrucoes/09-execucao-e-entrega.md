@@ -2,7 +2,7 @@
 
 ## Estado e preparação
 
-**Decisão confirmada:** ainda não existe aplicativo executável nesta etapa. Este documento orienta a próxima implementação; nomes de configuração abaixo são recomendações, não variáveis já consumidas por código.
+**Decisão confirmada:** implementação autorizada em 18/10/2026. O aplicativo executável, os comandos e as configurações atuais estão no [README principal](../README.md). Este documento preserva o roteiro e os critérios de evolução; os resultados concluídos estão nas [evidências](../evidencias/README.md).
 
 **Recomendação:** Python 3.12 como base inicial, dependências fixadas após validar compatibilidade e entrada Streamlit na raiz. Separar domínio, infraestrutura, interface, conhecimento e testes. O README de execução da aplicação será criado junto ao primeiro caminho executável e conterá somente comandos efetivamente verificados.
 
@@ -10,11 +10,11 @@
 | --- | --- | --- |
 | `OPENROUTER_API_KEY` | Chat e embeddings | Segredo somente no servidor. |
 | `OPENROUTER_CHAT_MODEL` | `qwen/qwen3.6-plus` | Valor configurável e registrado por análise. |
-| `OPENROUTER_EMBEDDING_MODEL` | `qwen/qwen3-embedding-0.6b` | Validar disponibilidade e dimensão antes de criar o índice. |
+| `OPENROUTER_EMBEDDING_MODEL` | `qwen/qwen3-embedding-8b` | Validar disponibilidade e dimensão antes de criar o índice. |
 | `DATABASE_URL` | PostgreSQL no Supabase | Conexão segura com pool adequado ao ambiente e privilégio mínimo. |
 | `DEMO_ACCESS_CODE` | Acesso restrito à demonstração | Recomendação de acesso simples para banca, validado no servidor e nunca enviado ao LLM. |
 
-Não criar contas, solicitar segredos no chat, provisionar banco ou publicar como parte desta etapa documental. Na implementação autorizada, verificar configurações existentes antes de pedir informações ao usuário. Para uso público além da banca, reavaliar autenticação, limites e privacidade.
+Não solicitar segredos no chat. O usuário configurou `.env` localmente e ativou vector. O aplicativo usa Supabase em desenvolvimento e hospedagem; somente os testes usam SQLite temporário. Todos os objetos próprios ficam em `sap_chamados_ai`, com verificação de identificação; não modificar tabelas dos outros projetos, executar DROP ou reset global. Publicação externa ainda não foi solicitada. Para uso público além da banca, reavaliar autenticação, limites e privacidade.
 
 ## Etapas e saídas verificáveis
 

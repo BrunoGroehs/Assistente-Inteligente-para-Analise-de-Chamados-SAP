@@ -21,6 +21,11 @@
 | D13 | Interface clean, organizada, inspirada em iOS e sem excesso visual | Nova preferência explícita do usuário durante esta entrega; [interface](06-interface.md). |
 | D14 | Perguntar diante de dúvida material | Nova orientação explícita do usuário; detalhes menores seguem a direção registrada; [AGENTS.md](../AGENTS.md). |
 | D15 | Persistir na obtenção de fontes e pedir ajuda quando necessário | Usuário pode fornecer conteúdo, base de conhecimento ou dados mockados; não inventar dados indisponíveis; [RAG](04-rag-e-fontes.md). |
+| D16 | Implementar o protótipo | Usuário autorizou seguir com a implementação após a entrega documental; D01 permanece como histórico da primeira etapa. |
+| D17 | Supabase também durante o desenvolvimento | Usuário confirmou preferência por não hospedar banco local; SQLite restrito aos testes temporários. |
+| D18 | Preservar tabelas e dados de outros projetos | Schema exclusivo `sap_chamados_ai`, identificação própria e ausência de DROP/reset global. Extensão vector ativada pelo usuário. |
+| D19 | Substituir embeddings 0.6B por 8B | API real retornou ausência de endpoint para 0.6B; usuário aprovou `qwen/qwen3-embedding-8b`. Chat permanece Qwen3.6 Plus; atualiza o detalhe de embeddings de D07. |
+| D20 | Criar commits locais em português durante o trabalho | Pedido explícito do usuário para manter histórico; separar mudanças coerentes e excluir segredos. Push/publicação requerem solicitação correspondente. |
 
 ## Pendências e tratamento
 

@@ -6,6 +6,8 @@
 
 **Decisão confirmada:** prompts serão discutidos e versionados. Os textos abaixo são **recomendações em rascunho**, não prompts finais aprovados. Alterar seu texto não pode remover a barreira determinística de aprovação.
 
+**Estado implementado:** o rascunho ativo está em [prompts/system.txt](../prompts/system.txt), com versão registrada por análise. O contrato JSON também é enviado no contexto do sistema. Há no máximo uma tentativa de reparo, com campos/tipos que falharam e sem executar ações. O servidor valida referências e códigos sem documentação antes de aceitar a análise; os resultados reais alimentam a discussão posterior dos prompts.
+
 Usar camadas separadas: instrução de sistema, contexto autorizado do chamado, histórico limitado, dados retornados por consultas e trechos recuperados como conteúdo delimitado. Documentos e mensagens podem conter instruções maliciosas; não têm autoridade para mudar políticas ou ferramentas.
 
 ## Rascunho do comportamento de sistema

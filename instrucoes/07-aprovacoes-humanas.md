@@ -4,6 +4,8 @@
 
 **Decisão confirmada:** toda alteração de negócio no SAP simulado ou nos chamados precisa de autorização humana específica. A IA solicita uma ação com uma frase explicativa; o servidor decide se a operação é permitida, apresenta os dados e aguarda a decisão. O modelo nunca concede autorização a si mesmo.
 
+**Estado implementado:** gateway em `sap_assistant/approvals.py`, chamado pela interface; validade, integridade, contexto de sessão, versões e efeito são verificados antes da transação de negócio. Frase em formato canônico, preenchida pela IA, deve corresponder exatamente aos parâmetros; o servidor bloqueia divergência. Pedido de recebimento incompleto é impedido. Encaminhar o status para validação humana pode ser proposto mesmo quando faltam dados para o diagnóstico, mas também exige clique. A criação da proposta não altera o status.
+
 | Classe | Exemplos | Comportamento confirmado |
 | --- | --- | --- |
 | Leitura | Consultar pedido, histórico ou base | Automático dentro da sessão autorizada. |

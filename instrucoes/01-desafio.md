@@ -10,11 +10,11 @@ O assistente deve apoiar consultores que analisam dúvidas e incidentes SAP, red
 
 Dados, documentos, APIs e respostas SAP podem ser simulados; integração real não é obrigatória (p. 2). Agentes, ontologias, ferramentas externas e múltiplos modelos são opcionais, mas seu uso deve ser justificado. O tempo sugerido é de duas horas e a sofisticação visual não será avaliada (p. 3). Não se exige solução pronta para produção (p. 4).
 
-**Decisão confirmada:** oito chamados de SAP MM; protótipo desenvolvido em etapas, sem limite rígido de duas horas. A entrega atual contém apenas instruções para sua implementação.
+**Decisão confirmada:** oito chamados de SAP MM; protótipo desenvolvido em etapas, sem limite rígido de duas horas. A organização documental foi entregue primeiro; a implementação foi autorizada em 18/10/2026.
 
 ## Matriz de requisitos
 
-Todos os itens abaixo estão **especificados e ainda não demonstrados no aplicativo**. Os testes citados estão em [testes e avaliação](08-testes-e-avaliacao.md).
+Esta matriz mantém a especificação do enunciado. O estado de verificação de cada comportamento está em [testes e avaliação](08-testes-e-avaliacao.md) e nas [evidências reais](../evidencias/README.md); um teste planejado não equivale a aprovação funcional.
 
 | ID | Exigência e página | Documento responsável | Aceite futuro |
 | --- | --- | --- | --- |

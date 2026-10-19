@@ -35,7 +35,7 @@ As regras seguintes são **recomendações para a simulação**, não afirmaçõ
 | C07 | “Registre o recebimento de 10 UN.” Pedido 4500001007/10: 50 UN pedidas, 20 recebidas; BR01/D001; material MAT-007; unidade UN; data informada pelo usuário. | Propor recebimento simulado; mostrar saldo de 30 para 20 UN; executar uma única vez após Sim válido. |
 | C08 | “Registre o recebimento de 5 UN.” Pedido 4500001008/10: 20 UN pedidas, zero recebidas; BR01/D001; material MAT-008; unidade UN; data informada pelo usuário. | Criar proposta; usuário escolhe Não; preservar todos os dados de negócio e registrar a recusa tecnicamente. |
 
-Os textos de C07 e C08 deverão incluir uma data ISO válida na fixture final. Ela será explícita e coerente com a data do cenário, sem depender do relógio do teste. O assistente poderá obter material e localização da consulta simulada, mas a proposta deve mostrar esses valores ao humano.
+As fixtures implementadas em `sap_assistant/fixtures.py` incluem `2026-10-18` nos relatos C07 e C08, sem depender do relógio do teste. O assistente pode obter material e localização da consulta simulada, mas a proposta mostra esses valores ao humano. Os resultados esperados desta tabela não integram o índice de conhecimento.
 
 Pergunta sobre folha de pagamento será um teste adicional de fora do escopo, sem entrar na contagem dos oito chamados de MM. Falhas de infraestrutura, injeção de prompt e tentativas de burlar aprovação também são variações de teste, não novos processos SAP.
 

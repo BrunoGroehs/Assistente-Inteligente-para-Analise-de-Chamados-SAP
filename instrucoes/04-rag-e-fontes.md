@@ -2,7 +2,7 @@
 
 ## Catálogo inicial
 
-**Decisão confirmada:** conhecimento sobre recebimento de pedidos de compra em SAP MM. As fontes abaixo são candidatas à curadoria, não documentos já ingeridos. Consulta de pesquisa: 18/10/2026. As páginas S01 a S03 foram acessadas; nenhuma release numérica foi confirmada nessa leitura.
+**Decisão confirmada:** conhecimento sobre recebimento de pedidos de compra em SAP MM. As três fontes abaixo fundamentam as sínteses próprias já catalogadas em [conhecimento](../conhecimento/catalogo.json). Consulta de pesquisa: 18/10/2026. As páginas S01 a S03 foram acessadas; nenhuma release numérica foi confirmada nessa leitura. Os sites integrais não foram copiados nem indexados.
 
 | ID | Fonte oficial | Uso na base futura | Limites de aplicação |
 | --- | --- | --- | --- |
@@ -16,7 +16,7 @@ Não há corpus de chamados reais fornecido. Os chamados e o estado do simulador
 
 ## Material a preparar
 
-**Recomendação:** produzir cinco guias curtos em português, em diretório de conhecimento separado destas instruções: visão do recebimento; conferência de pedido/item e quantidades; aplicativo e indicador de entrega concluída; esclarecimento e escalonamento; políticas do SAP simulado.
+**Estado implementado:** cinco guias curtos em português, separados destas instruções: visão do recebimento; conferência de pedido/item e quantidades; aplicativo e indicador de entrega concluída; esclarecimento e escalonamento; políticas do SAP simulado. Cada guia pequeno corresponde a um trecho, com metadados no catálogo.
 
 Cada guia deve conter origem e seção de referência, título, idioma, produto/edição, release identificada ou explicitamente desconhecida, data de consulta, tipo de conteúdo, revisão e assuntos cobertos. Usar os tipos `sintese_de_fonte_oficial` e `politica_da_simulacao`; a política simulada não deve parecer um documento publicado pela SAP.
 
@@ -26,13 +26,17 @@ Preservar o vínculo entre guia, trecho e URL. Citar a síntese local com o docu
 
 ## Ingestão e recuperação
 
-**Decisão confirmada:** embeddings inicialmente `qwen/qwen3-embedding-0.6b` pelo OpenRouter, armazenados em PostgreSQL/pgvector; busca híbrida textual e vetorial.
+**Decisão confirmada:** embeddings inicialmente `qwen/qwen3-embedding-8b` pelo OpenRouter, armazenados em PostgreSQL/pgvector; busca híbrida textual e vetorial.
+
+**Atualização confirmada:** a versão 8B substituiu a escolha original 0.6B após o endpoint desta retornar HTTP 404; o usuário aprovou a troca. A integração real retornou dimensão 4.096. O código não troca modelos silenciosamente.
+
+**Estado implementado:** normalização textual em português, contagem de termos, busca vetorial por cosseno no pgvector e fusão RRF com constante 60; até quatro guias por consulta. O corpus pequeno usa varredura exata, sem índice ANN. Conteúdo/metadados recebem hash, e embeddings são reutilizados enquanto hash e modelo não mudarem. A dimensão é verificada antes da busca. Esses parâmetros iniciais estão disponíveis para calibração posterior.
 
 **Recomendação:** dividir guias por seção coerente, preservar cabeçalhos e termos SAP e gerar IDs estáveis. Deduplicar por hash do conteúdo e registrar modelo e revisão dos embeddings. Reindexar quando modelo, dimensão ou conteúdo mudar; não misturar espaços vetoriais incompatíveis.
 
 Recuperar candidatos por termos/códigos e por significado, combinar as classificações e selecionar trechos úteis sem duplicação. Aplicar filtros de processo, produto e versão quando conhecidos. A versão desconhecida não deve receber uma precisão que não existe. Os valores de tamanho de trecho, quantidade recuperada e corte de relevância são **pendências de calibração**, a registrar após a primeira avaliação; não usar um limiar arbitrário como garantia de verdade.
 
-Documentação de integração: [embeddings no OpenRouter](https://openrouter.ai/docs/api_reference/embeddings), [modelo inicial](https://openrouter.ai/qwen/qwen3-embedding-0.6b) e [pgvector no Supabase](https://supabase.com/docs/guides/database/extensions/pgvector). A identificação do modelo foi pesquisada; acesso autenticado e geração de vetores ainda não foram testados. O acesso à página do modelo apresentou falha intermitente na revisão documental: isso não comprova indisponibilidade da API.
+Documentação de integração: [embeddings no OpenRouter](https://openrouter.ai/docs/api_reference/embeddings), [modelo atual](https://openrouter.ai/qwen/qwen3-embedding-8b) e [pgvector no Supabase](https://supabase.com/docs/guides/database/extensions/pgvector). Acesso autenticado e geração de vetores foram verificados; o histórico de resultados está nas [evidências](../evidencias/README.md).
 
 ## Evidências e confiança
 
@@ -41,6 +45,8 @@ Documentação de integração: [embeddings no OpenRouter](https://openrouter.ai
 **Recomendação:** o modelo referencia somente IDs entregues no contexto. O servidor rejeita IDs inexistentes e monta links a partir do catálogo; o modelo não inventa URLs. Verificar separadamente a existência da fonte e se ela sustenta a afirmação, pois um ID válido pode ser citado fora de contexto.
 
 Mostrar quais documentos foram recuperados e quais foram efetivamente citados. Dados transacionais devem aparecer como consulta ao simulador, com ID e versão, sem URL oficial fictícia. Não enviar a base inteira ao modelo.
+
+**Estado implementado:** `DATA` identifica a consulta simulada; `RELATO` identifica o que foi informado pelo usuário, sem comprová-lo como fato SAP; K01 a K05 identificam conhecimento curado. O servidor verifica IDs e cobertura de referências e aplica política de abstinência para códigos customizados não documentados. Isso não substitui revisão semântica da sustentação de cada frase.
 
 | Confiança recomendada | Evidência necessária | Comportamento |
 | --- | --- | --- |

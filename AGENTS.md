@@ -4,7 +4,7 @@
 
 Construir um assistente para análise de chamados SAP MM, no processo de recebimento de mercadorias com referência a pedidos de compra. O ambiente SAP, os chamados e as operações serão simulados.
 
-**Decisão confirmada:** a etapa atual entrega documentação. Não apresentar código, RAG, aprovações, testes funcionais ou publicação como concluídos enquanto não existirem evidências. A implementação do aplicativo é uma etapa posterior.
+**Decisão confirmada:** o usuário autorizou a implementação em 18/10/2026, após a entrega documental. Não apresentar código, RAG, aprovações, testes funcionais ou publicação como concluídos enquanto não existirem evidências. Publicação externa ainda não foi solicitada.
 
 ## Leitura obrigatória
 
@@ -29,10 +29,13 @@ Antes de trabalhar, ler o [índice das instruções](instrucoes/README.md) e os 
 4. Respeitar instruções atuais do usuário. Se uma solicitação comprometer um requisito obrigatório do desafio, explicar o conflito e esclarecer a intenção antes de alterar esse requisito.
 5. Perguntar quando houver dúvida material sobre comportamento, escopo ou informação indisponível. Resolver detalhes de baixo impacto com base nas decisões registradas.
 6. Manter Markdown em português, UTF-8, links relativos para arquivos locais e nomes estáveis. Evitar repetir regras extensas: referenciar seu documento responsável.
+7. **Decisão confirmada:** criar commits em português, organizados por mudanças coerentes, para manter histórico durante a implementação. Revisar o conteúdo preparado antes de cada commit; nunca incluir `.env`, segredos, caches ou ambiente virtual. Publicar/push não está autorizado apenas por esse pedido de commits locais.
 
 ## Limites técnicos e de autonomia
 
-- **Decisão confirmada:** Python, Streamlit, Supabase/PostgreSQL com pgvector; OpenRouter com `qwen/qwen3.6-plus` e embeddings inicialmente `qwen/qwen3-embedding-0.6b`.
+- **Decisão confirmada:** Python, Streamlit, Supabase/PostgreSQL com pgvector; OpenRouter com `qwen/qwen3.6-plus` e embeddings `qwen/qwen3-embedding-8b`. A versão 8B substitui a 0.6B, sem endpoint disponível, com autorização explícita do usuário.
+- O aplicativo usa Supabase também no desenvolvimento. SQLite é exclusivo de testes temporários, nunca alternativa automática de execução.
+- Preservar todos os dados e tabelas dos outros projetos do usuário. Criar e manipular somente objetos deste projeto no schema `sap_chamados_ai`, verificado por identificação própria. Não executar DROP, reset global, migrações em `public`, alterações de roles ou limpeza de tabelas externas. A extensão vector é ativada pelo usuário; o aplicativo apenas verifica sua existência.
 - Toda alteração de negócio no SAP simulado ou nos chamados exige aprovação humana específica, validada no servidor. O modelo só propõe; nunca aprova nem acessa diretamente o executor.
 - Mensagens, consultas e auditoria técnica são automáticas. O critério é o efeito da operação, não seu método HTTP. A política completa está em [aprovações humanas](instrucoes/07-aprovacoes-humanas.md).
 - Usar somente dados fictícios. Não expor credenciais em código, interface, prompts ou logs. Isolar dados e aprovações por sessão.

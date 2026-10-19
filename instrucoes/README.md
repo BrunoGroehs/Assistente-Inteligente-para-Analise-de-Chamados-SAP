@@ -1,6 +1,6 @@
 # Instruções do desafio SAP
 
-**Atualizado em:** 18/10/2026. **Estado:** documentação inicial criada; aplicativo ainda não implementado.
+**Atualizado em:** 18/10/2026. **Estado:** implementação autorizada e em validação. Consulte o [README de execução](../README.md) e as [evidências](../evidencias/README.md) para o estado efetivamente verificado.
 
 Este diretório organiza os requisitos, as escolhas e os pontos a discutir do Assistente Inteligente para Análise de Chamados SAP. As regras globais estão no [AGENTS.md](../AGENTS.md).
 
@@ -32,8 +32,8 @@ O rótulo de uma seção vale para seus itens, salvo indicação diferente. Link
 
 ## Direção atual
 
-**Decisões confirmadas:** SAP MM, recebimento com referência a pedido de compra; Python + Streamlit; PostgreSQL/pgvector no Supabase; Qwen3.6 Plus e embeddings pelo OpenRouter; HITL em módulo do servidor; oito chamados fictícios; lista lateral e chat; estilo clean inspirado em iOS; protótipo mais completo, desenvolvido por etapas.
+**Decisões confirmadas:** SAP MM, recebimento com referência a pedido de compra; Python + Streamlit; PostgreSQL/pgvector no Supabase em desenvolvimento e hospedagem; Qwen3.6 Plus e embeddings Qwen3 Embedding 8B pelo OpenRouter; HITL em módulo do servidor; oito chamados fictícios; lista lateral e chat; estilo clean inspirado em iOS; protótipo mais completo, desenvolvido por etapas. Todas as tabelas próprias ficam em `sap_chamados_ai`, preservando os demais projetos.
 
-**Pendências principais:** configurar serviços, validar os endpoints, curar a base, revisar os prompts e implementar o aplicativo. Nada disso foi executado nesta etapa documental.
+**Pendências principais:** concluir a avaliação integrada dos casos, discutir os prompts e preparar a publicação quando solicitada. Configuração real e resultados de testes devem ser consultados nas evidências, sem confundir histórico documental com estado atual.
 
 Novas solicitações devem atualizar seu documento responsável e, se alterarem uma escolha, o [histórico](10-decisoes-e-pendencias.md).
