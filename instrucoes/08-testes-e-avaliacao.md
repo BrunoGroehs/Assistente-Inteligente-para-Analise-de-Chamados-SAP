@@ -4,9 +4,9 @@
 
 **Requisito do PDF:** demonstrar ao menos um sucesso e duas exceções e apresentar evidências reais de testes.
 
-**Decisão confirmada:** esta etapa é documental. Os testes funcionais abaixo estão **planejados, não executados**. Não registrar aprovação por inspeção do texto ou apresentar respostas mockadas como chamadas reais do OpenRouter.
+**Estado atual:** implementação autorizada após a etapa documental. Foram executados **75 testes automatizados**, sem falhas, e uma avaliação real de oito chamados e duas exceções com Supabase/OpenRouter. Consulte [evidências e limitações](../evidencias/README.md). Não apresentar testes com provedor controlado como chamadas reais, nem generalizar os dez casos para qualidade de produção.
 
-## Matriz de aceitação futura
+## Matriz de aceitação
 
 **Recomendação:** automatizar as invariantes de negócio e autorização; avaliar a qualidade das respostas por critérios e evidências, sem comparar apenas texto literal. IDs C01 a C08 referem-se aos [chamados](02-processo-sap.md).
 
@@ -63,11 +63,15 @@ Não afirmar percentuais de ganho sem experimento. Oito casos demonstram comport
 
 **Recomendação:** para cada execução, guardar caso, estado inicial, versão do código/prompt/base, modelo, resultado esperado e observado, aprovação/reprovação, fontes, tempos e limitação. Capturas complementam logs e estados antes/depois. Redigir o relatório final em diretório separado, sem indexá-lo no RAG.
 
-Registrar nesta entrega somente a validação documental realmente executada; resultados funcionais permanecem pendentes até existir aplicativo.
+Registrar somente verificações realmente executadas, distinguindo testes locais controlados, integração real e revisão visual.
 
-## Validação documental realizada em 18/10/2026
+**Atualização de implementação:** resultados funcionais agora estão em [testes.xml](../evidencias/testes.xml), [avaliação integrada](../evidencias/avaliacao-integrada.json) e [resumo](../evidencias/resumo-validacao.json). T01 a T08 tiveram avaliação real dos atendimentos; aceitação e recusa do gateway foram verificadas no Supabase com proposta controlada. As invariantes de autorização, isolamento, integridade, expiração, concorrência e rollback têm testes automatizados. A verificação de instrução maliciosa em documento é controlada; a avaliação adicional E02 usa uma instrução maliciosa no chat. Revisão visual em navegador, calibração ampla do RAG e teste com SAP real não foram realizados.
 
-**Evidência de verificação desta entrega:** inspeção dos arquivos e script Python executado em memória, sem adicionar código de aplicação ou testes funcionais ao repositório.
+A [interface integrada](../evidencias/interface-integrada.json) também foi testada via AppTest com os serviços reais: lista, geração de proposta C08, chat pausado, botão Não e preservação do estado de negócio.
+
+## Histórico da validação documental inicial em 18/10/2026
+
+**Evidência da primeira etapa, anterior à implementação:** inspeção dos arquivos e script Python executado em memória, sem código de aplicação naquela entrega.
 
 | Verificação | Resultado observado |
 | --- | --- |
@@ -78,4 +82,4 @@ Registrar nesta entrega somente a validação documental realmente executada; re
 | Integridade básica do Markdown | UTF-8 legível, blocos de código fechados, newline final e ausência de espaços ao fim das linhas. |
 | Revisão de conteúdo | Regras do PDF, decisões, recomendações e pendências distinguidas; instruções novas do usuário incorporadas. |
 
-As três páginas SAP do catálogo foram acessadas na pesquisa. Links externos não receberam uma certificação de disponibilidade permanente. Não foram executados testes do aplicativo, chamadas autenticadas aos modelos, validação visual de uma UI ou renderização dos diagramas Mermaid. Esses resultados não podem ser inferidos dos checks documentais.
+As três páginas SAP do catálogo foram acessadas na pesquisa. Links externos não receberam certificação de disponibilidade permanente. Na etapa documental não foram executados testes do aplicativo, chamadas autenticadas aos modelos, validação visual da UI ou renderização Mermaid. Os testes posteriores estão registrados separadamente acima.

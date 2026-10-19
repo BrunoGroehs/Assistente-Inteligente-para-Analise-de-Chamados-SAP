@@ -22,7 +22,7 @@ Contratos implementados: `Analysis`, `Evidence`, `ReceiptRequest`, `StatusReques
 
 ## Fluxo
 
-**Recomendação:** fluxo conceitual da implementação futura.
+Fluxo conceitual da implementação atual:
 
 ```mermaid
 flowchart TD

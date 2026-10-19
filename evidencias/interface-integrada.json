@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-18",
+  "method": "Streamlit AppTest com Supabase e OpenRouter reais",
+  "loaded_tickets": 8,
+  "case": "C08",
+  "pending_card_displayed": true,
+  "chat_paused_until_decision": true,
+  "refused_via_button": true,
+  "business_state_unchanged": true,
+  "buttons_removed_after_decision": true,
+  "limitations": "Teste automatizado de componentes, não inspeção visual em navegador nem clique de pessoa real."
+}

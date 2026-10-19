@@ -1,6 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 from datetime import timedelta
+from decimal import Decimal
 
 import pytest
 from pydantic import TypeAdapter, ValidationError
@@ -180,3 +181,11 @@ def test_duplicate_proposal_reuses_pending_card(store, context):
     request = receipt_request(store, context)
     assert gateway.propose(context, "C07", request) == gateway.propose(context, "C07", request)
     assert len(store.proposals(context, "C07")) == 1
+
+
+def test_gateway_revalidates_mutated_contract(store, context):
+    request = receipt_request(store, context)
+    request.parameters.quantity = Decimal("-1")
+    with pytest.raises(ValidationError):
+        ApprovalGateway(store).propose(context, "C07", request)
+    assert not store.proposals(context, "C07")

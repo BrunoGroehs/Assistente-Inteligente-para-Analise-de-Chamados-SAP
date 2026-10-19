@@ -4,7 +4,7 @@
 
 **Decisão confirmada:** implementação autorizada em 18/10/2026. O aplicativo executável, os comandos e as configurações atuais estão no [README principal](../README.md). Este documento preserva o roteiro e os critérios de evolução; os resultados concluídos estão nas [evidências](../evidencias/README.md).
 
-**Recomendação:** Python 3.12 como base inicial, dependências fixadas após validar compatibilidade e entrada Streamlit na raiz. Separar domínio, infraestrutura, interface, conhecimento e testes. O README de execução da aplicação será criado junto ao primeiro caminho executável e conterá somente comandos efetivamente verificados.
+**Estado implementado:** Python 3.12, dependências diretas fixadas após validar compatibilidade e entrada Streamlit na raiz. Domínio, infraestrutura, interface, conhecimento e testes estão separados. O README principal contém os comandos de preparação e execução; manter suas instruções alinhadas ao código e aos resultados verificados.
 
 | Configuração proposta | Finalidade | Tratamento |
 | --- | --- | --- |

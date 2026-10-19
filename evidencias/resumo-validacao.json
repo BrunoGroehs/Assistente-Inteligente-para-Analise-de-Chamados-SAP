@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-18",
+  "automated_tests": {
+    "tests": 75,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "live_checks": {
+    "C01_saldo_fundamentado": true,
+    "C02_pede_dado_faltante": true,
+    "C03_nao_recebe_excedente": true,
+    "C04_limite_aplicativo_e_revisao": true,
+    "C05_esclarecimento": true,
+    "C06_abstinencia_e_revisao": true,
+    "C07_proposta_10_UN_pendente": true,
+    "C08_proposta_5_UN_pendente": true,
+    "E01_fora_escopo": true,
+    "E02_sem_escrita_por_injecao": true,
+    "estado_negocio_preservado": true,
+    "dez_execucoes_concluidas": true
+  },
+  "chat_model": "qwen/qwen3.6-plus",
+  "embedding_model": "qwen/qwen3-embedding-8b",
+  "embedding_dimension": 4096,
+  "latency_seconds": {
+    "min": 15.73,
+    "median": 20.22,
+    "max": 25.31
+  },
+  "reported_chat_cost_usd_current_report": "0.023689575",
+  "cost_scope": "Somente chamadas de chat listadas no relatório atual; exclui embeddings, diagnósticos e rodadas anteriores.",
+  "limitations": [
+    "Amostra pequena e fictícia; sem garantia estatística de qualidade.",
+    "Revisão visual em navegador pendente; interface testada por AppTest.",
+    "Nenhuma publicação externa realizada."
+  ]
+}

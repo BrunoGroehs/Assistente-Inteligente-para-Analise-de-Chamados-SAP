@@ -29,18 +29,18 @@
 
 ## Pendências e tratamento
 
-**Pendências:** itens ainda não executados ou que exigirão validação. Não bloqueiam a conclusão desta organização documental.
+**Estado atualizado:** itens concluídos e pendências remanescentes; consultar as evidências antes de declarar uma nova capacidade validada.
 
 | ID | Informação ou trabalho pendente | Próxima ação |
 | --- | --- | --- |
 | P01 | Edição/release precisa das fontes SAP | Catalogar antes de produzir instruções dependentes de versão; perguntar ao usuário se for necessário escolher ambiente específico. |
-| P02 | Corpus próprio e condições de redistribuição | Curar sínteses, atribuição e metadados; pedir conteúdo ao usuário se as fontes necessárias não forem acessíveis. |
+| P02 | Corpus inicial concluído; expansão pendente | Cinco sínteses/políticas próprias catalogadas e indexadas; manter atribuição e pedir conteúdo ao usuário se uma expansão necessária não puder ser acessada. |
 | P03 | Prompts finais e apresentação das respostas | Debater rascunhos com o usuário e avaliar versões; [prompts](05-prompts.md). |
-| P04 | Configuração autenticada de OpenRouter e Supabase | Verificar ambiente na implementação; configurar segredos por canal apropriado, sem publicá-los no chat ou repositório. |
-| P05 | Disponibilidade e contratos reais dos modelos | Fazer chamada de chat/embeddings e validar ferramentas, esquema e dimensão. Falha intermitente de página não equivale a falha da API. |
-| P06 | Parâmetros da recuperação híbrida | Calibrar trechos, quantidade e relevância com consultas rotuladas, fora do índice. |
-| P07 | Fixtures executáveis, datas e estado inicial dos oito chamados | Materializar os cenários descritos e seus gabaritos separados. |
-| P08 | Código, testes, evidências e revisão visual | Implementar por etapas e registrar resultados reais; [testes](08-testes-e-avaliacao.md). |
+| P04 | Configuração autenticada concluída localmente | Usuário configurou `.env`; Supabase e OpenRouter verificados sem versionar credenciais. Configuração de hospedagem ainda pendente. |
+| P05 | Modelos atuais verificados | Chat Qwen3.6 Plus e embeddings 8B/4.096 dimensões testados; saídas e referências validadas pelo servidor. Revalidar se o provedor mudar. |
+| P06 | Parâmetros iniciais implementados; calibração ampla pendente | Quatro guias por consulta, busca textual/cosseno e RRF 60; avaliar corpus maior com rótulos fora do índice. |
+| P07 | Fixtures executáveis concluídas | Oito chamados com datas explícitas em C07/C08 e gabaritos fora da base. |
+| P08 | Código e validação funcional concluídos; revisão estética pendente | 75 testes aprovados e dez atendimentos reais verificados. AppTest valida componentes; revisão visual em navegador precisa ocorrer na interface em execução. |
 | P09 | Publicação, acesso da banca e limites de consumo | Configurar na etapa de publicação, validar hospedado e ensaiar apresentação. |
 
 ## Como incorporar novos pedidos
@@ -49,4 +49,4 @@
 
 Não usar este histórico como substituto para corrigir a especificação principal. Não manter duas stacks ou políticas de aprovação simultaneamente ativas por falta de atualização.
 
-**Próximo passo recomendado:** discutir os prompts e revisar os guias que formarão a base antes de implementar o atendimento integrado. Tarefas técnicas independentes, como simulador e gateway, podem avançar quando a implementação for solicitada.
+**Próximo passo recomendado:** revisar a interface em execução e discutir os prompts com o usuário; depois preparar a publicação quando solicitada. Expansão da base e calibração de qualidade permanecem evoluções posteriores, sem bloquear o uso do protótipo.

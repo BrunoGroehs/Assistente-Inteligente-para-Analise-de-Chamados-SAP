@@ -1,6 +1,6 @@
 # Instruções do desafio SAP
 
-**Atualizado em:** 18/10/2026. **Estado:** implementação autorizada e em validação. Consulte o [README de execução](../README.md) e as [evidências](../evidencias/README.md) para o estado efetivamente verificado.
+**Atualizado em:** 18/10/2026. **Estado:** protótipo implementado e validado funcionalmente; revisão estética e publicação posteriores. Consulte o [README de execução](../README.md) e as [evidências](../evidencias/README.md) para os resultados efetivamente verificados.
 
 Este diretório organiza os requisitos, as escolhas e os pontos a discutir do Assistente Inteligente para Análise de Chamados SAP. As regras globais estão no [AGENTS.md](../AGENTS.md).
 

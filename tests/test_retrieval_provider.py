@@ -97,6 +97,8 @@ def test_format_repair_is_bounded_and_no_execution_tools_sent(monkeypatch):
         calls.append(payload)
         assert "tools" not in payload
         assert payload["provider"]["require_parameters"] is True
+        assert '"summary"' in payload["messages"][0]["content"]
+        assert payload["reasoning"]["enabled"] is False
         return httpx.Response(200, json={"choices": [{"message": {"content": "invalid"}}]})
 
     provider = provider_with(handler)
@@ -129,3 +131,30 @@ def test_key_is_required_without_network():
     provider = OpenRouter(Settings(database_url="unused"))
     with pytest.raises(ProviderError, match="Configure"):
         provider.embed(["a"])
+
+
+def test_invalid_references_receive_bounded_repair():
+    answer = dict(summary="Sem dados", process="recebimento_pedido_compra", facts=[], hypotheses=[],
+                  missing_information=["Qual o pedido?"], next_steps=[], references=["INVENTADA"], confidence="baixa",
+                  confidence_reason="Sem dados", human_review=True, action=None)
+    calls = []
+
+    def handler(request):
+        calls.append(json.loads(request.content))
+        current = {**answer, "references": [] if len(calls) == 2 else ["INVENTADA"]}
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(current)}}]})
+
+    result, metadata = provider_with(handler).analyze({}, [])
+    assert not result.references
+    assert len(metadata["attempts"]) == 2
+    assert "references" in calls[1]["messages"][-1]["content"]
+
+
+def test_scope_policy_discards_irrelevant_facts_and_any_action():
+    raw = {"process": "fora_do_escopo", "facts": [{"text": "Informação alheia ao atendimento"}],
+           "action": {"operation": "execute_sql"}}
+    provider = provider_with(lambda _: httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(raw)}}]}))
+    analysis, metadata = provider.analyze({}, [])
+    assert analysis.process == "fora_do_escopo"
+    assert analysis.action is None and not analysis.facts and not analysis.references
+    assert metadata["server_policy"] == "fora_do_escopo"

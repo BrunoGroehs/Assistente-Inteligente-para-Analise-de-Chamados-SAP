@@ -6,5 +6,5 @@
   "approved_result": "executada",
   "duplicate_execution_prevented": true,
   "cross_session_decision_blocked": true,
-  "notes": "Gateway testado com proposta controlada, sem infer?ncia LLM. Somente dados fict?cios em tabelas do projeto."
+  "notes": "Gateway testado com proposta controlada, sem inferência LLM. Somente dados fictícios em tabelas do projeto."
 }

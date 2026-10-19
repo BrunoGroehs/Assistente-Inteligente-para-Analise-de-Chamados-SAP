@@ -116,6 +116,21 @@ def test_analysis_limit_enforced(service, context):
         service.analyze(context, "C01", "Segunda")
 
 
+def test_incomplete_ticket_can_receive_read_context_in_followup(service, store, context):
+    service.analyze(context, "C05", "Está dando erro ao receber material.")
+    service.analyze(context, "C05", "O pedido é 4500001002, item 10.")
+    details = store.messages(context, "C05")[-1]["details"]
+    data = next(x for x in details["evidence"] if x["id"] == "DATA")
+    assert "4500001002" in data["content"]
+    assert store.state(context)["tickets"]["C05"]["purchase_order"] is None
+
+
+def test_unknown_order_never_uses_unrelated_fixture_data(service, store, context):
+    service.analyze(context, "C01", "Na verdade o pedido é 4599999999, item 10.")
+    details = store.messages(context, "C01")[-1]["details"]
+    assert not any(x["id"] == "DATA" for x in details["evidence"])
+
+
 def test_fact_must_reference_delivered_evidence(service):
     analysis = Analysis(summary="Teste", process="recebimento_pedido_compra",
                         facts=[Fact(text="Fato", evidence_ids=["INVENTADO"])], hypotheses=[], missing_information=[],
@@ -123,6 +138,15 @@ def test_fact_must_reference_delivered_evidence(service):
                         human_review=True, action=None)
     with pytest.raises(ValueError):
         service._validate_evidence(analysis, [])
+
+
+def test_scope_boundary_does_not_require_irrelevant_sap_citations(service):
+    analysis = Analysis(summary="Folha de pagamento está fora deste atendimento de recebimento SAP MM.",
+                        process="fora_do_escopo", facts=[], hypotheses=[], missing_information=[],
+                        next_steps=[], references=[], confidence="alta", confidence_reason="Escopo explícito.",
+                        human_review=False, action=None)
+    service._validate_evidence(analysis, [])
+    service._validate_evidence(analysis, [], ["ZMM_999"])
 
 
 def test_prompt_context_never_contains_session_token(store, context):
@@ -137,6 +161,19 @@ def test_prompt_context_never_contains_session_token(store, context):
     provider = InspectProvider()
     service = AssistantService(store, Retriever(store, provider), provider)
     service.analyze(context, "C01", "Teste")
+
+
+def test_unknown_custom_code_cannot_receive_speculative_cause(store, context):
+    class SpeculativeProvider(ControlledProvider):
+        def analyze(self, ctx, history):
+            analysis, metadata = super().analyze(ctx, history)
+            analysis.hypotheses = ["Pode ser uma configuração técnica não documentada."]
+            return analysis, metadata
+
+    provider = SpeculativeProvider()
+    service = AssistantService(store, Retriever(store, provider), provider)
+    assert service.analyze(context, "C06", "O código é ZMM_999.")["state"] == "failed"
+    assert not store.proposals(context, "C06")
 
 
 @pytest.mark.parametrize("case", ["C01", "C02", "C03", "C04", "C05", "C06", "C07", "C08"])

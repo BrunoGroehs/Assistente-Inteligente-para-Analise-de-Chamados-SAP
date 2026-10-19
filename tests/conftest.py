@@ -51,8 +51,10 @@ class ControlledProvider:
         return Analysis(summary="Resposta controlada para testar o fluxo, sem inferência real.",
                         process="recebimento_pedido_compra", facts=[], hypotheses=[], missing_information=[],
                         next_steps=["Conferir as evidências."], references=references,
-                        confidence="media", confidence_reason="Provedor controlado de teste.",
-                        human_review=False, action=None), {"requested_model": "teste/controlled", "attempts": []}
+                        confidence="baixa" if context.get("undocumented_codes") else "media",
+                        confidence_reason="Provedor controlado de teste.",
+                        human_review=bool(context.get("undocumented_codes")), action=None), {
+                            "requested_model": "teste/controlled", "attempts": []}
 
 
 class ReceiptProvider(ControlledProvider):

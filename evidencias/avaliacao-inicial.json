@@ -1,0 +1,587 @@
+{
+  "date": "2026-10-18",
+  "mode": "Supabase e OpenRouter reais",
+  "embedding_model": "qwen/qwen3-embedding-8b",
+  "cases": [
+    {
+      "case": "C01",
+      "result": "completed",
+      "analysis": {
+        "summary": "O usuário questiona por que ainda aparecem 40 unidades restantes no pedido 4500001001, item 10, após informar o recebimento de 60 UN. A consulta de dados (DATA) confirma que o pedido tinha 100 UN solicitadas, 60 UN já recebidas e um saldo restante de 40 UN. O indicador de entrega concluída está falso. Trata-se de um comportamento esperado de recebimento parcial, onde o saldo reflete a diferença entre o quantity ordered e o quantity received.",
+        "process": "recebimento_pedido_compra",
+        "facts": [
+          {
+            "text": "O pedido 4500001001, item 10, possui quantidade total solicitada de 100 UN.",
+            "evidence_ids": [
+              "DATA"
+            ]
+          },
+          {
+            "text": "A quantidade já recebida para o item 10 do pedido 4500001001 é de 60 UN.",
+            "evidence_ids": [
+              "DATA"
+            ]
+          },
+          {
+            "text": "O saldo restante (remaining) exibido no sistema é de 40 UN.",
+            "evidence_ids": [
+              "DATA"
+            ]
+          },
+          {
+            "text": "O indicador de entrega concluída (delivery_completed) está definido como false.",
+            "evidence_ids": [
+              "DATA"
+            ]
+          },
+          {
+            "text": "Em recebimentos parciais, o saldo demonstrado é a quantidade pedida menos a quantidade já recebida, não configurando erro.",
+            "evidence_ids": [
+              "K02"
+            ]
+          }
+        ],
+        "hypotheses": [],
+        "missing_information": [],
+        "next_steps": [
+          "Esclarecer ao usuário que o saldo de 40 UN é esperado, pois o pedido original era de 100 UN e apenas 60 UN foram recebidas até o momento.",
+          "Informar que o item permanece aberto para recebimento das 40 UN restantes, conforme indicado pelo status delivery_completed: false."
+        ],
+        "references": [
+          "DATA",
+          "K02",
+          "K01"
+        ],
+        "confidence": "alta",
+        "confidence_reason": "Os dados da consulta simulada (DATA) são consistentes com a descrição do usuário e com a lógica de recebimento parcial explicada na síntese K02. Não há contradições ou informações faltantes para responder à pergunta de 'por que' o saldo existe.",
+        "human_review": false,
+        "action": null
+      },
+      "error_message": null,
+      "proposals": [],
+      "proposal_blocked": null,
+      "provider": {
+        "requested_model": "qwen/qwen3.6-plus",
+        "attempts": [
+          {
+            "model": "qwen/qwen3.6-plus",
+            "usage": {
+              "prompt_tokens": 3109,
+              "completion_tokens": 623,
+              "total_tokens": 3732,
+              "cost": 0.002225275,
+              "is_byok": false,
+              "prompt_tokens_details": {
+                "cached_tokens": 0,
+                "cache_write_tokens": 0,
+                "audio_tokens": 0,
+                "video_tokens": 0
+              },
+              "cost_details": {
+                "upstream_inference_cost": 0.002225275,
+                "upstream_inference_prompt_cost": 0.001010425,
+                "upstream_inference_completions_cost": 0.00121485
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 0,
+                "image_tokens": 0,
+                "audio_tokens": 0
+              }
+            },
+            "request_id": "gen-1792367841-tOP83a7j8QOXrrFkUkd9"
+          }
+        ],
+        "prompt_version": "Versão: 2026-10-18.2 (rascunho implementado para avaliação)"
+      },
+      "latency_ms": 22319
+    },
+    {
+      "case": "C02",
+      "result": "completed",
+      "analysis": {
+        "summary": "O usuário solicita registrar o recebimento de 25 UN para o pedido 4500001002, item 10. Os dados do pedido indicam saldo disponível de 80 UN (100 pedidos - 20 recebidos). A quantidade solicitada (25) está dentro do saldo. Contudo, falta a data de lançamento (posting_date), requisito obrigatório conforme as regras do simulado (K05).",
+        "process": "recebimento_pedido_compra",
+        "facts": [
+          {
+            "text": "O chamado C02 refere-se ao pedido 4500001002, item 10, com solicitação de registrar 25 UN.",
+            "evidence_ids": [
+              "DATA"
+            ]
+          },
+          {
+            "text": "A consulta DATA mostra: material MAT-002, planta BR01, local D001, unidade UN, total pedido 100, já recebido 20, saldo restante 80 e entrega não concluída.",
+            "evidence_ids": [
+              "DATA"
+            ]
+          },
+          {
+            "text": "A regra K05 exige que a data de lançamento seja informada explicitamente para registrar recebimento simulado.",
+            "evidence_ids": [
+              "K05"
+            ]
+          }
+        ],
+        "hypotheses": [],
+        "missing_information": [
+          "Data de lançamento (posting_date) para o recebimento."
+        ],
+        "next_steps": [
+          "Solicitar ao usuário a data de lançamento desejada para o recebimento.",
+          "Após obter a data, verificar elegibilidade e propor a ação de registro."
+        ],
+        "references": [
+          "DATA",
+          "K05"
+        ],
+        "confidence": "media",
+        "confidence_reason": "Os dados do pedido e a quantidade são consistentes e há saldo suficiente. A confiança é média apenas porque falta um parâmetro obrigatório (data) para executar a ação, impedindo a proposta imediata de registro.",
+        "human_review": false,
+        "action": null
+      },
+      "error_message": null,
+      "proposals": [],
+      "proposal_blocked": null,
+      "provider": {
+        "requested_model": "qwen/qwen3.6-plus",
+        "attempts": [
+          {
+            "model": "qwen/qwen3.6-plus",
+            "usage": {
+              "prompt_tokens": 3088,
+              "completion_tokens": 499,
+              "total_tokens": 3587,
+              "cost": 0.00197665,
+              "is_byok": false,
+              "prompt_tokens_details": {
+                "cached_tokens": 0,
+                "cache_write_tokens": 0,
+                "audio_tokens": 0,
+                "video_tokens": 0
+              },
+              "cost_details": {
+                "upstream_inference_cost": 0.00197665,
+                "upstream_inference_prompt_cost": 0.0010036,
+                "upstream_inference_completions_cost": 0.00097305
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 0,
+                "image_tokens": 0,
+                "audio_tokens": 0
+              }
+            },
+            "request_id": "gen-1792367865-5akvab7DgykQYLolhYVv"
+          }
+        ],
+        "prompt_version": "Versão: 2026-10-18.2 (rascunho implementado para avaliação)"
+      },
+      "latency_ms": 17049
+    },
+    {
+      "case": "C03",
+      "result": "completed",
+      "analysis": {
+        "summary": "O usuário relata dificuldade em registrar o recebimento de 35 UN para o pedido 4500001003, item 10. A consulta ao sistema indica que o saldo disponível é de apenas 20 UN (100 pedidas - 80 recebidas). As regras do simulador (K05) proíbem o recebimento acima do saldo disponível. Portanto, a ação solicitada viola as restrições de controle. É necessário esclarecer a divergência entre a quantidade física (35) e o saldo sistêmico (20) antes de qualquer registro.",
+        "process": "recebimento_pedido_compra",
+        "facts": [
+          {
+            "text": "O usuário deseja registrar 35 UN para o pedido 4500001003, item 10.",
+            "evidence_ids": [
+              "DATA"
+            ]
+          },
+          {
+            "text": "A consulta DATA mostra que o saldo restante para o item 10 do pedido 4500001003 é de 20 UN.",
+            "evidence_ids": [
+              "DATA"
+            ]
+          },
+          {
+            "text": "As regras do simulador (K05) estabelecem que não é permitido receber quantidade acima do saldo disponível.",
+            "evidence_ids": [
+              "K05"
+            ]
+          }
+        ],
+        "hypotheses": [
+          "Há um erro na quantidade informada pelo usuário ou na conferência física.",
+          "Há necessidade de ajuste no pedido de compra para aumentar a quantidade antes do recebimento.",
+          "O usuário está tentando forçar um recebimento excedente sem autorização ou configuração de tolerância."
+        ],
+        "missing_information": [
+          "Confirmação se a quantidade física de 35 UN está correta ou se houve erro de contagem.",
+          "Intenção do usuário sobre como proceder com as 15 UN excedentes ao saldo (20 UN disponíveis vs 35 UN entregues)."
+        ],
+        "next_steps": [
+          "Informar ao usuário que o saldo disponível é de 20 UN, inferior às 35 UN relatadas.",
+          "Solicitar confirmação da quantidade correta a ser registrada ou instrução sobre o tratamento do excedente.",
+          "Não realizar o registro simulado pois violaria a regra de saldo máximo."
+        ],
+        "references": [
+          "DATA",
+          "K05",
+          "K02"
+        ],
+        "confidence": "alta",
+        "confidence_reason": "Os dados do sistema (DATA) e as regras de negócio do simulador (K05) são claros e conflitantes com a solicitação direta de registro de 35 UN. Não há ambiguidade sobre a impossibilidade técnica atual de registrar o valor solicitado.",
+        "human_review": false,
+        "action": null
+      },
+      "error_message": null,
+      "proposals": [],
+      "proposal_blocked": null,
+      "provider": {
+        "requested_model": "qwen/qwen3.6-plus",
+        "attempts": [
+          {
+            "model": "qwen/qwen3.6-plus",
+            "usage": {
+              "prompt_tokens": 3096,
+              "completion_tokens": 667,
+              "total_tokens": 3763,
+              "cost": 0.00230685,
+              "is_byok": false,
+              "prompt_tokens_details": {
+                "cached_tokens": 0,
+                "cache_write_tokens": 0,
+                "audio_tokens": 0,
+                "video_tokens": 0
+              },
+              "cost_details": {
+                "upstream_inference_cost": 0.00230685,
+                "upstream_inference_prompt_cost": 0.0010062,
+                "upstream_inference_completions_cost": 0.00130065
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 0,
+                "image_tokens": 0,
+                "audio_tokens": 0
+              }
+            },
+            "request_id": "gen-1792367888-3VHutAuxuqBWqvdX6TEn"
+          }
+        ],
+        "prompt_version": "Versão: 2026-10-18.2 (rascunho implementado para avaliação)"
+      },
+      "latency_ms": 20119
+    },
+    {
+      "case": "C04",
+      "result": "completed",
+      "analysis": {
+        "summary": "O item 10 do pedido 4500001004 não aparece no aplicativo 'Post Goods Receipt for Purchasing Document'. A consulta de dados (DATA) indica que o indicador 'delivery_completed' está definido como true para este item, embora haja saldo pendente (40 UN). A evidência K03 explica que itens com entrega concluída não são copiados neste aplicativo específico. Recomenda-se revisão humana para avaliar a consistência do indicador frente ao saldo existente.",
+        "process": "recebimento_pedido_compra",
+        "facts": [
+          {
+            "text": "O usuário relata que o item 10 do pedido 4500001004 não está visível no aplicativo 'Post Goods Receipt for Purchasing Document'.",
+            "evidence_ids": [
+              "DATA"
+            ]
+          },
+          {
+            "text": "A consulta simulada mostra que o item 10 tem indicador 'delivery_completed' = true, quantidade pedida 100 UN, recebida 60 UN e saldo restante 40 UN.",
+            "evidence_ids": [
+              "DATA"
+            ]
+          },
+          {
+            "text": "A síntese K03 afirma que, no aplicativo 'Post Goods Receipt for Purchasing Document', itens com indicador de entrega concluída não são copiados/exibidos.",
+            "evidence_ids": [
+              "K03"
+            ]
+          }
+        ],
+        "hypotheses": [
+          "O indicador de entrega concluída (Delivery Completed) está ativo incorretamente, bloqueando a visualização no aplicativo específico, apesar de haver saldo físico/financeiro a receber.",
+          "O comportamento é esperado pelo design do aplicativo conforme descrito em K03, exigindo correção dos dados mestre ou uso de transação alternativa (MIGO) se configurado."
+        ],
+        "missing_information": [],
+        "next_steps": [
+          "Solicitar revisão humana para verificar a necessidade de alterar o indicador de entrega concluída ou usar outra transação.",
+          "Não propor registro de recebimento via simulador pois o item não está disponível na interface relatada e há inconsistência de dados (saldo vs indicador)."
+        ],
+        "references": [
+          "DATA",
+          "K03",
+          "K04"
+        ],
+        "confidence": "media",
+        "confidence_reason": "Há evidência clara da causa técnica (indicador delivery_completed=true bloqueando exibição conforme K03), mas a correção (alterar indicador) foge às capacidades do assistente e requer validação humana devido à inconsistência entre o indicador e o saldo existente.",
+        "human_review": true,
+        "action": {
+          "operation": "atualizar_status_chamado",
+          "parameters": {
+            "status": "em_validacao_humana"
+          },
+          "confirmation_phrase": "Posso alterar o chamado C04 para em validação humana?"
+        }
+      },
+      "error_message": null,
+      "proposals": [
+        {
+          "state": "pendente",
+          "operation": "atualizar_status_chamado",
+          "effect": {
+            "operation": "Alteração de situação",
+            "ticket": "C04",
+            "before": "aberto",
+            "after": "em_validacao_humana"
+          }
+        }
+      ],
+      "proposal_blocked": null,
+      "provider": {
+        "requested_model": "qwen/qwen3.6-plus",
+        "attempts": [
+          {
+            "model": "qwen/qwen3.6-plus",
+            "usage": {
+              "prompt_tokens": 3110,
+              "completion_tokens": 679,
+              "total_tokens": 3789,
+              "cost": 0.0023348,
+              "is_byok": false,
+              "prompt_tokens_details": {
+                "cached_tokens": 0,
+                "cache_write_tokens": 0,
+                "audio_tokens": 0,
+                "video_tokens": 0
+              },
+              "cost_details": {
+                "upstream_inference_cost": 0.0023348,
+                "upstream_inference_prompt_cost": 0.00101075,
+                "upstream_inference_completions_cost": 0.00132405
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 0,
+                "image_tokens": 0,
+                "audio_tokens": 0
+              }
+            },
+            "request_id": "gen-1792367914-zcaQM7XLMsur3nBcJkQB"
+          }
+        ],
+        "prompt_version": "Versão: 2026-10-18.2 (rascunho implementado para avaliação)"
+      },
+      "latency_ms": 20460
+    },
+    {
+      "case": "C05",
+      "result": "completed",
+      "analysis": {
+        "summary": "O chamado C05 relata um erro genérico ao receber material, sem fornecer detalhes específicos como número do pedido, item, mensagem de erro ou transação utilizada. De acordo com a política K04, é necessário solicitar essas informações para identificar o problema. Não há dados suficientes para propor uma ação de recebimento ou alteração de status.",
+        "process": "recebimento_pedido_compra",
+        "facts": [
+          {
+            "text": "O usuário relatou apenas 'Está dando erro ao receber material' sem especificar o contexto.",
+            "evidence_ids": [
+              "K04"
+            ]
+          },
+          {
+            "text": "Faltam informações críticas: número do pedido de compra, item, mensagem completa do erro e aplicativo/transação utilizado.",
+            "evidence_ids": [
+              "K04"
+            ]
+          },
+          {
+            "text": "A política K04 orienta a solicitar esses dados quando o relato não permitir identificar o problema.",
+            "evidence_ids": [
+              "K04"
+            ]
+          }
+        ],
+        "hypotheses": [],
+        "missing_information": [
+          "Número do pedido de compra",
+          "Item do pedido",
+          "Mensagem completa do erro",
+          "Aplicativo ou transação utilizada (ex: MIGO)",
+          "Resultado esperado"
+        ],
+        "next_steps": [
+          "Solicitar ao usuário o número do pedido, item, mensagem de erro e transação utilizada.",
+          "Aguardar resposta do usuário para análise detalhada."
+        ],
+        "references": [
+          "K04"
+        ],
+        "confidence": "baixa",
+        "confidence_reason": "Informações insuficientes para diagnosticar o erro ou propor uma solução, conforme exigido pela política K04.",
+        "human_review": false,
+        "action": null
+      },
+      "error_message": null,
+      "proposals": [],
+      "proposal_blocked": null,
+      "provider": {
+        "requested_model": "qwen/qwen3.6-plus",
+        "attempts": [
+          {
+            "model": "qwen/qwen3.6-plus",
+            "usage": {
+              "prompt_tokens": 2903,
+              "completion_tokens": 434,
+              "total_tokens": 3337,
+              "cost": 0.001789775,
+              "is_byok": false,
+              "prompt_tokens_details": {
+                "cached_tokens": 0,
+                "cache_write_tokens": 0,
+                "audio_tokens": 0,
+                "video_tokens": 0
+              },
+              "cost_details": {
+                "upstream_inference_cost": 0.001789775,
+                "upstream_inference_prompt_cost": 0.000943475,
+                "upstream_inference_completions_cost": 0.0008463
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 0,
+                "image_tokens": 0,
+                "audio_tokens": 0
+              }
+            },
+            "request_id": "gen-1792367941-LB6JzeFaNXksmahkMKxW"
+          }
+        ],
+        "prompt_version": "Versão: 2026-10-18.2 (rascunho implementado para avaliação)"
+      },
+      "latency_ms": 16863
+    },
+    {
+      "case": "C06",
+      "result": "failed",
+      "analysis": {},
+      "error_message": "A IA retornou uma resposta incompatível após uma tentativa de reparo.",
+      "proposals": [],
+      "proposal_blocked": null,
+      "provider": null,
+      "latency_ms": null
+    },
+    {
+      "case": "C07",
+      "result": "completed",
+      "analysis": {
+        "summary": "O chamado solicita o registro de recebimento simulado de 10 UN para o pedido 4500001007, item 10. A consulta de dados (DATA) confirma que o item existe, possui saldo suficiente (30 UN) e os parâmetros de material, centro e depósito estão disponíveis. Todos os requisitos da política de simulação (K05) foram atendidos.",
+        "process": "recebimento_pedido_compra",
+        "facts": [
+          {
+            "text": "O pedido 4500001007, item 10, refere-se ao material MAT-007, no centro BR01 e depósito D001, com unidade UN.",
+            "evidence_ids": [
+              "DATA"
+            ]
+          },
+          {
+            "text": "A quantidade pedida é 50 UN, a recebida é 20 UN e o saldo disponível é 30 UN.",
+            "evidence_ids": [
+              "DATA"
+            ]
+          },
+          {
+            "text": "A solicitação é para registrar 10 UN na data de lançamento 2026-10-18, valor inferior ao saldo disponível de 30 UN.",
+            "evidence_ids": [
+              "DATA"
+            ]
+          },
+          {
+            "text": "A política K05 permite recebimento positivo até o saldo disponível, desde que a data de lançamento seja informada.",
+            "evidence_ids": [
+              "K05"
+            ]
+          }
+        ],
+        "hypotheses": [],
+        "missing_information": [],
+        "next_steps": [
+          "Propor o registro do recebimento simulado conforme os dados validados."
+        ],
+        "references": [
+          "DATA",
+          "K05"
+        ],
+        "confidence": "alta",
+        "confidence_reason": "Os dados do pedido e item foram confirmados via consulta (DATA). A quantidade solicitada (10) respeita o limite do saldo disponível (30) e a unidade está correta. A data de lançamento foi fornecida explicitamente. Não há lacunas ou conflitos.",
+        "human_review": false,
+        "action": {
+          "operation": "registrar_recebimento_simulado",
+          "parameters": {
+            "purchase_order": "4500001007",
+            "item": "10",
+            "quantity": "10",
+            "unit": "UN",
+            "material": "MAT-007",
+            "plant": "BR01",
+            "storage_location": "D001",
+            "posting_date": "2026-10-18"
+          },
+          "confirmation_phrase": "Posso registrar o recebimento simulado de 10 UN no pedido 4500001007, item 10?"
+        }
+      },
+      "error_message": null,
+      "proposals": [
+        {
+          "state": "pendente",
+          "operation": "registrar_recebimento_simulado",
+          "effect": {
+            "operation": "Recebimento simulado",
+            "purchase_order": "4500001007",
+            "item": "10",
+            "material": "MAT-007",
+            "plant": "BR01",
+            "storage_location": "D001",
+            "quantity": "10",
+            "unit": "UN",
+            "posting_date": "2026-10-18",
+            "before": "30",
+            "after": "20"
+          }
+        }
+      ],
+      "proposal_blocked": null,
+      "provider": {
+        "requested_model": "qwen/qwen3.6-plus",
+        "attempts": [
+          {
+            "model": "qwen/qwen3.6-plus",
+            "usage": {
+              "prompt_tokens": 3153,
+              "completion_tokens": 677,
+              "total_tokens": 3830,
+              "cost": 0.002344875,
+              "is_byok": false,
+              "prompt_tokens_details": {
+                "cached_tokens": 0,
+                "cache_write_tokens": 0,
+                "audio_tokens": 0,
+                "video_tokens": 0
+              },
+              "cost_details": {
+                "upstream_inference_cost": 0.002344875,
+                "upstream_inference_prompt_cost": 0.001024725,
+                "upstream_inference_completions_cost": 0.00132015
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 0,
+                "image_tokens": 0,
+                "audio_tokens": 0
+              }
+            },
+            "request_id": "gen-1792368002-yjl0RbuVaodzEyh7dfnu"
+          }
+        ],
+        "prompt_version": "Versão: 2026-10-18.3 (rascunho implementado para avaliação)"
+      },
+      "latency_ms": 21343
+    },
+    {
+      "case": "C08",
+      "result": "failed",
+      "analysis": {},
+      "error_message": "Não foi possível validar a análise. Nenhuma ação executada.",
+      "proposals": [],
+      "proposal_blocked": null,
+      "provider": null,
+      "latency_ms": null
+    }
+  ]
+}
