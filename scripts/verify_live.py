@@ -411,12 +411,18 @@ def main():
             next(x for x in app.button if x.label == label).click().run(timeout=180)
             assert not app.exception
 
+        def attach(app, key):
+            click(app, "Chamados")
+            app.selectbox(key="dialog_case").set_value(key).run()
+            click(app, "Anexar ao chat")
+
         st.cache_resource.clear()
         with patch.object(runtime, "create_runtime", wrapped):
             app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=180).run()
-            assert not app.exception and len(app.sidebar.radio[0].options) == 8
+            assert not app.exception and not app.sidebar.radio and app.session_state["attached_case"] is None
             ui_store, _, _ = created[0]
             context = app.session_state["context"]
+            attach(app, "C01")
             click(app, "Analisar chamado")
             latest = ui_store.messages(context, "C01")[-1]
             citations = message_citations(latest["details"])
@@ -429,7 +435,7 @@ def main():
             assert not app.text and not app.get("dialog")
             app.run()
             assert ui_store.state(context) == before_state and dict(calls) == before_calls
-            app.sidebar.radio[0].set_value("C07").run()
+            attach(app, "C07")
             click(app, "Analisar chamado")
             assert app.chat_input[0].disabled and not ui_store.state(context)["receipts"]
             click(app, "Sim, autorizar")
@@ -437,7 +443,7 @@ def main():
             calls_after_approval = dict(calls)
             app.run()
             assert len(ui_store.state(context)["receipts"]) == 1 and dict(calls) == calls_after_approval
-            app.sidebar.radio[0].set_value("C08").run()
+            attach(app, "C08")
             click(app, "Analisar chamado")
             before_refusal = ui_store.state(context)
             click(app, "Não, recusar")

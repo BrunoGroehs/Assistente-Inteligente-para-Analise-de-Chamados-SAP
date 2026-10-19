@@ -38,6 +38,8 @@ Preservar o vínculo entre guia, trecho e URL. Citar a síntese local com o docu
 
 **Estado implementado:** normalização textual em português, contagem de termos, busca vetorial por cosseno no pgvector e fusão RRF com constante 60; até quatro sínteses oficiais por consulta, acrescidas das duas políticas da demonstração como contexto obrigatório. Essa seleção substitui o limite anterior de quatro guias misturados, que podia omitir regras do simulador. A busca usa a mensagem atual, o título e o relato do chamado; a verificação de cobertura prioriza a pergunta atual, com histórico para resolver referências.
 
+**Decisão confirmada para anexo opcional:** sem chamado, a consulta usa somente a pergunta atual e a cobertura recebe apenas o histórico do canal geral. Não inserir título, relato, pedido, evidência `DATA` ou histórico de um chamado removido. Com anexo, o fluxo usa os dados daquele chamado e seu histórico correspondente. A linha do tempo apresentada ao usuário pode conter ambos os contextos, mas não é enviada integralmente ao modelo. A base de conhecimento e a regra de insuficiência são as mesmas nos dois modos.
+
 O corpus pequeno usa varredura exata, sem índice ANN. Conteúdo/metadados recebem hash, e embeddings são reutilizados enquanto hash e modelo não mudarem. A dimensão é verificada antes da busca. Base vazia produz resposta explícita de insuficiência, sem chamada de geração ou proposta.
 
 **Recomendação:** dividir guias por seção coerente, preservar cabeçalhos e termos SAP e gerar IDs estáveis. Deduplicar por hash do conteúdo e registrar modelo e revisão dos embeddings. Reindexar quando modelo, dimensão ou conteúdo mudar; não misturar espaços vetoriais incompatíveis.

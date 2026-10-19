@@ -1,0 +1,151 @@
+{
+  "date": "2026-10-19T01:51:26.103067+00:00",
+  "mode": "Chat único e anexos opcionais com Supabase/OpenRouter reais; consome créditos.\n\nAppTest automatiza os cliques; não representa revisão visual ou consentimento de\numa pessoa. Cria uma sessão fictícia nova, sem alterar tabelas de outros projetos.\n",
+  "api_calls": {
+    "embeddings": 4,
+    "completions": 6
+  },
+  "checks": [
+    {
+      "check": "Pergunta geral real sem chamado ou painel lateral",
+      "passed": true,
+      "details": {
+        "no_sidebar_or_automatic_case": true,
+        "general_rag_answer": {
+          "summary": "O recebimento de mercadorias com referência a um pedido de compra é o processo de registrar a entrada física dos itens adquiridos, conferindo material e quantidade contra os itens abertos do pedido. Esta ação atualiza o histórico do pedido e gera documentos de material e, potencialmente, contábeis.",
+          "process": "recebimento_pedido_compra",
+          "facts": [
+            {
+              "text": "Registrar a entrada com referência ao pedido permite conferir os itens abertos, verificando o material efetivamente entregue e a quantidade.",
+              "evidence_ids": [
+                "K01"
+              ]
+            },
+            {
+              "text": "O lançamento atualiza o histórico dos itens do pedido e gera documento de material.",
+              "evidence_ids": [
+                "K01"
+              ]
+            },
+            {
+              "text": "Recebimentos valorizados também podem gerar documento contábil.",
+              "evidence_ids": [
+                "K01"
+              ]
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [
+            "Consultar a documentação oficial para detalhes sobre configurações específicas de validade ou tipos de estoque."
+          ],
+          "references": [
+            "K01",
+            "RELATO"
+          ],
+          "confidence": "alta",
+          "confidence_reason": "A resposta baseia-se diretamente na síntese da fonte oficial (K01) fornecida no contexto, que define o propósito e os efeitos do recebimento com referência ao pedido.",
+          "human_review": false,
+          "action": null
+        }
+      },
+      "seconds": 33.02
+    },
+    {
+      "check": "Lista, detalhes, cancelar e anexar sem análise automática",
+      "passed": true,
+      "details": {
+        "all_cases_and_details": true,
+        "attach_without_analysis_or_business_write": true
+      },
+      "seconds": 22.17
+    },
+    {
+      "check": "C07 real: proposta ligada ao anexo e conversa única",
+      "passed": true,
+      "details": {
+        "proposal_pending": true,
+        "one_timeline": true,
+        "attachment_snapshot": true
+      },
+      "seconds": 43.42
+    },
+    {
+      "check": "Desanexar permite pergunta geral sem dados do chamado",
+      "passed": true,
+      "details": {
+        "detached_context_does_not_leak": true,
+        "pending_preserved": true,
+        "new_general_answer": {
+          "summary": "No recebimento de mercadorias com referência a pedido de compra, são gerados documento de material e, em casos de recebimentos valorizados, documento contábil.",
+          "process": "recebimento_pedido_compra",
+          "facts": [
+            {
+              "text": "O lançamento do recebimento atualiza o histórico dos itens do pedido e gera documento de material.",
+              "evidence_ids": [
+                "K01"
+              ]
+            },
+            {
+              "text": "Recebimentos valorizados também podem gerar documento contábil.",
+              "evidence_ids": [
+                "K01"
+              ]
+            },
+            {
+              "text": "É criado um documento de material contendo material, quantidade, centro e depósito.",
+              "evidence_ids": [
+                "K08"
+              ]
+            },
+            {
+              "text": "O processo gera um documento contábil para atualizar o valor dos bens em estoque.",
+              "evidence_ids": [
+                "K08"
+              ]
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [],
+          "references": [
+            "K01",
+            "K08"
+          ],
+          "confidence": "alta",
+          "confidence_reason": "As evidências K01 e K08 documentam explicitamente a geração de documento de material e documento contábil no processo de recebimento com referência ao pedido.",
+          "human_review": false,
+          "action": null
+        }
+      },
+      "seconds": 45.55
+    },
+    {
+      "check": "Reanexar permite decidir a proposta original uma vez",
+      "passed": true,
+      "details": {
+        "original_proposal_only": true,
+        "single_execution": true,
+        "decision": "simulada pelo harness"
+      },
+      "seconds": 16.6
+    },
+    {
+      "check": "Sem evidência no RAG continua sem diagnóstico",
+      "passed": true,
+      "details": {
+        "insufficient_rag_still_blocks_general_answer": true
+      },
+      "seconds": 21.12
+    }
+  ],
+  "chat_model": "qwen/qwen3.6-plus",
+  "embedding_model": "qwen/qwen3-embedding-8b",
+  "prompt_version": "Versão: 2026-10-18.8 (rascunho implementado para avaliação)",
+  "external_catalog_hashes": {
+    "before": "75b485015c8c815e3e3ff754f2d1990fafc04bbf48f9d866b699623efbb84043",
+    "after": "75b485015c8c815e3e3ff754f2d1990fafc04bbf48f9d866b699623efbb84043"
+  },
+  "external_catalog_unchanged": true,
+  "passed": true
+}

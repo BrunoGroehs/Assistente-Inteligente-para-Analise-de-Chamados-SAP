@@ -6,11 +6,19 @@ Resultados coletados em 18/10/2026. A aplicação não foi publicada externament
 
 As suítes em `tests/` exercitam contratos, gateway, recusa, vencimento, concorrência, rollback, isolamento, recuperação híbrida, falhas do provedor e componentes Streamlit via AppTest. O provedor controlado é exclusivo dos testes.
 
-Resultado atual: **133 testes aprovados, zero falhas, erros ou testes ignorados** em [testes-selecao-chamados.xml](testes-selecao-chamados.xml). Ruff não encontrou erros, e `pip check` confirmou compatibilidade das dependências instaladas. Python 3.12.10; dependências diretas fixadas nos arquivos requirements. Os relatórios de [75 testes](testes.xml), [101 testes](testes-ampliados.xml) e [121 testes](testes-fontes-rag.xml) permanecem como histórico.
+Resultado atual: **140 testes aprovados, zero falhas, erros ou testes ignorados** em [testes-anexos-chat.xml](testes-anexos-chat.xml). Ruff não encontrou erros, e `pip check` confirmou compatibilidade das dependências instaladas. Python 3.12.10; dependências diretas fixadas nos arquivos requirements. Os relatórios de [75 testes](testes.xml), [101 testes](testes-ampliados.xml), [121 testes](testes-fontes-rag.xml) e [133 testes](testes-selecao-chamados.xml) permanecem como histórico.
 
-Os 12 novos testes cobrem perfis fictícios, campos ausentes, busca sem acentos e por documentos, apresentação sem escrita, compatibilidade de sessões antigas, seletor com prévia/cancelamento, lista/filtros/seleção de linha e preservação de histórico/aprovação. A seleção de linha no AppTest usa o estado nativo documentado do componente; não equivale a clicar numa tabela em navegador real.
+Os testes de interface foram adaptados ao chat único com anexo opcional; sete cenários adicionais do serviço cobrem RAG geral sem `DATA`, separação de histórico, propostas forjadas de recebimento/status sem anexo, idempotência/vínculo da submissão, isolamento e base vazia. A seleção de linha no AppTest usa o estado nativo documentado do componente; não equivale a clicar numa tabela em navegador real.
 
-## Seleção de chamados e formato de suporte
+## Chat único com anexo opcional — estado atual
+
+**Seis verificações aprovadas** com Supabase/OpenRouter reais em [verificacao-anexos-chat.json](verificacao-anexos-chat.json): pergunta geral fundamentada sem chamado/painel; lista, detalhes, cancelamento e anexo sem análise automática; proposta C07 ligada ao anexo; remoção/substituição do anexo com nova pergunta geral sem dados do chamado anterior; reanexar para decidir a proposta original e executar uma vez; código não documentado sem diagnóstico. A linha do tempo única preservou as perguntas gerais e as mensagens do caso com seus vínculos originais.
+
+Foram quatro requisições de embeddings e seis de chat, com o rascunho 2026-10-18.8. Os hashes do catálogo externo ao schema do projeto permaneceram iguais; não foram lidos dados de tabelas externas nem feita migração SQL. O teste automatizou os cliques e o Sim; não foi consentimento de uma pessoa ou revisão visual. Não e demais invariantes de HITL permanecem nos testes locais e nos relatórios reais anteriores.
+
+Reproduzir: `.\.venv\Scripts\python.exe scripts/verify_chat_attachments_live.py`, com consumo de créditos e criação de uma sessão fictícia própria. A tentativa de inspeção visual não encontrou navegadores disponíveis na ferramenta desta sessão; revisão visual/teclado continua pendente. [Interface atual](../instrucoes/06-interface.md).
+
+## Histórico: seleção anterior e formato de suporte
 
 **Oito verificações aprovadas** com Supabase/OpenRouter reais em [verificacao-selecao-chamados.json](verificacao-selecao-chamados.json): busca/prévia/cancelamento, lista com seleção/filtro/detalhes, C07 com os novos perfis e proposta pendente, troca e retorno com a mesma aprovação/histórico, Sim com execução única, Não em C08, campos ausentes em C05 e abstinência em C06. Cliques e decisões foram simulados pelo AppTest; o provedor e a persistência são reais. Navegação não gerou chamadas ao modelo ou escrita de negócio; a aprovação foi a única etapa que registrou recebimento.
 
@@ -18,7 +26,7 @@ Foram quatro requisições de embeddings e cinco de chat nessa rodada. Os hashes
 
 A [primeira tentativa](verificacao-selecao-chamados-inicial.json) preserva uma falha do harness: exigia citação oficial em uma proposta sustentada pelas regras próprias do simulador. A proposta estava correta e pendente, sem execução. O teste passou a distinguir referências oficiais consultadas e efetivamente citadas, sem obrigar citação irrelevante. A resposta também orientava aguardar uma “frase exata”; o rascunho 2026-10-18.7 esclareceu que a pergunta pertence ao cartão e o consentimento ocorre pelos botões. O gateway já impedia autorização por texto. O reteste completo é o relatório de oito verificações acima.
 
-Reprodução com consumo de créditos: `.\.venv\Scripts\python.exe scripts/verify_case_navigation_live.py`. O teste cria uma sessão fictícia própria; sessões existentes não recebem os novos perfis retroativamente. Inspeção visual e navegação completa por teclado continuam pendentes.
+Essa rodada descreve a seleção que abria a conversa do caso e mantinha a lateral, posteriormente substituída pelo anexo opcional. O script `verify_case_navigation_live.py` redireciona agora à verificação atual de anexos, sem sobrescrever o relatório histórico. Sessões existentes não recebem os novos perfis retroativamente. Inspeção visual e navegação completa por teclado continuam pendentes.
 
 ## Ampliação do RAG e fontes diretas
 

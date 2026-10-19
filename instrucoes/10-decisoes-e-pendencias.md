@@ -49,7 +49,7 @@
 | P05 | Modelos atuais verificados | Chat Qwen3.6 Plus e embeddings 8B/4.096 dimensões testados; saídas e referências validadas pelo servidor. Revalidar se o provedor mudar. |
 | P06 | Parâmetros iniciais implementados; calibração ampla pendente | Quatro sínteses mais duas políticas, busca textual/cosseno, RRF 60 e checagem de cobertura; avaliar relevância, falsos bloqueios e sustentação com rótulos fora do índice. |
 | P07 | Fixtures executáveis concluídas | Oito chamados com datas explícitas em C07/C08, perfis de suporte fictícios para novas sessões e gabaritos fora da base; C05 preserva lacunas. |
-| P08 | Código e validação funcional; revisão estética pendente | 133 testes locais; 28 verificações de RAG e oito de seleção de chamados aprovadas após ajustes/retestes. UI com fontes diretas, seletor no chat, lista completa e perfis inspirados no SAP for Me. Revisão visual em navegador/teclado precisa ocorrer na interface em execução. |
+| P08 | Código e validação funcional; revisão estética pendente | 140 testes locais e seis verificações reais do chat com anexo opcional. Rodadas anteriores de RAG/HITL e seleção mantidas como histórico. Sem painel lateral; anexar/remover preserva a conversa e o contexto de cada pergunta. Navegador indisponível nesta sessão; revisão visual/teclado precisa ocorrer na interface em execução. |
 | P09 | Publicação, acesso da banca e limites de consumo | Configurar na etapa de publicação, validar hospedado e ensaiar apresentação. |
 
 ## Como incorporar novos pedidos

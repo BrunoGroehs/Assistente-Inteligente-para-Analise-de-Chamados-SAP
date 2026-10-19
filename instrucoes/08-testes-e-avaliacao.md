@@ -4,7 +4,7 @@
 
 **Requisito do PDF:** demonstrar ao menos um sucesso e duas exceções e apresentar evidências reais de testes.
 
-**Estado atual:** a suíte de fontes/RAG executou **121 testes automatizados**, sem falhas, em [testes-fontes-rag.xml](../evidencias/testes-fontes-rag.xml). A primeira rodada real avaliou oito chamados e duas exceções; a rodada de 20 verificações e 101 testes permanece como histórico. A verificação atual usa o corpus ampliado, fontes diretas e barreira de cobertura. Consulte [evidências e limitações](../evidencias/README.md) e a [cobertura por requisito](../evidencias/verificacao-requisitos.md). Não generalizar a amostra fictícia para qualidade de produção.
+**Estado atual:** **140 testes automatizados**, sem falhas, em [testes-anexos-chat.xml](../evidencias/testes-anexos-chat.xml), e seis verificações reais do chat com anexo opcional. As rodadas anteriores permanecem como histórico, incluindo oito chamados, exceções, RAG e HITL. O fluxo atual usa corpus ampliado, fontes diretas, barreira de cobertura e perguntas gerais sem chamado. Consulte [evidências e limitações](../evidencias/README.md) e a [cobertura por requisito](../evidencias/verificacao-requisitos.md). Não generalizar a amostra fictícia para qualidade de produção.
 
 ## Matriz de aceitação
 
@@ -67,9 +67,11 @@ Não afirmar percentuais de ganho sem experimento. Oito casos demonstram comport
 
 Registrar somente verificações realmente executadas, distinguindo testes locais controlados, integração real e revisão visual.
 
-**Seleção de chamados:** a suíte atual tem 133 testes aprovados em [testes-selecao-chamados.xml](../evidencias/testes-selecao-chamados.xml). Verifica busca, prévia/cancelamento, abertura explícita, filtros/lista vazia, seleção de linha, preservação do chamado ativo, retomada do histórico/proposta e sessões antigas sem metadados novos. Nenhuma navegação chama IA ou altera negócio nos testes. AppTest não oferece clique em linha; esse evento é representado pelo estado nativo de seleção, sem afirmar revisão visual/teclado.
+**Histórico da seleção de chamados:** 133 testes aprovados em [testes-selecao-chamados.xml](../evidencias/testes-selecao-chamados.xml). Verificou busca, prévia/cancelamento, abertura explícita, filtros/lista vazia, seleção de linha, preservação do chamado ativo, retomada do histórico/proposta e sessões antigas sem metadados novos. AppTest não oferece clique em linha; esse evento é representado pelo estado nativo de seleção, sem afirmar revisão visual/teclado.
 
 O [reteste integrado de seleção](../evidencias/verificacao-selecao-chamados.json) aprovou oito verificações com Supabase/OpenRouter reais, incluindo Sim/Não e C05/C06 com os novos perfis. Foram quatro chamadas de embeddings e cinco de chat; catálogo externo preservado. A primeira tentativa falhou por uma exigência indevida de citação oficial no harness, corrigida sem inventar fontes. Histórico e limitação do AppTest em [evidências](../evidencias/README.md).
+
+**Chat com anexo opcional:** a suíte atual e a [rodada de seis verificações reais](../evidencias/verificacao-anexos-chat.json) validam iniciar sem caso, anexar/ver detalhes/remover/substituir sem análise automática, manter a conversa com os vínculos históricos, perguntar pelo RAG sem dados do anexo removido e reanexar para decidir a mesma proposta uma única vez. Testes controlados também forçam recebimento e status sem anexo: nenhum cria proposta ou altera negócio. A API real recebeu três análises suportadas e um caso sem evidência; quatro chamadas de embeddings e seis de chat. Catálogo externo preservado, sem migração. Navegador indisponível nesta sessão: revisão visual/teclado permanece pendente.
 
 **Histórico da primeira rodada:** resultados em [testes.xml](../evidencias/testes.xml), [avaliação integrada](../evidencias/avaliacao-integrada.json) e [resumo](../evidencias/resumo-validacao.json). T01 a T08 tiveram avaliação real dos atendimentos; aceitação e recusa do gateway foram verificadas no Supabase com proposta controlada. A avaliação E02 usa uma instrução maliciosa no chat. A rodada ampliada acrescenta documento malicioso ao contexto da API real, sem indexá-lo na base compartilhada. Revisão visual em navegador, calibração ampla do RAG e teste com SAP real não foram realizados.
 

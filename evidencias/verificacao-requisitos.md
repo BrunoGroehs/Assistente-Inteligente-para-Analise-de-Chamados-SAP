@@ -16,7 +16,7 @@
 | R08 — LLM e prompts | Qwen3.6 Plus via OpenRouter nos relatórios reais; [prompt versionado](../prompts/system.txt), esquema tipado e reparo limitado. Embeddings Qwen3 8B, dimensão 4.096. |
 | R09 — fora do escopo | E01 e rodada ampliada: folha/férias recebem limite de escopo, sem ação ou fonte MM irrelevante. |
 | R10 — prevenção de invenções | [Testes de cobertura](../tests/test_grounding.py): sem suporte, sem geração técnica ou proposta; IDs de parágrafo inexistentes, `DATA` como prova e saída inválida bloqueados. Códigos não documentados exigem abstinência. A decisão semântica usa LLM, sem garantia universal. |
-| R11 — registrar atendimento | Solicitação, resposta, fontes, etapas, versões e auditoria no Supabase; reconexão e isolamento testados. |
+| R11 — registrar atendimento | Solicitação, resposta, fontes, etapas, versões e auditoria no Supabase; reconexão e isolamento testados. Chat único mantém o anexo usado em cada mensagem; remover/substituir não reatribui o histórico. |
 | R12 — sucesso e exceções | Oito casos e duas exceções na primeira rodada; verificações adicionais de falhas, ataques, HITL e interface nesta rodada. |
 | R13 — recomendação versus ação | Gateway determinístico testado com Sim/Não, silêncio, texto “sim”, expiração, adulteração, replay, concorrência e rollback. Nenhuma análise executou alteração de negócio. |
 
@@ -46,7 +46,7 @@ Referências: [rodada dos chamados](avaliacao-integrada.json), [resumo inicial](
 | T18 | IDs de fonte/parágrafo inexistentes bloqueados; numeração, links diretos, agrupamento e distinção recuperada/citada testados. Verificação semântica de cobertura antes da geração; sem certificação automática de toda frase. |
 | T19 | Chat e embeddings reais; modelos, dimensão, latência e uso na rodada inicial. Rodada ampliada contabiliza requisições HTTP, incluindo eventuais reparos. |
 | T20 | Outra sessão/token não lê conversa nem decide proposta; testes locais e Supabase real. |
-| T21 | AppTest valida lista, chat, navegação, fontes e botões condicionais. [Seleção de chamados com serviços reais](verificacao-selecao-chamados.json): busca/prévia/cancelamento, linha/filtros/detalhes, preservação do histórico e da aprovação, Sim/Não e dados incompletos. Seleção de linha injetada no estado nativo do componente. **Parcial:** inspeção visual em desktop/estreito, contraste e navegação completa por teclado ainda pendentes. AppTest não é inspeção visual. |
+| T21 | AppTest valida o [chat atual com anexo opcional](verificacao-anexos-chat.json): ausência de painel/caso inicial, lista/detalhes/anexo, remoção/substituição, linha do tempo única, pergunta geral sem dados do caso removido e reanexar para decidir. Histórico da [seleção anterior](verificacao-selecao-chamados.json) preservado. Seleção de linha nos testes usa estado nativo do componente. **Parcial:** inspeção visual em desktop/estreito, contraste e navegação completa por teclado ainda pendentes; não há navegador disponível nesta sessão. AppTest não é inspeção visual. |
 | T22 | Erro de banco mostra configuração segura em teste local; rollback após flush real no Supabase preserva o estado e registra falha terminal. |
 | T23 | Silêncio e texto não autorizam; operação fora da lista é rejeitada. Análises reais com propostas permanecem sem efeitos até decisão do harness. |
 | T24 | Regra de persistência e solicitação de fontes ao usuário documentada no [RAG](../instrucoes/04-rag-e-fontes.md). **Procedimento:** as fontes atuais foram acessadas; não se simulou um pedido real ao usuário por falha de site. |

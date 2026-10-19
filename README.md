@@ -95,6 +95,8 @@ Para reproduzir a verificação ampliada com os serviços reais configurados no 
 
 Esse comando **consome créditos** e cria sessões fictícias próprias no schema do projeto. Verifica fontes diretas, novos conteúdos, perguntas sem suporte, regressões dos chamados e cliques Sim/Não, além de concorrência, isolamento, adulteração, expiração e rollback. Não altera tabelas externas nem injeta documentos na base compartilhada. Resultados atuais em [verificação de fontes/RAG](evidencias/verificacao-fontes-rag.json); cobertura e limites em [verificação dos requisitos](evidencias/verificacao-requisitos.md). Propostas pendentes anteriores ao novo envelope de integridade exigem nova análise; não são executadas usando o formato antigo.
 
+Para verificar especificamente o chat único, perguntas gerais e anexos opcionais com os serviços reais: `.\.venv\Scripts\python.exe scripts/verify_chat_attachments_live.py`. Resultado desta rodada em [verificação dos anexos](evidencias/verificacao-anexos-chat.json). Os cliques são automatizados pelo AppTest; não representam revisão visual ou consentimento de uma pessoa.
+
 ## Publicar posteriormente
 
 No Streamlit Community Cloud, use `app.py` como entrada e Python 3.12. Defina as configurações do `.env` em **Secrets**, no formato TOML, com `APP_ENV = "cloud"` e `DEMO_ACCESS_CODE` de pelo menos 12 caracteres. PostgreSQL externo é obrigatório. Não publique `.env`, não altere permissões de outros schemas e não use a chave do banco no navegador.
