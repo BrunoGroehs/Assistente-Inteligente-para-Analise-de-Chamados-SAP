@@ -92,3 +92,11 @@ Saída inválida não gera proposta. **Recomendação:** permitir uma tentativa 
 **Decisão confirmada do usuário:** oferecer aprovação visual sempre que houver correção executável. O contrato acrescenta `correction_operation` para os casos que precisam de complemento humano; `action` permanece reservada à proposta completa. O prompt pede manter a correção anterior em solicitações como “altere para mim”, com `pending_correction_operation` fornecida pelo servidor. Não interpretar esse texto como pedido de alterar status.
 
 C03 pode oferecer preparação de recebimento dentro do saldo, mas não escolhe 20 UN automaticamente nem inventa data. A interface pede esses dados e o servidor prepara a proposta sem nova chamada de LLM; o Sim/Não continua separado. Correção sem suporte, não elegível ou fora das operações implementadas não recebe um botão de execução fictício. Rascunhos continuam abertos à discussão e não controlam autorização.
+
+## Ajuste após jornadas de usuário — 2026-10-19.11
+
+**Recomendação implementada e avaliada:** reforçar a sustentação de cada afirmação do resumo/próximo passo, evitando detalhes plausíveis além dos trechos. Na rodada inicial, uma resposta de documentos acrescentou dependência de tipo de movimento e C04 orientou registrar pela MIGO sem a cautela necessária. O prompt agora proíbe transformar uma restrição de aplicativo em garantia de sucesso em outra transação, pede verificação humana e preserva o bloqueio de item concluído do simulador. O texto passa a conversar diretamente com a pessoa. Achados, respostas originais e retestes são mantidos nas [jornadas](../evidencias/jornadas-usuario/README.md).
+
+Perguntas específicas sobre qual chamado está anexado são estado da aplicação, respondido pelo servidor. Não é uma resposta técnica SAP sem RAG; uma pergunta técnica adicional segue pelo fluxo de cobertura normal. Essa distinção tem nove testes próprios.
+
+**Validação adicional do servidor:** garantias conhecidas de recebimento por MIGO em item concluído, sem qualificação na mesma frase, são rejeitadas na validação de fundamentação e entram no reparo limitado. Oito testes controlados e o reteste real C04 cobrem a correção. Não é um verificador semântico universal.

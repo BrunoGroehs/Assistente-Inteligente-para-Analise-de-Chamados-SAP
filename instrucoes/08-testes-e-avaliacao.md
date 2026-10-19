@@ -4,7 +4,7 @@
 
 **Requisito do PDF:** demonstrar ao menos um sucesso e duas exceções e apresentar evidências reais de testes.
 
-**Estado atual:** **158 testes automatizados**, sem falhas, em [testes-novo-chat.xml](../evidencias/testes-novo-chat.xml), e quatro verificações reais de Novo chat/respostas compactas. A avaliação acrescenta isolamento de histórico/submissão/propostas por conversa, estado de negócio preservado, anexo/rascunho limpos e fontes acessíveis em um único expansível. Rodadas anteriores de RAG, HITL e desempenho permanecem registradas. Consulte [evidências e limitações](../evidencias/README.md) e a [cobertura por requisito](../evidencias/verificacao-requisitos.md). Não generalizar a amostra fictícia para qualidade de produção.
+**Estado atual:** **187 testes Python e 14 React aprovados**, build e análise estática aprovados. Os testes em Edge com serviços reais fizeram 38 perguntas em 15 cenários únicos; as últimas evidências estão aprovadas após retestes. A revisão encontrou e corrigiu o tratamento do estado do anexo e orientações excessivas sobre MIGO. Falhas e respostas intermediárias foram preservadas. [Relatório atual](../evidencias/jornadas-usuario/README.md), [XML](../evidencias/testes-jornadas.xml) e [evidências](../evidencias/README.md). Não generalizar essa amostra para qualidade de produção.
 
 ## Matriz de aceitação
 
@@ -107,3 +107,9 @@ Testes adicionais da fronteira: cookie seguro, origem indevida, sessões e conve
 **Executado:** 170 testes Python e 14 React aprovados; build e análise estática aprovados. [Python](../evidencias/testes-correcoes.xml), [React](../evidencias/testes-react-correcoes.json). Novos cenários: preparação sem escrita, parâmetros incompletos/excedentes, operação adulterada, rascunho vencido, dados alterados, análise supersedida, sessão/conversa diferente, replay antes/depois de Sim/Não e falta de anexo/RAG. Mudança de status exige seleção explícita no formulário.
 
 **Quatro verificações reais de C03 aprovadas** em [verificacao-correcoes-c03.json](../evidencias/verificacao-correcoes-c03.json): duas mensagens da reprodução, preparação/recusa e proposta completa com aceitação idempotente. Três embeddings e seis chamadas de chat; decisões simuladas pelo teste, sem consentimento humano real ou integração SAP. Fontes: número 1 interno abre identificação da regra; número 2 oficial abre o site. Testes React cobrem números em mensagens históricas/fatos, ausência de link inventado para número desconhecido e preservação de código. Revisão visual/teclado permanece pendente.
+
+## Jornadas no navegador e entrevista
+
+**Executado:** 15 cenários iniciais, dez retestes e duas execuções adicionais de C04; 38 perguntas, com a última evidência dos 15 cenários aprovada. Uma falha lexical do harness e uma resposta ainda excessiva foram preservadas na [revisão](../evidencias/jornadas-usuario/README.md). Os cenários incluem os oito chamados, consultas gerais, mensagens maliciosas, anexo removido, Novo chat, Sim/Não e fontes. Nove páginas oficiais foram abertas e conferidas; DOM e nova aba foram verificados pelo Edge.
+
+T21 foi parcialmente exercitado: desktop e viewport estreito, captura inspecionada, Enter/Escape, detalhes, botões e ausência de overflow nos casos testados. Acessibilidade completa e dispositivos reais continuam pendentes. Retestes também geraram recomendações para o [roteiro de apresentação](11-roteiro-apresentacao.md), sem afirmar que o vídeo foi gravado ou ensaiado em 18 minutos.

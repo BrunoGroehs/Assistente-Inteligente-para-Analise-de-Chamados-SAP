@@ -147,3 +147,20 @@ O limite de quatro análises simultâneas e uma por sessão é por processo. Use
 Ao identificar correção executável, o chat oferece a proposta **Sim/Não** ou **Preparar correção**, quando faltarem quantidade/data ou situação desejada. Preencha o formulário e clique em **Revisar ação**; isso somente prepara a proposta. A execução exige **Sim, autorizar** separado. Nada escolhe automaticamente a quantidade pelo saldo ou inventa data. “Altere para mim” mantém a correção discutida, sem virar mudança de status.
 
 Os números das fontes são clicáveis, inclusive em respostas antigas. Fonte SAP abre o site oficial; regra interna abre a identificação em **Fontes e detalhes**, sem conteúdo bruto ou popup. Para reproduzir C03 com Supabase/OpenRouter reais: `python scripts/verify_corrections_live.py` (requer dependências de desenvolvimento, consome créditos e simula as decisões humanas em workspace próprio).
+
+## Roteiro para o vídeo e testes como usuário
+
+O [roteiro de 18 minutos](instrucoes/11-roteiro-apresentacao.md) traz falas, cliques, perguntas e cobertura dos critérios do PDF. A [cola de gravação](instrucoes/12-cola-gravacao.md) reúne a sequência para consultar durante o ensaio.
+
+Os testes de navegador usam Microsoft Edge instalado, Supabase/OpenRouter reais e sessões fictícias novas. **Consomem créditos**, por isso são separados dos testes padrão e exigem confirmação explícita por variável de ambiente:
+
+```powershell
+cd frontend
+npm.cmd ci
+npm.cmd run build
+$env:RUN_REAL_USER_TESTS='1'
+$env:USER_TEST_RUN='minha-rodada'
+npm.cmd run test:usuario:real
+```
+
+A configuração inicia um Uvicorn temporário na porta local 8011 e o encerra ao terminar. O nome da rodada evita sobrescrever evidências anteriores; use um nome novo para cada execução. Não executa deploy, reset ou limpeza de tabelas. `.env` e credenciais ficam no Python. Não são gravados vídeos ou traces com cookies; os relatórios públicos contêm somente perguntas, respostas e metadados de apresentação. Os resultados e capturas ficam em `evidencias/jornadas-usuario/`. A verificação de links também confere os destinos contra o catálogo; um teste abre uma página oficial em nova aba.

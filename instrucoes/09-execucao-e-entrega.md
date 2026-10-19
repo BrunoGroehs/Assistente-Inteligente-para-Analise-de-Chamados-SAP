@@ -55,15 +55,16 @@ Para futura integração real, adotar adaptador com APIs autorizadas, identidade
 
 ## Demonstração de até 20 minutos
 
-**Requisito do PDF:** até 20 minutos. **Recomendação de roteiro de 18 minutos, com dois de reserva:**
+**Requisito do PDF:** até 20 minutos. **Roteiro atual recomendado:** [guia de gravação de 18 minutos](11-roteiro-apresentacao.md), com falas, cliques, exemplos e matriz de cobertura; [cola rápida](12-cola-gravacao.md). O enunciado original versionado foi conferido novamente. Visão geral, com dois minutos de reserva:
 
 | Tempo | Conteúdo |
 | --- | --- |
-| 0 a 2 min | Trabalho manual transformado, recorte SAP MM e adequação da GenAI. |
-| 2 a 5 min | Arquitetura, documentos, RAG, prompts e distinção entre dados simulados e fontes oficiais. |
-| 5 a 8 min | Pergunta geral sem anexo; botão Chamados, detalhes, anexar C01 e orientação fundamentada com fontes/confiança; remover anexo preservando a conversa. |
-| 8 a 11 min | C05/C06: esclarecimento, falta de evidência e validação humana. |
-| 11 a 15 min | C07/C08: proposta, Sim/Não, estado antes/depois e limite de autonomia. |
-| 15 a 18 min | Evidências reais, métricas, limitações, acesso futuro ao SAP e próximos passos. |
+| 0 a 2 min | Problema manual, processo SAP MM e oito chamados. |
+| 2 a 4 min | Arquitetura, adequação de GenAI, base e RAG. |
+| 4 a 6 min | C01: orientação, fonte, confiança e anexo opcional. |
+| 6 a 8 min | C05/C06: esclarecimento e falta de evidência. |
+| 8 a 13 min | C03 com preparação/Não e C07 com Sim e resultado. |
+| 13 a 16 min | Fora do escopo, prompts, trilha, testes e métricas. |
+| 16 a 18 min | SAP real com segurança, riscos, limitações e evolução. |
 
 Se um serviço falhar, identificar a falha e usar evidências previamente coletadas como gravação ou execução anterior, devidamente rotuladas. Não apresentar um mock como demonstração ao vivo bem-sucedida.

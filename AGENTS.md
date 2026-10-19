@@ -20,6 +20,7 @@ Antes de trabalhar, ler o [índice das instruções](instrucoes/README.md) e os 
 - [Testes e avaliação](instrucoes/08-testes-e-avaliacao.md).
 - [Execução e entrega](instrucoes/09-execucao-e-entrega.md).
 - [Decisões e pendências](instrucoes/10-decisoes-e-pendencias.md).
+- [Roteiro para apresentação](instrucoes/11-roteiro-apresentacao.md) e [cola de gravação](instrucoes/12-cola-gravacao.md).
 
 ## Manutenção das instruções
 
@@ -55,6 +56,8 @@ Antes de trabalhar, ler o [índice das instruções](instrucoes/README.md) e os 
 - **Decisão confirmada:** correção executável identificada deve oferecer caminho visual para aprovação. Com dados completos, mostrar Sim/Não; quando faltarem quantidade, data ou situação desejada, mostrar Preparar correção e formulário, sem valores inventados. Preparar cria somente proposta; executar exige decisão separada. Pedidos vagos como “altere para mim” preservam a operação discutida, sem virar mudança de status. Citações numéricas conhecidas devem ser clicáveis: fonte oficial abre o site; regra interna abre sua identificação em Fontes e detalhes, sem conteúdo bruto/popup.
 
 ## Fontes indisponíveis e colaboração
+
+Perguntas restritas ao estado da aplicação, como qual chamado está anexado, são respondidas pelo servidor com o contexto autenticado. Não produzem orientação técnica SAP e não permitem contornar RAG, aprovação ou isolamento. Em item concluído, não garantir que outra transação como MIGO permitirá receber sem evidência aplicável; rejeitar as formulações de garantia conhecidas e solicitar revisão humana.
 
 **Decisão confirmada do usuário:** não abandonar uma informação necessária porque um site falhou. Tentar novamente por meios adequados, conferir URL e buscar páginas oficiais equivalentes ou uma versão pública acessível, sem contornar autenticação ou restrições de acesso.
 

@@ -140,3 +140,7 @@ Aplicar timeout e tentativas limitadas a chamadas de leitura/LLM. Falha do banco
 `POST /api/chats/{id}/messages/{message_id}/correction` recebe `CorrectionInput` e usa o gateway para preparar, sem executar. A mensagem deve pertencer à sessão/conversa atual, ser a análise mais recente do caso e manter dados/validade. Repetição idêntica recupera a proposta anterior. O endpoint de decisão permanece separado e recebe somente `approve`. A complementação não chama o OpenRouter; auditoria e propostas continuam nas seis tabelas próprias existentes.
 
 No React, a transformação de marcadores `[n]` consulta apenas metadados validados da resposta. URLs oficiais abrem diretamente; regras internas focam sua identificação no expansível da própria mensagem. A transformação também atende mensagens antigas sem reescrever o histórico; ignora código e não inventa links para números desconhecidos.
+
+## Perguntas sobre estado do anexo
+
+**Correção implementada após teste como usuário:** `application_context.py` identifica perguntas específicas de estado da interface, como qual chamado está anexado. A resposta vem do contexto autenticado/consulta simulada, sem LLM, RAG ou proposta. Novo chat e remoção do anexo não herdam o pedido anterior. A mensagem e o evento de leitura continuam auditados. O reconhecimento é restrito a perguntas completas desse tipo: um pedido técnico ou uma instrução adicional não usa essa exceção para contornar a cobertura do RAG. Essa resposta não declara uma orientação técnica SAP nem comprova um lançamento.

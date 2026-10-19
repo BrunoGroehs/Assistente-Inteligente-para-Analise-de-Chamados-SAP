@@ -1,6 +1,6 @@
 # Instruções do desafio SAP
 
-**Atualizado em:** 18/10/2026. **Estado:** protótipo implementado e validado funcionalmente; revisão estética e publicação posteriores. Consulte o [README de execução](../README.md) e as [evidências](../evidencias/README.md) para os resultados efetivamente verificados.
+**Atualizado em:** 19/10/2026. **Estado:** protótipo implementado, com testes funcionais e jornadas em Edge; revisão em dispositivos reais e publicação posteriores. Consulte o [README de execução](../README.md) e as [evidências](../evidencias/README.md) para os resultados efetivamente verificados.
 
 Este diretório organiza os requisitos, as escolhas e os pontos a discutir do Assistente Inteligente para Análise de Chamados SAP. As regras globais estão no [AGENTS.md](../AGENTS.md).
 
@@ -20,6 +20,8 @@ Ler primeiro o desafio e o processo SAP; depois arquitetura, RAG, prompts, inter
 | [08 - Testes e avaliação](08-testes-e-avaliacao.md) | Casos de aceite, métricas, evidências executadas e limites. |
 | [09 - Execução e entrega](09-execucao-e-entrega.md) | Etapas, configuração, publicação e demonstração. |
 | [10 - Decisões e pendências](10-decisoes-e-pendencias.md) | Histórico, alternativas, perguntas e próximos passos. |
+| [11 - Roteiro da apresentação](11-roteiro-apresentacao.md) | Vídeo de 18 minutos: falas, telas e cobertura do enunciado. |
+| [12 - Cola de gravação](12-cola-gravacao.md) | Ordem dos casos, perguntas prontas e conferência rápida. |
 
 ## Legenda de estado
 
@@ -42,10 +44,12 @@ O rótulo de uma seção vale para seus itens, salvo indicação diferente. Link
 
 **Atualização confirmada:** Novo chat limpa conversa e anexo sem reiniciar o simulador; histórico, cache e propostas são vinculados à conversa atual. Respostas mais curtas, com um próximo passo quando útil e um único Fontes e detalhes recolhido. Ver [interface](06-interface.md) e [prompts](05-prompts.md).
 
-**Pendências principais:** revisão visual em navegador e teclado, calibração com corpus maior, discussão dos prompts e publicação quando solicitada. A avaliação funcional integrada está registrada nas [evidências](../evidencias/README.md), com [cobertura dos requisitos](../evidencias/verificacao-requisitos.md). Configuração real e resultados de testes devem ser consultados nesses relatórios, sem confundir histórico documental com estado atual.
+**Pendências principais:** acessibilidade completa e dispositivos reais, calibração com corpus maior, discussão dos prompts e publicação quando solicitada. A avaliação funcional integrada está registrada nas [evidências](../evidencias/README.md), com [cobertura dos requisitos](../evidencias/verificacao-requisitos.md). Configuração real e resultados de testes devem ser consultados nesses relatórios, sem confundir histórico documental com estado atual.
 
 Novas solicitações devem atualizar seu documento responsável e, se alterarem uma escolha, o [histórico](10-decisoes-e-pendencias.md).
 
 **Atualização confirmada:** Streamlit removido. Aplicação portátil com frontend compilado servido pela API, navegação local no navegador e sem plataforma de hospedagem definida. Deploy manual posterior pelo usuário. [Arquitetura](03-arquitetura.md), [execução](09-execucao-e-entrega.md) e decisão D33.
 
 **Atualização confirmada:** correções executáveis sempre oferecem preparação/Sim/Não, sem inventar parâmetros; citações numéricas conhecidas são clicáveis, inclusive em mensagens antigas. Decisão D34 e documentos de interface, aprovações e prompts atualizados.
+
+**Novo pedido confirmado:** ampliar testes como usuário em múltiplas conversas e preparar roteiro para vídeo de entrevista. [Roteiro](11-roteiro-apresentacao.md) e [cola](12-cola-gravacao.md) organizam a gravação; duração de 18 minutos é recomendação para respeitar o limite de 20 do PDF.

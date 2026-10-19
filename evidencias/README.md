@@ -1,5 +1,18 @@
 # Evidências de validação
 
+## Rodada mais recente: jornadas de usuário e roteiro de entrevista
+
+Em 19/10/2026 foram feitas **38 perguntas**, em execuções de navegador com serviços reais. São **15 cenários únicos** e 27 execuções contando retestes. A última evidência de cada cenário está aprovada. A primeira rodada teve 15 passes; a segunda, nove passes e uma falha de asserção do harness, preservada; as duas execuções adicionais de C04 estão registradas separadamente. A revisão de conteúdo encontrou ajustes mesmo em testes inicialmente aprovados. [Relatório, achados e capturas](jornadas-usuario/README.md) e [consolidado](jornadas-usuario/resumo.json).
+
+**187 testes Python e 14 React aprovados**, build TypeScript/Vite aprovado, Ruff sem erros, dependências Python sem conflitos e auditoria npm sem vulnerabilidades reportadas. [XML Python](testes-jornadas.xml) e [relatório React](testes-react-jornadas.json). Os 17 testes Python adicionais cobrem perguntas sobre o estado do anexo sem herança indevida e garantias de MIGO rejeitadas para itens concluídos. Não somar contagens históricas.
+
+Microsoft Edge 155.0.4283.62, Playwright 1.64.1, Python 3.12 e Node.js 24.14. Foram verificadas fontes clicáveis, nova aba oficial, referência interna no expansível, confirmação/recusa, estado antes/depois e navegação estreita sem novas chamadas. As [nove páginas oficiais SAP](verificacao-links-sap.json) estavam acessíveis nesta data. Capturas foram inspecionadas em desktop e viewport 390×844; isso não equivale a teste em Safari/iOS físico ou conformidade integral de acessibilidade.
+
+O tempo mediano observado pelo harness foi 32,761 s por pergunta, incluindo automação e uma leitura extra de verificação. Não é SLA ou medida de ganho de produtividade. Modelos, tokens reportados e prompts estão no consolidado. O catálogo externo manteve o mesmo hash; não se alega comparação dos dados de todas as tabelas de outros projetos.
+
+O [roteiro de 18 minutos](../instrucoes/11-roteiro-apresentacao.md) e a [cola de gravação](../instrucoes/12-cola-gravacao.md) organizam o vídeo pelos requisitos do PDF, com sucesso, duas exceções, Sim/Não, arquitetura, fundamentação, testes, riscos e métricas. A gravação/ensaio cronometrado pelo usuário e a publicação continuam pendentes. Nenhum deploy foi realizado.
+
+
 ## Correções guiadas e citações clicáveis — rodada mais recente
 
 **170 testes Python e 14 testes React aprovados**, build TypeScript/Vite aprovado, Ruff sem erros e `pip check` sem conflitos. [XML Python](testes-correcoes.xml), [relatório React](testes-react-correcoes.json). As contagens de versões anteriores permanecem abaixo como histórico, sem soma cumulativa. Revisão visual em navegador real não foi realizada.
