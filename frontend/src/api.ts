@@ -1,4 +1,4 @@
-import type { ProgressEvent, Snapshot } from './types'
+import type { ProgressEvent, Snapshot, CorrectionValues } from './types'
 
 export class ApiError extends Error {
   constructor(message: string, public status: number) { super(message) }
@@ -27,6 +27,8 @@ export const api = {
   login: (access_code = '') => request<{ authenticated: boolean }>('/session', { access_code }),
   newChat: () => request<{ chat_id: string }>('/chats', {}),
   snapshot: (chat: string) => request<Snapshot>(`/chats/${encodeURIComponent(chat)}`),
+  prepareCorrection: (chat: string, message: string, values: CorrectionValues) => request<{ proposal_id: string }>(
+    `/chats/${encodeURIComponent(chat)}/messages/${encodeURIComponent(message)}/correction`, values),
   decide: (chat: string, proposal: string, approve: boolean) => request<{ state: string; message: string }>(
     `/chats/${encodeURIComponent(chat)}/proposals/${encodeURIComponent(proposal)}/decision`, { approve }),
   async send(chat: string, message: string, ticket_id: string | null, submission_id: string,

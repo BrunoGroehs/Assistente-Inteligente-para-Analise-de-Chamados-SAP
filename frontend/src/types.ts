@@ -17,6 +17,7 @@ export type Case = Attachment & {
 }
 export type Message = {
   id: string; role: string; content: string; error: boolean; attachment?: Attachment | null; proposal_id?: string;
+  correction?: Correction | null;
   details: {
     confidence?: string; confidence_reason?: string; facts: { text: string; numbers: number[] }[];
     hypotheses: string[]; missing_information: string[]; next_steps: string[];
@@ -24,6 +25,11 @@ export type Message = {
     transactions: Order[]; steps: string[]; latency_ms?: number;
   };
 }
+export type Correction = {
+  operation: 'registrar_recebimento_simulado' | 'atualizar_status_chamado'; ticket: string; expires_at: string;
+  purchase_order?: string; item?: string; material?: string; unit?: string; max_quantity?: string;
+}
+export type CorrectionValues = { quantity?: string; posting_date?: string; status?: string }
 export type Proposal = {
   id: string; ticket: string; state: string; expires_at: string; phrase: string;
   effect: { operation: string; purchase_order?: string; item?: string; material?: string; plant?: string;

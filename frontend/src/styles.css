@@ -79,6 +79,10 @@ p, li { line-height: 1.65; }
 .approval-card h3 { margin: 11px 0; line-height: 1.6; }
 .approval-card p { margin: 9px 0; }
 .approval-actions { display: flex; gap: 8px; margin-top: 15px; }
+.correction-form { display: grid; gap: 12px; }
+.correction-form label { display: grid; gap: 6px; font-size: 12px; }
+.correction-form input, .correction-form select { width: 100%; min-width: 0; background: white; border: 1px solid #dddde4; border-radius: 9px; padding: 10px; }
+.correction-form button { justify-self: start; }
 .receipt { display: block; color: #92929b; font-size: 11px; margin-top: 5px; overflow-wrap: anywhere; }
 .case-modal { padding: 0; border: 1px solid #e5e5eb; border-radius: 21px; width: min(760px, calc(100% - 28px)); max-height: min(780px, 88dvh); color: #292932; background: #fff; box-shadow: 0 25px 100px #121c3233; }
 .case-modal::backdrop { background: #181c2b55; backdrop-filter: blur(3px); }

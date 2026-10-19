@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { ChevronLeft, Search, Ticket, X, Paperclip, ExternalLink } from 'lucide-react'
-import type { Case, Message, Proposal, Source } from './types'
+import type { Case, Message, Proposal, Source, CorrectionValues } from './types'
+import { citationPlugin, citationTarget } from './citations'
 
 export const statuses: Record<string, string> = {
   aberto: 'Aberto', em_validacao_humana: 'Em validação humana', resolvido: 'Resolvido',
@@ -11,9 +12,22 @@ export const statuses: Record<string, string> = {
 const missing = 'Não informado'
 export const normalized = (value: string) => value.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
 
-export function Markdown({ children }: { children: string }) {
-  return <ReactMarkdown skipHtml components={{
-    a: ({ children, href }) => <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>,
+function SourceLink({ href, children }: { href?: string; children: ReactNode }) {
+  const local = href?.startsWith('#source-')
+  return <a href={href} target={local ? undefined : '_blank'} rel={local ? undefined : 'noopener noreferrer'}
+    onClick={event => {
+      if (!local) return
+      event.preventDefault()
+      const target = document.getElementById(href!.slice(1))
+      const details = target?.closest('details')
+      if (details) details.open = true
+      target?.scrollIntoView({ block: 'nearest' })
+    }}>{children}</a>
+}
+
+export function Markdown({ children, message }: { children: string; message?: Message }) {
+  return <ReactMarkdown skipHtml remarkPlugins={[citationPlugin(message)]} components={{
+    a: ({ children, href }) => <SourceLink href={href}>{typeof children === 'string' && /^\d+$/.test(children) ? `[${children}]` : children}</SourceLink>,
     img: ({ alt }) => <span>{alt}</span>,
   }}>{children}</ReactMarkdown>
 }
@@ -122,12 +136,13 @@ export function MessageDetails({ message }: { message: Message }) {
   return <details className="answer-details"><summary>Fontes e detalhes</summary><div>
     {confidence && <p className="muted">Confiança {confidence.toLowerCase()} · {details.confidence_reason}</p>}
     {!!details.facts.length && <><h4>Fatos consultados</h4><ul>{details.facts.map((fact, i) =>
-      <li key={i}>{fact.text} {fact.numbers.map(number => `[${number}]`).join(' ')}</li>)}</ul></>}
+      <li key={i}>{fact.text} {fact.numbers.map(number => <SourceLink key={number} href={citationTarget(message, number)}>[{number}] </SourceLink>)}</li>)}</ul></>}
     {!!details.hypotheses.length && <><h4>Hipóteses</h4><ul>{details.hypotheses.map((item, i) => <li key={i}>{item}</li>)}</ul></>}
     {!!details.missing_information.length && <><h4>Informações necessárias</h4><ul>{details.missing_information.map((item, i) => <li key={i}>{item}</li>)}</ul></>}
     {!!details.next_steps.length && <><h4>Verificações recomendadas</h4><ul>{details.next_steps.map((item, i) => <li key={i}>{item}</li>)}</ul></>}
     {!!details.sources.length && <><h4>Fontes citadas</h4><Sources items={details.sources} /></>}
-    {!!details.policies.length && <p className="muted small">Regras da simulação: {details.policies.map(p => `[${p.number}] ${p.title}`).join('; ')}</p>}
+    {!!details.policies.length && <><h4>Regras da simulação</h4><ul>{details.policies.map(policy =>
+      <li key={policy.number} id={`source-${message.id}-${policy.number}`}>[{policy.number}] {policy.title} · Regra interna do simulador</li>)}</ul></>}
     {!!details.transactions.length && <><h4>Dados consultados</h4>{details.transactions.map((order, i) => <p key={i}>
       Pedido {order.purchase_order} · Item {order.item} · {order.material}<br />
       Pedido: {order.ordered} {order.unit} · Recebido: {order.received} {order.unit} · Saldo: {order.remaining} {order.unit}

@@ -27,6 +27,7 @@ function setup(initial: Partial<Snapshot> = {}) {
     session: vi.fn().mockResolvedValue({ authenticated: true }), login: vi.fn().mockResolvedValue({ authenticated: true }),
     newChat: vi.fn().mockImplementation(async () => { box.current = { cases, messages: [], proposals: [] }; return { chat_id: 'new-chat' } }),
     snapshot: vi.fn().mockImplementation(async () => structuredClone(box.current)),
+    prepareCorrection: vi.fn().mockResolvedValue({ proposal_id: 'prepared-proposal' }),
     send: vi.fn().mockImplementation(async (_chat, message, _ticket, _submission, event) => {
       event({ type: 'progress', label: 'Verificando fontes…' })
       box.current.messages = [{ id: 'user', role: 'user', content: message, error: false, details }, answer]
@@ -154,5 +155,56 @@ describe('chat React', () => {
     expect(api.snapshot).toHaveBeenLastCalledWith('initial')
     expect(screen.queryByText('Resposta fundamentada.', { exact: false })).not.toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Como posso ajudar?' })).toBeVisible()
+  })
+
+  it('citação antiga [1] abre a regra interna nos detalhes e [2] abre o site oficial', async () => {
+    const message: Message = { ...answer, content: 'Saldo insuficiente. [1] Consulte [2]. Não invente [99]. Código: `[2]`.',
+      details: { ...details, policies: [{ number: 1, title: 'Regras do recebimento simulado' }],
+        sources: [{ url: 'https://learning.sap.com/', title: 'Fonte oficial SAP', numbers: [2] }],
+        facts: [{ text: 'Saldo consultado.', numbers: [1, 2] }] } }
+    const { api, user } = setup({ messages: [message] })
+    const reference = (await screen.findAllByRole('link', { name: '[1]' }))[0]
+    expect(reference).toHaveAttribute('href', '#source-answer-1')
+    expect(screen.getByText('Fontes e detalhes').closest('details')).not.toHaveAttribute('open')
+    await user.click(reference)
+    expect(screen.getByText('Fontes e detalhes').closest('details')).toHaveAttribute('open')
+    expect(screen.getByText(/Regra interna do simulador/)).toBeVisible()
+    const official = screen.getAllByRole('link', { name: '[2]' })
+    expect(official).toHaveLength(2)
+    for (const source of official) {
+      expect(source).toHaveAttribute('href', 'https://learning.sap.com/')
+      expect(source).toHaveAttribute('target', '_blank')
+    }
+    expect(screen.queryByRole('link', { name: '[99]' })).not.toBeInTheDocument()
+    expect(api.send).not.toHaveBeenCalled(); expect(api.decide).not.toHaveBeenCalled()
+  })
+
+  it('correção com dados faltantes prepara proposta e exige Sim/Não separado para executar', async () => {
+    const message: Message = { ...answer, attachment: cases[2], content: 'A quantidade excede o saldo. [1]',
+      correction: { operation: 'registrar_recebimento_simulado', ticket: 'C03', purchase_order: '4500001003',
+        item: '10', unit: 'UN', max_quantity: '20', expires_at: proposal.expires_at } }
+    const { api, box, user } = setup({ messages: [message] })
+    await user.click(await screen.findByRole('button', { name: 'Anexar SIM-C03' }))
+    await user.click(screen.getByRole('button', { name: 'Preparar correção' }))
+    expect(api.prepareCorrection).not.toHaveBeenCalled()
+    expect(screen.queryByRole('button', { name: 'Sim, autorizar' })).not.toBeInTheDocument()
+    const quantity = screen.getByRole('spinbutton', { name: /Quantidade correta/ })
+    const date = screen.getByLabelText('Data de lançamento')
+    expect(quantity).toHaveValue(null); expect(date).toHaveValue('')
+    expect(screen.getByRole('button', { name: 'Revisar ação' })).toBeDisabled()
+    await user.type(quantity, '35'); await user.type(date, '2026-10-18')
+    expect(screen.getByRole('button', { name: 'Revisar ação' })).toBeDisabled()
+    await user.clear(quantity); await user.type(quantity, '20')
+    vi.mocked(api.prepareCorrection).mockImplementation(async () => {
+      box.current = { cases, messages: [{ ...message, proposal_id: 'prepared-proposal' }],
+        proposals: [{ ...proposal, id: 'prepared-proposal', ticket: 'C03' }] }
+      return { proposal_id: 'prepared-proposal' }
+    })
+    await user.click(screen.getByRole('button', { name: 'Revisar ação' }))
+    await screen.findByRole('button', { name: 'Sim, autorizar' })
+    expect(api.prepareCorrection).toHaveBeenCalledExactlyOnceWith('initial', 'answer', { quantity: '20', posting_date: '2026-10-18' })
+    expect(api.decide).not.toHaveBeenCalled()
+    await user.click(screen.getByRole('button', { name: 'Não, recusar' }))
+    expect(api.decide).toHaveBeenCalledExactlyOnceWith('initial', 'prepared-proposal', false)
   })
 })

@@ -2,7 +2,8 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { ArrowUp, LoaderCircle, MessageSquarePlus, RefreshCw, Ticket, X, FileText } from 'lucide-react'
 import { api as defaultApi, ApiError, type Api } from './api'
 import { ApprovalCard, CasePicker, Markdown, MessageDetails } from './components'
-import type { Snapshot } from './types'
+import { CorrectionCard } from './CorrectionCard'
+import type { Snapshot, CorrectionValues } from './types'
 
 const empty: Snapshot = { cases: [], messages: [], proposals: [] }
 const chatStorage = 'sap.active-chat'
@@ -54,11 +55,13 @@ export default function App({ api = defaultApi }: { api?: Api }) {
     return () => { mounted = false }
   }, [api])
   useEffect(() => {
-    if (!view.proposals.some(item => item.state === 'pendente')) return
+    const waiting = () => view.proposals.some(item => item.state === 'pendente' && Date.parse(item.expires_at) > Date.now() + offset) ||
+      view.messages.some(item => item.correction && !item.proposal_id && Date.parse(item.correction.expires_at) > Date.now() + offset)
+    if (!waiting()) return
     setClock(Date.now())
-    const timer = setInterval(() => setClock(Date.now()), 1000)
+    const timer = setInterval(() => { setClock(Date.now()); if (!waiting()) clearInterval(timer) }, 1000)
     return () => clearInterval(timer)
-  }, [view.proposals])
+  }, [view.proposals, view.messages, offset])
   useEffect(() => { end.current?.scrollIntoView({ block: 'end', behavior: 'smooth' }) }, [view.messages, progress])
   const current = view.cases.find(item => item.id === attached)
   const pending = view.proposals.some(item => item.ticket === attached && item.state === 'pendente' && Date.parse(item.expires_at) > clock + offset)
@@ -107,6 +110,16 @@ export default function App({ api = defaultApi }: { api?: Api }) {
     catch (cause) { failure(cause) }
     finally { setDeciding(false) }
   }
+  async function prepareCorrection(id: string, values: CorrectionValues) {
+    if (deciding || sending || pending) return
+    setDeciding(true); setError('')
+    const target = activeChat.current
+    try { await api.prepareCorrection(target, id, values); await load(target) }
+    catch (cause) { if (activeChat.current === target) failure(cause) }
+    finally { setDeciding(false) }
+  }
+  const latestForCase = new Map(view.messages.filter(item => item.role === 'assistant' && item.attachment)
+    .map(item => [item.attachment!.id, item.id]))
   const usedProposals = new Set(view.messages.map(message => message.proposal_id))
   const approval = (id: string) => {
     const proposal = view.proposals.find(item => item.id === id)
@@ -132,9 +145,12 @@ export default function App({ api = defaultApi }: { api?: Api }) {
         <h1>Como posso ajudar?</h1><p>Pergunte sobre SAP MM ou anexe um chamado<br className="desktop-break" /> para analisar o caso com contexto.</p></div>}
       {view.messages.map(message => <article key={message.id} className={`message ${message.role}`}>
         {message.role === 'user' && message.attachment && <span className="message-attachment"><Ticket size={13} />{message.attachment.reference}</span>}
-        <div className={message.error ? 'error' : 'message-text'}><Markdown>{message.content}</Markdown></div>
+        <div className={message.error ? 'error' : 'message-text'}><Markdown message={message.role === 'assistant' ? message : undefined}>{message.content}</Markdown></div>
         {message.role === 'assistant' && <MessageDetails message={message} />}
         {message.proposal_id && approval(message.proposal_id)}
+        {message.correction && !message.proposal_id && latestForCase.get(message.correction.ticket) === message.id &&
+          <CorrectionCard correction={message.correction} attached={attached} busy={deciding || sending || pending} now={clock + offset}
+            onAttach={attach} onPrepare={values => prepareCorrection(message.id, values)} />}
       </article>)}
       {view.proposals.filter(item => !usedProposals.has(item.id)).map(item => approval(item.id))}
       {progress && <div className="progress" role="status"><LoaderCircle size={16} className="spin" />{progress}</div>}
