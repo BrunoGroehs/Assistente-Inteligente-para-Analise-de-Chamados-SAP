@@ -1,6 +1,6 @@
 # Evidências de validação
 
-## Rodada mais recente: jornadas de usuário e roteiro de entrevista
+## Rodada mais recente: jornadas de usuário
 
 Em 19/10/2026 foram feitas **38 perguntas**, em execuções de navegador com serviços reais. São **15 cenários únicos** e 27 execuções contando retestes. A última evidência de cada cenário está aprovada. A primeira rodada teve 15 passes; a segunda, nove passes e uma falha de asserção do harness, preservada; as duas execuções adicionais de C04 estão registradas separadamente. A revisão de conteúdo encontrou ajustes mesmo em testes inicialmente aprovados. [Relatório, achados e capturas](jornadas-usuario/README.md) e [consolidado](jornadas-usuario/resumo.json).
 
@@ -9,9 +9,6 @@ Em 19/10/2026 foram feitas **38 perguntas**, em execuções de navegador com ser
 Microsoft Edge 155.0.4283.62, Playwright 1.64.1, Python 3.12 e Node.js 24.14. Foram verificadas fontes clicáveis, nova aba oficial, referência interna no expansível, confirmação/recusa, estado antes/depois e navegação estreita sem novas chamadas. As [nove páginas oficiais SAP](verificacao-links-sap.json) estavam acessíveis nesta data. Capturas foram inspecionadas em desktop e viewport 390×844; isso não equivale a teste em Safari/iOS físico ou conformidade integral de acessibilidade.
 
 O tempo mediano observado pelo harness foi 32,761 s por pergunta, incluindo automação e uma leitura extra de verificação. Não é SLA ou medida de ganho de produtividade. Modelos, tokens reportados e prompts estão no consolidado. O catálogo externo manteve o mesmo hash; não se alega comparação dos dados de todas as tabelas de outros projetos.
-
-O [roteiro de 18 minutos](../instrucoes/11-roteiro-apresentacao.md) e a [cola de gravação](../instrucoes/12-cola-gravacao.md) organizam o vídeo pelos requisitos do PDF, com sucesso, duas exceções, Sim/Não, arquitetura, fundamentação, testes, riscos e métricas. A gravação/ensaio cronometrado pelo usuário e a publicação continuam pendentes. Nenhum deploy foi realizado.
-
 
 ## Correções guiadas e citações clicáveis — rodada mais recente
 
@@ -24,7 +21,6 @@ A resposta real citou a política do simulador como número 1 e o SAP Learning c
 Os testes controlados cobrem parâmetros ausentes/excedentes, tentativa de trocar a operação, sessão/conversa errada, análise supersedida, vencimento do rascunho, dados modificados, idempotência antes/depois da decisão, mudança nos parâmetros de uma preparação existente, status explicitamente selecionado, falta de anexo e base insuficiente. Preparar não executa nem concede autorização; a pergunta final usa exatamente os parâmetros complementados pelo humano. O endpoint de decisão do gateway permanece separado.
 
 Reprodução: `python scripts/verify_corrections_live.py`, com dependências de desenvolvimento e `.env` configurado; consome créditos. Não foram criadas tabelas ou migrações, alterado corpus, feita publicação ou deixado servidor local rodando.
-
 
 ## Histórico da migração: React + FastAPI
 
@@ -52,7 +48,6 @@ Na revisão documental, 202 links locais foram conferidos: 201 destinos existem;
 ## Histórico das versões anteriores com Streamlit
 
 As seções seguintes e seus resultados são históricos. Comandos e scripts citados nelas devem ser consultados na versão Git correspondente; para a versão atual use `scripts/verify_web_live.py`, `scripts/benchmark_ui.py` e os comandos do README principal.
-
 
 Resultados coletados em 18/10/2026. A aplicação não foi publicada externamente.
 

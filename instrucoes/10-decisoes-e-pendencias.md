@@ -43,7 +43,9 @@
 
 **Decisão confirmada — D34, 18/10/2026:** toda correção executável identificada oferece caminho visual para aprovação: proposta completa com Sim/Não, ou preparação guiada quando faltarem parâmetros. “Altere para mim” preserva o recebimento discutido, sem pressupor mudança de status. Formulário não executa; gateway confirma a proposta exata. Citações numéricas conhecidas abrem fonte oficial ou identificação da regra interna, inclusive nas respostas antigas; sem popup de conteúdo. [Interface](06-interface.md), [aprovações](07-aprovacoes-humanas.md) e [prompts](05-prompts.md).
 
-**Decisão confirmada — D35, 19/10/2026:** executar conversas como usuário com perguntas variadas, múltiplos chats e verificação de respostas/links; organizar roteiro para vídeo de entrevista de acordo com o enunciado. Edge headless e serviços reais para testes; cliques automatizados são identificados como tal. Roteiro recomendado de 18 minutos, com uma cola de gravação e rastreabilidade para os critérios. A inspeção encontrou necessidade de responder diretamente sobre o estado do anexo e evitar garantia de lançamento por MIGO sem evidência aplicável; correções e retestes têm evidências separadas. [Roteiro](11-roteiro-apresentacao.md).
+**Decisão confirmada — D35, 19/10/2026:** executar conversas como usuário com perguntas variadas, múltiplos chats e verificação de respostas/links. Edge headless e serviços reais para testes; cliques automatizados são identificados como tal. A inspeção encontrou necessidade de responder diretamente sobre o estado do anexo e evitar garantia de lançamento por MIGO sem evidência aplicável; correções e retestes têm [evidências separadas](../evidencias/jornadas-usuario/README.md).
+
+**Decisão confirmada — D36, 19/10/2026:** manter no repositório os arquivos do aplicativo, conhecimento, instruções técnicas e evidências de validação. Remover materiais pessoais de apoio e suas referências; excluir relatórios temporários do navegador pelo `.gitignore`.
 
 ## Pendências e tratamento
 
@@ -59,7 +61,7 @@
 | P06 | Parâmetros iniciais implementados; calibração ampla pendente | Quatro sínteses mais duas políticas, busca textual/cosseno, RRF 60 e checagem de cobertura; avaliar relevância, falsos bloqueios e sustentação com rótulos fora do índice. |
 | P07 | Fixtures executáveis concluídas | Oito chamados com datas explícitas em C07/C08, perfis de suporte fictícios para novas sessões e gabaritos fora da base; C05 preserva lacunas. |
 | P08 | Jornadas e revisão funcional realizadas; validação ampla pendente | 187 Python, 14 React e 15 cenários de navegador com evidência final aprovada; 38 perguntas e capturas desktop/estreitas inspecionadas. Acessibilidade completa, outros navegadores e dispositivos reais continuam pendentes. |
-| P09 | Publicação, acesso da banca e limites de consumo | Configurar na etapa de publicação, validar hospedado e ensaiar apresentação. |
+| P09 | Publicação, acesso da banca e limites de consumo | Configurar na etapa de publicação, validar o ambiente hospedado. |
 | P10 | PDF original ausente no diretório de trabalho | Remoção já existente fora desta migração; mantida fora dos commits. O link em `01-desafio.md` depende de disponibilizar novamente o arquivo. Requisitos transcritos foram preservados. |
 
 ## Como incorporar novos pedidos

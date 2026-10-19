@@ -9,6 +9,7 @@ __pycache__/
 .streamlit/secrets.toml
 .local/
 test-results/
+playwright-report/
 *.egg-info/
 node_modules/
 frontend/dist/

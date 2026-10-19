@@ -85,7 +85,6 @@ Antes de gerar a análise, uma chamada estruturada verifica se os trechos cobrem
 - [Catálogo do conhecimento](conhecimento/catalogo.json): 12 guias próprios, sendo dez sínteses de nove fontes oficiais e duas políticas simuladas; nenhum gabarito é indexado.
 - [Instruções e decisões](instrucoes/README.md): requisitos, arquitetura, diagramas, prompts e limites.
 - [Evidências](evidencias/README.md): resultados locais e integrados, com limitações explícitas.
-- [Roteiro de demonstração](instrucoes/09-execucao-e-entrega.md): sequência de até 20 minutos.
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
@@ -148,9 +147,7 @@ Ao identificar correção executável, o chat oferece a proposta **Sim/Não** ou
 
 Os números das fontes são clicáveis, inclusive em respostas antigas. Fonte SAP abre o site oficial; regra interna abre a identificação em **Fontes e detalhes**, sem conteúdo bruto ou popup. Para reproduzir C03 com Supabase/OpenRouter reais: `python scripts/verify_corrections_live.py` (requer dependências de desenvolvimento, consome créditos e simula as decisões humanas em workspace próprio).
 
-## Roteiro para o vídeo e testes como usuário
-
-O [roteiro de 18 minutos](instrucoes/11-roteiro-apresentacao.md) traz falas, cliques, perguntas e cobertura dos critérios do PDF. A [cola de gravação](instrucoes/12-cola-gravacao.md) reúne a sequência para consultar durante o ensaio.
+## Testes de navegador com serviços reais
 
 Os testes de navegador usam Microsoft Edge instalado, Supabase/OpenRouter reais e sessões fictícias novas. **Consomem créditos**, por isso são separados dos testes padrão e exigem confirmação explícita por variável de ambiente:
 

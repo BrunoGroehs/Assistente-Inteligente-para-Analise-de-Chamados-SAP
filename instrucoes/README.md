@@ -18,10 +18,8 @@ Ler primeiro o desafio e o processo SAP; depois arquitetura, RAG, prompts, inter
 | [06 - Interface](06-interface.md) | Chat, lista, detalhes, aprovações e direção visual. |
 | [07 - Aprovações humanas](07-aprovacoes-humanas.md) | Barreira determinística, estados e execução segura. |
 | [08 - Testes e avaliação](08-testes-e-avaliacao.md) | Casos de aceite, métricas, evidências executadas e limites. |
-| [09 - Execução e entrega](09-execucao-e-entrega.md) | Etapas, configuração, publicação e demonstração. |
+| [09 - Execução e entrega](09-execucao-e-entrega.md) | Configuração, publicação, riscos e evolução. |
 | [10 - Decisões e pendências](10-decisoes-e-pendencias.md) | Histórico, alternativas, perguntas e próximos passos. |
-| [11 - Roteiro da apresentação](11-roteiro-apresentacao.md) | Vídeo de 18 minutos: falas, telas e cobertura do enunciado. |
-| [12 - Cola de gravação](12-cola-gravacao.md) | Ordem dos casos, perguntas prontas e conferência rápida. |
 
 ## Legenda de estado
 
@@ -51,5 +49,3 @@ Novas solicitações devem atualizar seu documento responsável e, se alterarem 
 **Atualização confirmada:** Streamlit removido. Aplicação portátil com frontend compilado servido pela API, navegação local no navegador e sem plataforma de hospedagem definida. Deploy manual posterior pelo usuário. [Arquitetura](03-arquitetura.md), [execução](09-execucao-e-entrega.md) e decisão D33.
 
 **Atualização confirmada:** correções executáveis sempre oferecem preparação/Sim/Não, sem inventar parâmetros; citações numéricas conhecidas são clicáveis, inclusive em mensagens antigas. Decisão D34 e documentos de interface, aprovações e prompts atualizados.
-
-**Novo pedido confirmado:** ampliar testes como usuário em múltiplas conversas e preparar roteiro para vídeo de entrevista. [Roteiro](11-roteiro-apresentacao.md) e [cola](12-cola-gravacao.md) organizam a gravação; duração de 18 minutos é recomendação para respeitar o limite de 20 do PDF.

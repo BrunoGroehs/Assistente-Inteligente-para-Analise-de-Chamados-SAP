@@ -1,8 +1,8 @@
-# Execução futura, publicação e entrega
+# Execução, publicação e entrega
 
 ## Estado e preparação
 
-**Decisão confirmada:** implementação autorizada em 18/10/2026. O aplicativo executável, os comandos e as configurações atuais estão no [README principal](../README.md). Este documento preserva o roteiro e os critérios de evolução; os resultados concluídos estão nas [evidências](../evidencias/README.md).
+**Decisão confirmada:** implementação autorizada em 18/10/2026. O aplicativo executável, os comandos e as configurações atuais estão no [README principal](../README.md). Este documento reúne a configuração e os critérios de evolução; os resultados concluídos estão nas [evidências](../evidencias/README.md).
 
 **Estado implementado:** Python 3.12, dependências diretas fixadas após validar compatibilidade e API FastAPI na raiz e frontend React/TypeScript compilado com Vite. Domínio, infraestrutura, interface, conhecimento e testes estão separados. O README principal contém os comandos de preparação e execução; manter suas instruções alinhadas ao código e aos resultados verificados.
 
@@ -25,7 +25,7 @@ Não solicitar segredos no chat. O usuário configurou `.env` localmente e ativo
 3. **HITL:** gateway, propostas, validade, transações, idempotência e isolamento. Saída: escrita impossível sem autorização e testes de exceção aprovados.
 4. **Interface:** chat único, seletor em diálogo, anexo opcional e cartões de aprovação, seguindo a [direção visual](06-interface.md). Saída: atendimento integrado e validação manual desktop/tela estreita.
 5. **Validação e publicação:** executar matriz relevante, registrar falhas e resultados, preparar secrets e acesso restrito. Publicar somente na etapa correspondente, sem alegar funcionamento antes do teste hospedado.
-6. **Entrega:** README, diagrama, base, chamados, decisões, testes, limitações e ensaio da demonstração.
+6. **Entrega:** README, diagrama, base, chamados, decisões, testes e limitações.
 
 O fluxo HITL pode ser testado antes do LLM real, usando propostas controladas. Isso valida a barreira; não substitui a rodada integrada com o OpenRouter.
 
@@ -49,22 +49,6 @@ Inicializar/verificar somente o schema do projeto e ingerir documentos alterados
 | Custo ou indisponibilidade do provedor | Acesso restrito, limites por sessão, cache de embeddings e falha explícita. |
 | Reinício e reenvio HTTP | Estado durável, IDs de submissão e execução idempotente. |
 | Exposição de credenciais ou sessões | Segredos no servidor, escopo por sessão e logs sem credenciais. |
-| Simulação confundida com integração SAP | Aviso discreto, resultados identificados como simulados e limitações na apresentação. |
+| Simulação confundida com integração SAP | Aviso discreto, resultados identificados como simulados e limites documentados. |
 
 Para futura integração real, adotar adaptador com APIs autorizadas, identidade com privilégio mínimo, separação de leitura/escrita, auditoria e autorização humana preservada. Avaliar conciliação de operações remotas e regras reais do processo antes de habilitar qualquer escrita. Não usar o modelo como cliente HTTP irrestrito.
-
-## Demonstração de até 20 minutos
-
-**Requisito do PDF:** até 20 minutos. **Roteiro atual recomendado:** [guia de gravação de 18 minutos](11-roteiro-apresentacao.md), com falas, cliques, exemplos e matriz de cobertura; [cola rápida](12-cola-gravacao.md). O enunciado original versionado foi conferido novamente. Visão geral, com dois minutos de reserva:
-
-| Tempo | Conteúdo |
-| --- | --- |
-| 0 a 2 min | Problema manual, processo SAP MM e oito chamados. |
-| 2 a 4 min | Arquitetura, adequação de GenAI, base e RAG. |
-| 4 a 6 min | C01: orientação, fonte, confiança e anexo opcional. |
-| 6 a 8 min | C05/C06: esclarecimento e falta de evidência. |
-| 8 a 13 min | C03 com preparação/Não e C07 com Sim e resultado. |
-| 13 a 16 min | Fora do escopo, prompts, trilha, testes e métricas. |
-| 16 a 18 min | SAP real com segurança, riscos, limitações e evolução. |
-
-Se um serviço falhar, identificar a falha e usar evidências previamente coletadas como gravação ou execução anterior, devidamente rotuladas. Não apresentar um mock como demonstração ao vivo bem-sucedida.

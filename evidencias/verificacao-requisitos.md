@@ -53,16 +53,15 @@ Referências: [rodada dos chamados](avaliacao-integrada.json), [resumo inicial](
 | T23 | Silêncio e texto não autorizam; operação fora da lista é rejeitada. Análises reais com propostas permanecem sem efeitos até decisão do harness. |
 | T24 | Regra de persistência e solicitação de fontes ao usuário documentada no [RAG](../instrucoes/04-rag-e-fontes.md). **Procedimento:** as fontes atuais foram acessadas; não se simulou um pedido real ao usuário por falha de site. |
 
-## Entregáveis e pontos de apresentação
+## Entregáveis e limites
 
 | Item | Situação |
 | --- | --- |
 | Código e execução | [README](../README.md), aplicação e dependências versionadas; execução local com Supabase. |
 | Diagrama, decisões e limites | [Arquitetura](../instrucoes/03-arquitetura.md), [histórico](../instrucoes/10-decisoes-e-pendencias.md) e instruções temáticas. |
 | Base, chamados e evidências | Arquivos de conhecimento próprios, oito fixtures e relatórios separados do índice RAG. |
-| Atividade manual, escolha de GenAI e SAP real seguro | Explicação e roteiro em [execução e entrega](../instrucoes/09-execucao-e-entrega.md). Integração SAP real não implementada nem exigida. |
+| Atividade manual, escolha de GenAI e SAP real seguro | Objetivo no [desafio](../instrucoes/01-desafio.md), componentes na [arquitetura](../instrucoes/03-arquitetura.md) e integração futura em [execução e entrega](../instrucoes/09-execucao-e-entrega.md). Integração SAP real não implementada nem exigida. |
 | Tempo, qualidade e produtividade | Métricas e protocolo em [avaliação](../instrucoes/08-testes-e-avaliacao.md). Latências observadas não comprovam ganho de produtividade; comparação manual/assistida ainda não realizada. |
-| Demonstração até 20 minutos | Roteiro preparado; apresentação/ensaio cronometrado e publicação externos ainda não realizados. |
 
 As três consultas adicionais de recuperação constituem uma amostra pequena, sem estimativa estatística de relevância. A checagem do catálogo externo ao schema confirma igualdade dos metadados observados, sem ler dados de outros projetos; não equivale a backup ou auditoria de todas as operações no banco.
 

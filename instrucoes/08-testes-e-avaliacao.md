@@ -77,7 +77,7 @@ O [reteste integrado de seleção](../evidencias/verificacao-selecao-chamados.js
 
 A [interface integrada inicial](../evidencias/interface-integrada.json) foi testada via AppTest com serviços reais. A [rodada ampliada anterior](../evidencias/verificacao-ampliada.json) verifica o popup da versão anterior e HITL; esse relatório é histórico, pois o usuário substituiu o popup por links diretos. Os XMLs de 75 e 101 casos também são históricos. A rodada atual é registrada separadamente em [verificacao-fontes-rag.json](../evidencias/verificacao-fontes-rag.json), sem sobrescrever as anteriores.
 
-A [matriz de verificação](../evidencias/verificacao-requisitos.md) distingue requisitos cobertos, casos parcialmente verificados e procedimentos ainda não exercitados. A revisão visual/teclado (T21), um pedido ao usuário por fonte indisponível (T24), a comparação manual/assistida e o ensaio cronometrado não são apresentados como testes concluídos.
+A [matriz de verificação](../evidencias/verificacao-requisitos.md) distingue requisitos cobertos, casos parcialmente verificados e procedimentos ainda não exercitados. A revisão visual/teclado (T21), um pedido ao usuário por fonte indisponível (T24) e a comparação manual/assistida não são apresentados como testes concluídos.
 
 ## Histórico da validação documental inicial em 18/10/2026
 
@@ -108,8 +108,8 @@ Testes adicionais da fronteira: cookie seguro, origem indevida, sessões e conve
 
 **Quatro verificações reais de C03 aprovadas** em [verificacao-correcoes-c03.json](../evidencias/verificacao-correcoes-c03.json): duas mensagens da reprodução, preparação/recusa e proposta completa com aceitação idempotente. Três embeddings e seis chamadas de chat; decisões simuladas pelo teste, sem consentimento humano real ou integração SAP. Fontes: número 1 interno abre identificação da regra; número 2 oficial abre o site. Testes React cobrem números em mensagens históricas/fatos, ausência de link inventado para número desconhecido e preservação de código. Revisão visual/teclado permanece pendente.
 
-## Jornadas no navegador e entrevista
+## Jornadas no navegador
 
 **Executado:** 15 cenários iniciais, dez retestes e duas execuções adicionais de C04; 38 perguntas, com a última evidência dos 15 cenários aprovada. Uma falha lexical do harness e uma resposta ainda excessiva foram preservadas na [revisão](../evidencias/jornadas-usuario/README.md). Os cenários incluem os oito chamados, consultas gerais, mensagens maliciosas, anexo removido, Novo chat, Sim/Não e fontes. Nove páginas oficiais foram abertas e conferidas; DOM e nova aba foram verificados pelo Edge.
 
-T21 foi parcialmente exercitado: desktop e viewport estreito, captura inspecionada, Enter/Escape, detalhes, botões e ausência de overflow nos casos testados. Acessibilidade completa e dispositivos reais continuam pendentes. Retestes também geraram recomendações para o [roteiro de apresentação](11-roteiro-apresentacao.md), sem afirmar que o vídeo foi gravado ou ensaiado em 18 minutos.
+T21 foi parcialmente exercitado: desktop e viewport estreito, captura inspecionada, Enter/Escape, detalhes, botões e ausência de overflow nos casos testados. Acessibilidade completa e dispositivos reais continuam pendentes.

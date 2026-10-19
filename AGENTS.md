@@ -20,7 +20,6 @@ Antes de trabalhar, ler o [índice das instruções](instrucoes/README.md) e os 
 - [Testes e avaliação](instrucoes/08-testes-e-avaliacao.md).
 - [Execução e entrega](instrucoes/09-execucao-e-entrega.md).
 - [Decisões e pendências](instrucoes/10-decisoes-e-pendencias.md).
-- [Roteiro para apresentação](instrucoes/11-roteiro-apresentacao.md) e [cola de gravação](instrucoes/12-cola-gravacao.md).
 
 ## Manutenção das instruções
 

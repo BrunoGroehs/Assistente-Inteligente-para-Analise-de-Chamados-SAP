@@ -36,7 +36,7 @@ Esta matriz mantém a especificação do enunciado. O estado de verificação de
 
 **Requisito do PDF, p. 3:** código-fonte ou protótipo executável; README de execução; diagrama simples; base de conhecimento e chamados usados; justificativa das decisões; evidências de testes; riscos, limitações e próximos passos; demonstração de até 20 minutos.
 
-**Recomendação:** controlar a conclusão por evidência: código executado, comandos verificados, artefatos de conhecimento versionados, relatório de testes e roteiro cronometrado. Esta documentação atende à preparação desses entregáveis; não substitui a demonstração funcional.
+**Recomendação:** controlar a conclusão por evidência: código executado, comandos verificados, artefatos de conhecimento versionados, relatórios de testes e critérios de aceite verificáveis.
 
 ## Avaliação
 
@@ -49,5 +49,3 @@ Esta matriz mantém a especificação do enunciado. O estado de verificação de
 | HITL e limites de autonomia | 10% |
 | Organização, clareza e qualidade técnica | 10% |
 | Comunicação e demonstração | 5% |
-
-Na apresentação, explicar a atividade manual transformada, adequação de GenAI, prevenção de respostas incorretas, critérios de esclarecimento e decisão humana, possível acesso seguro ao SAP real e medição de tempo, qualidade e produtividade (p. 3 e 4). O [roteiro](09-execucao-e-entrega.md) cobre esses pontos.

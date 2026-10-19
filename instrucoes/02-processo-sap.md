@@ -41,7 +41,7 @@ Pergunta sobre folha de pagamento será um teste adicional de fora do escopo, se
 
 ## Aceite do recorte
 
-**Recomendação:** cada chamado deve ser executável isoladamente, com estado inicial conhecido, referências à base e resultado esperado verificável. A apresentação deve explicar quais fatos vieram da documentação, quais vieram do simulador e quais são hipóteses da IA.
+**Recomendação:** cada chamado deve ser executável isoladamente, com estado inicial conhecido, referências à base e resultado esperado verificável. As respostas devem distinguir fatos da documentação, dados do simulador e hipóteses da IA.
 
 ## Aproximação ao formato SAP for Me
 

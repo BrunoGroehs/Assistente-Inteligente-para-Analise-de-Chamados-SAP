@@ -1,4 +1,4 @@
-# Verificação como usuário e preparação do vídeo
+# Verificação como usuário
 
 Testes no Microsoft Edge 155.0.4283.62 em modo headless, com a interface React compilada e FastAPI, Supabase e OpenRouter reais. Playwright 1.64.1 automatizou os cliques e a digitação; não houve decisões de uma pessoa nem integração SAP real. As sessões são fictícias e próprias de cada execução.
 
@@ -44,7 +44,7 @@ A leitura de `reteste-verificacao/U05.json` ainda encontrou a frase categórica 
 
 Foram inspecionadas capturas reais de resposta com fontes, formulário/confirmação C03, confirmação de recebimento C07 e telas estreitas de C05/lista. O compositor não sobrepôs o cartão de confirmação e os diálogos mantiveram busca, lista rolável e ações acessíveis. Os testes verificaram ausência de overflow horizontal nas telas estreitas exercitadas.
 
-Exemplos: [fontes](reteste/capturas/resposta-com-fontes.png), [aprovação C03](reteste/capturas/c03-confirmacao.png), [C05 estreito](reteste/capturas/c05-mobile.png), [lista estreita](inicial/capturas/lista-mobile.png). São capturas de teste automatizado, não um vídeo gravado por uma pessoa.
+Exemplos: [fontes](reteste/capturas/resposta-com-fontes.png), [aprovação C03](reteste/capturas/c03-confirmacao.png), [C05 estreito](reteste/capturas/c05-mobile.png), [lista estreita](inicial/capturas/lista-mobile.png). São capturas de teste automatizado.
 
 A revisão de conteúdo foi feita contra guias, páginas oficiais e dados fictícios; não substitui uma avaliação independente de especialista SAP. As asserções não provam ausência universal de alucinação. Não foram avaliados Safari/iOS real, leitor de tela, conformidade completa de acessibilidade, tráfego de produção ou integração SAP real. Os tempos incluem o harness e uma leitura extra de verificação; não são SLA nem medição de ganho de produtividade.
 
@@ -53,5 +53,3 @@ A revisão de conteúdo foi feita contra guias, páginas oficiais e dados fictí
 Na pasta `frontend`, instalar dependências, compilar e executar os comandos do [README](../../README.md). `RUN_REAL_USER_TESTS=1` é obrigatório porque há consumo da API real. `USER_TEST_RUN` define uma pasta nova de resultados; não reutilize o nome se quiser preservar a rodada anterior. O Uvicorn temporário da porta 8011 é encerrado pelo runner. Nenhum teste faz reset ou limpeza de tabelas externas.
 
 O consolidado pode ser atualizado com `python scripts/review_user_journeys.py`, a partir da raiz. Esse script apenas lê as mensagens identificadas nas transcrições e a estrutura do catálogo; não chama LLM nem altera dados no banco.
-
-Para gravar a apresentação: [roteiro completo](../../instrucoes/11-roteiro-apresentacao.md) e [cola de gravação](../../instrucoes/12-cola-gravacao.md).
