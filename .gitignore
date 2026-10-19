@@ -10,3 +10,7 @@ __pycache__/
 .local/
 test-results/
 *.egg-info/
+node_modules/
+frontend/dist/
+frontend/coverage/
+*.tsbuildinfo
