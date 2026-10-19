@@ -1,0 +1,108 @@
+{
+  "mode": "Novo chat e resposta compacta com Supabase/OpenRouter reais; consome créditos.\n\nAs propostas são entradas controladas de teste e as decisões são cliques AppTest,\nnão consentimento de uma pessoa. Usa somente uma sessão fictícia própria.\n",
+  "checks": [
+    {
+      "check": "Resposta compacta com fontes acessíveis",
+      "passed": true,
+      "details": {
+        "summary_words": 44,
+        "next_steps": 0,
+        "one_collapsed_details_per_answer": true,
+        "analysis": {
+          "summary": "Recebimento com referência ao pedido de compra é o registro da entrada de mercadorias vinculando-as diretamente a um pedido existente. Esse processo permite conferir itens abertos, material e quantidade entregues, atualizando o histórico do pedido e gerando documentos de material e, se aplicável, contábeis.",
+          "process": "recebimento_pedido_compra",
+          "facts": [
+            {
+              "text": "Registrar a entrada com referência ao pedido permite conferir os itens abertos, incluindo o material efetivamente entregue e a quantidade.",
+              "evidence_ids": [
+                "K01"
+              ]
+            },
+            {
+              "text": "O lançamento atualiza o histórico dos itens do pedido e gera documento de material; recebimentos valorizados podem gerar documento contábil.",
+              "evidence_ids": [
+                "K01"
+              ]
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [],
+          "references": [
+            "K01",
+            "RELATO"
+          ],
+          "confidence": "alta",
+          "confidence_reason": "A definição conceitual está claramente descrita na síntese da fonte oficial K01, que explica o propósito e os efeitos do recebimento com referência.",
+          "human_review": false,
+          "action": null
+        }
+      }
+    },
+    {
+      "check": "Novo chat limpa conversa e anexo sem mudar negócio",
+      "passed": true,
+      "details": {
+        "same_business_state": true,
+        "previous_history_and_proposal_preserved": true,
+        "no_llm_call_on_new_chat": true
+      }
+    },
+    {
+      "check": "Nova resposta usa somente o histórico da nova conversa",
+      "passed": true,
+      "details": {
+        "postgres_json_chat_filter": true,
+        "previous_user_question_excluded_from_llm_history": true,
+        "analysis": {
+          "summary": "Ao receber mercadorias com referência a um pedido de compra, o sistema gera obrigatoriamente um documento de material. Se o recebimento for valorizado, também é criado um documento contábil para atualizar o valor do estoque. Essas informações baseiam-se na documentação do processo de entrada de mercadorias no SAP S/4HANA.",
+          "process": "recebimento_pedido_compra",
+          "facts": [
+            {
+              "text": "O lançamento de entrada de mercadorias com referência ao pedido gera um documento de material.",
+              "evidence_ids": [
+                "K01",
+                "K08"
+              ]
+            },
+            {
+              "text": "Recebimentos valorizados podem gerar também um documento contábil para atualização do valor em estoque.",
+              "evidence_ids": [
+                "K01",
+                "K08"
+              ]
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [],
+          "references": [
+            "RELATO",
+            "K01",
+            "K08"
+          ],
+          "confidence": "alta",
+          "confidence_reason": "A resposta é diretamente suportada pelas sínteses das fontes oficiais K01 e K08, que descrevem os documentos gerados no processo de recebimento.",
+          "human_review": false,
+          "action": null
+        }
+      }
+    },
+    {
+      "check": "Aprovação permanece ligada à conversa original",
+      "passed": true,
+      "details": {
+        "wrong_chat_rejected": true,
+        "proposal_not_reused": true,
+        "one_execution": true,
+        "decision": "simulada pelo harness; proposta controlada"
+      }
+    }
+  ],
+  "api_calls": {
+    "embeddings": 2,
+    "completions": 4
+  },
+  "prompt_version": "Versão: 2026-10-18.9 (rascunho implementado para avaliação)",
+  "passed": true
+}

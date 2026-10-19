@@ -16,7 +16,7 @@
 | R08 — LLM e prompts | Qwen3.6 Plus via OpenRouter nos relatórios reais; [prompt versionado](../prompts/system.txt), esquema tipado e reparo limitado. Embeddings Qwen3 8B, dimensão 4.096. |
 | R09 — fora do escopo | E01 e rodada ampliada: folha/férias recebem limite de escopo, sem ação ou fonte MM irrelevante. |
 | R10 — prevenção de invenções | [Testes de cobertura](../tests/test_grounding.py): sem suporte, sem geração técnica ou proposta; IDs de parágrafo inexistentes, `DATA` como prova e saída inválida bloqueados. Códigos não documentados exigem abstinência. A decisão semântica usa LLM, sem garantia universal. |
-| R11 — registrar atendimento | Solicitação, resposta, fontes, etapas, versões e auditoria no Supabase; reconexão e isolamento testados. Chat único mantém o anexo usado em cada mensagem; remover/substituir não reatribui o histórico. |
+| R11 — registrar atendimento | Solicitação, resposta, fontes, etapas, versões e auditoria no Supabase; reconexão e isolamento testados. Chat mantém o anexo usado em cada mensagem; remover/substituir não reatribui histórico. [Novo chat](verificacao-novo-chat.json) separa conversas sem apagar registros nem dados de negócio. |
 | R12 — sucesso e exceções | Oito casos e duas exceções na primeira rodada; verificações adicionais de falhas, ataques, HITL e interface nesta rodada. |
 | R13 — recomendação versus ação | Gateway determinístico testado com Sim/Não, silêncio, texto “sim”, expiração, adulteração, replay, concorrência e rollback. Nenhuma análise executou alteração de negócio. |
 

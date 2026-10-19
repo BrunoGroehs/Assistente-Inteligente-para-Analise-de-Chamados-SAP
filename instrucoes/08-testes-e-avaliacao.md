@@ -4,7 +4,7 @@
 
 **Requisito do PDF:** demonstrar ao menos um sucesso e duas exceções e apresentar evidências reais de testes.
 
-**Estado atual:** **147 testes automatizados**, sem falhas, em [testes-desempenho.xml](../evidencias/testes-desempenho.xml). Rodadas reais de chat, anexos, RAG e HITL permanecem registradas; a avaliação atual acrescenta navegação sem SQL, atualização explícita, vencimento visual e decisão com dados atuais apesar de snapshot antigo. Consulte [evidências e limitações](../evidencias/README.md) e a [cobertura por requisito](../evidencias/verificacao-requisitos.md). Não generalizar a amostra fictícia para qualidade de produção.
+**Estado atual:** **158 testes automatizados**, sem falhas, em [testes-novo-chat.xml](../evidencias/testes-novo-chat.xml), e quatro verificações reais de Novo chat/respostas compactas. A avaliação acrescenta isolamento de histórico/submissão/propostas por conversa, estado de negócio preservado, anexo/rascunho limpos e fontes acessíveis em um único expansível. Rodadas anteriores de RAG, HITL e desempenho permanecem registradas. Consulte [evidências e limitações](../evidencias/README.md) e a [cobertura por requisito](../evidencias/verificacao-requisitos.md). Não generalizar a amostra fictícia para qualidade de produção.
 
 ## Matriz de aceitação
 

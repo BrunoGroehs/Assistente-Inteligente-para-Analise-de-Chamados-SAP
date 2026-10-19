@@ -6,9 +6,17 @@ Resultados coletados em 18/10/2026. A aplicação não foi publicada externament
 
 As suítes em `tests/` exercitam contratos, gateway, recusa, vencimento, concorrência, rollback, isolamento, recuperação híbrida, falhas do provedor e componentes Streamlit via AppTest. O provedor controlado é exclusivo dos testes.
 
-Resultado atual: **147 testes aprovados, zero falhas, erros ou testes ignorados** em [testes-desempenho.xml](testes-desempenho.xml). Ruff não encontrou erros, e `pip check` confirmou compatibilidade das dependências instaladas. Python 3.12.10; dependências diretas fixadas nos arquivos requirements. Os relatórios de [75 testes](testes.xml), [101 testes](testes-ampliados.xml), [121 testes](testes-fontes-rag.xml), [133 testes](testes-selecao-chamados.xml) e [140 testes](testes-anexos-chat.xml) permanecem como histórico.
+Resultado atual: **158 testes aprovados, zero falhas, erros ou testes ignorados** em [testes-novo-chat.xml](testes-novo-chat.xml). Ruff não encontrou erros, e `pip check` confirmou compatibilidade das dependências instaladas. Python 3.12.10; dependências diretas fixadas nos arquivos requirements. Os relatórios de [75 testes](testes.xml), [101 testes](testes-ampliados.xml), [121 testes](testes-fontes-rag.xml), [133 testes](testes-selecao-chamados.xml), [140 testes](testes-anexos-chat.xml) e [147 testes](testes-desempenho.xml) permanecem como histórico.
 
 Os testes de interface foram adaptados ao chat único com anexo opcional; sete cenários adicionais do serviço cobrem RAG geral sem `DATA`, separação de histórico, propostas forjadas de recebimento/status sem anexo, idempotência/vínculo da submissão, isolamento e base vazia. A seleção de linha no AppTest usa o estado nativo documentado do componente; não equivale a clicar numa tabela em navegador real.
+
+## Novo chat e respostas compactas
+
+**Quatro verificações aprovadas** com Supabase/OpenRouter reais em [verificacao-novo-chat.json](verificacao-novo-chat.json): resposta curta com fontes, Novo chat sem anexo/histórico anterior e sem mudar negócio, nova resposta com histórico filtrado no PostgreSQL e bloqueio de decisão da proposta de outra conversa. Uma proposta controlada na conversa nova executou uma única vez após o clique do harness; a proposta anterior permaneceu pendente, sem transferência ou renovação.
+
+Foram duas chamadas de embeddings e quatro de chat com o rascunho 2026-10-18.9. A primeira resposta ficou abaixo de 100 palavras no resumo e com no máximo um próximo passo; a orientação do prompt prefere até 80 palavras sem corte automático. A UI manteve um único Fontes e detalhes fechado por resposta, com fontes oficiais acessíveis. As decisões foram simuladas pelo AppTest e as propostas de aprovação foram entradas controladas; não são consentimento humano nem proposta gerada pelo modelo nessa rodada.
+
+Os 11 novos testes cobrem histórico/submissão isolados por conversa, IDs inválidos, proposta não reutilizada, decisão na conversa correta, manutenção dos dados de negócio, Novo chat com pendência anterior, fontes numeradas e apresentação compacta sem esconder pedidos de contexto/revisão. Não houve migração SQL: mensagens e propostas usam seus campos JSON existentes, com leitura compatível de registros antigos sem `chat_id`. [Script de reprodução](../scripts/verify_new_chat_live.py), com consumo de créditos. AppTest não equivale a inspeção visual ou teclado em navegador.
 
 ## Desempenho da navegação
 
