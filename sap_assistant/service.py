@@ -13,6 +13,7 @@ from .database import GENERAL_CHAT, Audit, Message, new_id, validate_chat_id
 from .provider import ProviderError
 from .grounding import insufficient_analysis, insufficient_assessment, out_of_scope_analysis, supported_ids
 from .corrections import correction_draft
+from .application_context import asks_attachment_context, attachment_context_answer
 
 
 def resolve_order(state, ticket, history):
@@ -116,6 +117,21 @@ class AssistantService:
                 evidence.append(Evidence(id="DATA", title="Consulta ao SAP simulado",
                     content=json.dumps(facts, ensure_ascii=False), kind="consulta_simulada", version=str(order["version"])))
                 steps.append({"step": "Pedido e histórico simulados consultados", "elapsed_ms": round((time.perf_counter()-started)*1000)})
+            if asks_attachment_context(message):
+                content = attachment_context_answer(ticket, order)
+                with self.store.transaction() as db:
+                    workspace = self.store.authorize(db, context, lock=True)
+                    db.add(Message(workspace_id=workspace.id, ticket=channel, submission_id=submission_id,
+                        role="assistant", content=content, details={"chat_id": chat_id, "attachment": attachment,
+                            "application_context": True, "evidence": [item.model_dump() for item in evidence],
+                            "steps": [*steps, {"step": "Estado do anexo informado pelo servidor, sem diagnóstico SAP"}],
+                            "latency_ms": round((time.perf_counter()-started)*1000)}))
+                    row = db.scalar(select(Message).where(Message.workspace_id == workspace.id,
+                        Message.submission_id == submission_id, Message.role == "user"))
+                    row.details = {"state": "completed", "attachment": attachment, "chat_id": chat_id}
+                    db.add(Audit(workspace_id=workspace.id, event="contexto_da_aplicacao_consultado",
+                        details={"submission_id": submission_id, "ticket": ticket_id, "chat_id": chat_id}))
+                return {"submission_id": submission_id, "state": "completed"}
             query = message + ("\n" + ticket["title"] + "\n" + ticket["description"] if ticket else "")
             progress("Buscando fontes no RAG…")
             recovered, retrieval_meta = self.retriever.search(query)

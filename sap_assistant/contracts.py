@@ -1,5 +1,7 @@
 from datetime import date
 from decimal import Decimal
+import json
+import re
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -96,4 +98,19 @@ def validate_grounding(analysis, evidence, undocumented_codes=()):
     if analysis.process != "fora_do_escopo" and undocumented_codes and (analysis.hypotheses or analysis.confidence != "baixa" or not analysis.human_review
                                or isinstance(analysis.action, ReceiptRequest) or analysis.correction_operation):
         raise ValueError("Código não documentado: hypotheses=[], confidence=baixa, human_review=true; não propor recebimento.")
+    # Uma limitação de aplicativo não comprova viabilidade em outra transação.
+    # Rejeitar garantias conhecidas, inclusive se uma frase seguinte pedir revisão.
+    completed = any(item.kind == "consulta_simulada" and json.loads(item.content).get("delivery_completed")
+                    for item in evidence)
+    if completed:
+        texts = [analysis.summary, *analysis.next_steps, *analysis.hypotheses, *[fact.text for fact in analysis.facts]]
+        for text in texts:
+            for sentence in re.split(r"(?<=[.!?])\s+", text):
+                if not re.search(r"\bMIGO\b", sentence, re.I):
+                    continue
+                guarantee = re.search(r"\bnão\s+(?:bloqueia|impede)\b|\bpermite\s+(?:processar|registrar|receber)\b", sentence, re.I)
+                qualified = re.search(r"universal|necessariamente|isoladamente|por si só|não (?:comprova|garante)", sentence, re.I)
+                if guarantee and not qualified:
+                    raise ValueError("Item concluído: não garantir recebimento por MIGO. A limitação do aplicativo "
+                                     "não comprova bloqueio universal nem viabilidade neste caso; pedir verificação humana.")
 
