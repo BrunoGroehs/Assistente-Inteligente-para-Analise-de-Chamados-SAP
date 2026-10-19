@@ -1,0 +1,10 @@
+{
+  "schema": "sap_chamados_ai",
+  "knowledge": {
+    "documents": 12,
+    "embedded": 12,
+    "min_dimension": 4096,
+    "max_dimension": 4096
+  },
+  "method": "consulta somente leitura nas tabelas do projeto"
+}

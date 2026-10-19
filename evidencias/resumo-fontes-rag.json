@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-18",
+  "runtime_commit": "704b521733958f6080066142199a64193fecbcc7",
+  "models": {
+    "chat": "qwen/qwen3.6-plus",
+    "embeddings": "qwen/qwen3-embedding-8b",
+    "dimension": 4096
+  },
+  "prompts": {
+    "prompts/system.txt": "Versão: 2026-10-18.6 (rascunho implementado para avaliação)",
+    "prompts/knowledge.txt": "Versão: 2026-10-18.4 (verificação de cobertura do RAG)"
+  },
+  "knowledge": {
+    "documents": 12,
+    "embedded": 12,
+    "min_dimension": 4096,
+    "max_dimension": 4096
+  },
+  "local_tests": {
+    "tests": 121,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "live_checks": {
+    "total": 28,
+    "passed": 28,
+    "mode": "consolidado de rodadas com ajustes e retestes"
+  },
+  "http_requests": {
+    "embeddings": 34,
+    "completions": 44
+  },
+  "request_count_scope": "Soma das três rodadas listadas, incluindo verificações repetidas e falhas; exclui rodada inicial interrompida e chamada de diagnóstico.",
+  "external_catalog_unchanged": true,
+  "checks": {
+    "ruff": "aprovado",
+    "pip_check": "aprovado",
+    "streamlit_health_http": 200
+  },
+  "artifact_sha256": {
+    "app.py": "f1b347bbe4984b94c9756a4311a72bd6920f7b5f57049fecd3d270a922b7d3dd",
+    "sap_assistant/grounding.py": "a17b8d7a0c5816df045d83a17d89d7056506fa4034232a1b6b01bf9046f0e401",
+    "sap_assistant/provider.py": "979affbdf2ec0b9918c9505ff5f9bbbd927395380d9723fcc3be88d53b0d7fd1",
+    "sap_assistant/service.py": "c9d0e6f1420d2f10b82acff2684f656663b111df309142955365ef60866e26f4",
+    "sap_assistant/retrieval.py": "9e6af62e8e1ae16b6cec8fc8849293c4fc5e0d6a908dcba83621ec9dd65429d7",
+    "sap_assistant/citations.py": "54ff2214187dae1f60b02d562f5849b3fda3f8488ffa281bab336b381845ea4c",
+    "prompts/system.txt": "6da02c39466a3ab0b87b2f7c5802389ab20215da1467ebf22509cd055bcfd87e",
+    "prompts/knowledge.txt": "f132065390d15f5de80e82805416c967ddd0a252762e39d06a07bcbf302d8a52",
+    "conhecimento/catalogo.json": "76b1c5dcc997d3eaa1d843188964f6cc5053cdf894b4e07f378e95f9342083ce",
+    "evidencias/testes-fontes-rag.xml": "6bc08ff5747b2364a22b81c90a59c82221f7ce2bc64491ec18cec8d37c5b0cd1",
+    "evidencias/verificacao-fontes-rag.json": "1a748a0a120d4762c3e5d547489b4217d44cd2e8f653889985c83a2986c32132"
+  },
+  "limits": [
+    "Cobertura semântica avaliada por LLM; IDs válidos não provam toda afirmação.",
+    "Corpus pequeno e fictício; sem estimativa estatística de qualidade.",
+    "Decisões humanas e cliques simulados pelo harness.",
+    "AppTest valida componentes/estado; inspeção visual em navegador e teclado pendente.",
+    "Nenhuma integração SAP real ou publicação externa."
+  ]
+}

@@ -6,9 +6,23 @@ Resultados coletados em 18/10/2026. A aplicação não foi publicada externament
 
 As suítes em `tests/` exercitam contratos, gateway, recusa, vencimento, concorrência, rollback, isolamento, recuperação híbrida, falhas do provedor e componentes Streamlit via AppTest. O provedor controlado é exclusivo dos testes.
 
-Resultado atual: **101 testes aprovados, zero falhas, erros ou testes ignorados** em [testes-ampliados.xml](testes-ampliados.xml). Ruff não encontrou erros, e `pip check` confirmou compatibilidade das dependências instaladas. Python 3.12.10; dependências diretas fixadas nos arquivos requirements. O relatório de [75 testes](testes.xml) permanece como histórico da primeira rodada.
+Resultado atual: **121 testes aprovados, zero falhas, erros ou testes ignorados** em [testes-fontes-rag.xml](testes-fontes-rag.xml). Ruff não encontrou erros, e `pip check` confirmou compatibilidade das dependências instaladas. Python 3.12.10; dependências diretas fixadas nos arquivos requirements. Os relatórios de [75 testes](testes.xml) e [101 testes](testes-ampliados.xml) permanecem como histórico.
 
-## Verificação ampliada com serviços reais
+## Ampliação do RAG e fontes diretas
+
+O usuário solicitou ampliar o corpus, retirar o conteúdo/popup da interface, organizar links e impedir respostas sem suporte. O corpus atual tem **12 guias**, com dez sínteses de nove fontes SAP Learning e duas políticas próprias. Os textos continuam internos ao RAG e à auditoria. Novos guias não ampliam as operações executáveis do simulador.
+
+Resultado consolidado: **28 verificações aprovadas após ajustes e retestes**, em [verificacao-fontes-rag.json](verificacao-fontes-rag.json). Foram 44 requisições de chat e 34 de embeddings nas três rodadas consolidadas, incluindo repetições/falhas; esses números excluem a rodada inicial interrompida e uma chamada de diagnóstico, e não representam um custo calculado. As verificações incluem novos conteúdos, BAdI não documentada, SAP Note ausente, pergunta parcialmente coberta, fontes diretas, regressões dos chamados e HITL no PostgreSQL. [test_grounding.py](../tests/test_grounding.py) também cobre base vazia, prova inventada, dado transacional usado como conhecimento, mudança de assunto e verificador inválido.
+
+O [corpus no Supabase](corpus-ampliado-supabase.json) foi conferido por consulta somente leitura: 12 documentos, todos com embeddings de 4.096 dimensões. O [resumo atual](resumo-fontes-rag.json) identifica versões e artefatos. Os hashes do catálogo externo ao schema do projeto permaneceram iguais nas rodadas; nenhum dado de tabela externa foi lido.
+
+A primeira rodada foi interrompida após um falso bloqueio de proposta válida; o [relatório parcial](verificacao-fontes-rag-inicial.json) foi preservado. As regras do simulador passaram a acompanhar os quatro documentos oficiais selecionados. A verificação seleciona IDs de parágrafo, cujo texto é obtido pelo servidor, evitando depender de transcrição literal pelo LLM. A distinção entre assunto sem documentação e fora do escopo foi explicitada; dúvidas conceituais documentadas não são recusadas apenas porque o executor não realiza aquela operação.
+
+O [relatório anterior aos ajustes](verificacao-fontes-rag-antes-ajustes.json) preserva três bloqueios indevidos: BAdI foi classificada fora do escopo, uma explicação de séries foi recusada na geração e a consulta de quantidade não trouxe os trechos necessários. O [reteste focado](verificacao-fontes-rag-reteste.json) aprovou BAdI, séries e UI, mas detectou um ID inválido no caso de quantidade. O [reteste C03](verificacao-fontes-rag-c03.json) aprovou a proposta-base e o diagnóstico de saldo/excedente após restringir os IDs no esquema. O consolidado seleciona o resultado mais recente de cada cenário; não representa uma execução única sem falhas anteriores.
+
+As decisões de cobertura são semânticas e usam LLM. IDs válidos não constituem prova lógica de sustentação de toda frase; ampliar avaliação de falsos bloqueios e respostas indevidas continua necessário. Falhas de rede não são confundidas com ausência de documentação.
+
+## Histórico: verificação ampliada anterior
 
 **20 verificações aprovadas**, com **10 requisições de chat e 13 de embeddings** nesta execução. O usuário autorizou o uso da API. Relatório: [verificacao-ampliada.json](verificacao-ampliada.json); [resumo e versões](resumo-verificacao-ampliada.json); [cobertura do PDF e dos 24 cenários](verificacao-requisitos.md). A rodada anterior com os oito chamados continua registrada abaixo.
 
@@ -18,9 +32,9 @@ Resultado atual: **101 testes aprovados, zero falhas, erros ou testes ignorados*
 - Interface com Supabase/OpenRouter reais via AppTest: popup com o trecho histórico exato, nenhuma chamada de API ou alteração de negócio ao abrir/fechar; Sim gera uma execução; Não preserva dados; rerun não repete execução nem chamada de IA.
 - Catálogo de estruturas fora de `sap_chamados_ai`: hashes antes/depois iguais. Nenhuma leitura de dados de tabelas externas; a igualdade dos metadados observados não representa backup ou auditoria global.
 
-Os testes motivaram o vínculo do envelope completo ao hash da proposta e o uso de fingerprints dos dados, além das versões. Pendências antigas sem envelope exigem nova análise. Nenhuma migração SQL foi necessária. As citações usam somente as fontes usadas e o snapshot da mensagem; políticas próprias não recebem URL SAP inventada.
+Os testes motivaram o vínculo do envelope completo ao hash da proposta e o uso de fingerprints dos dados, além das versões. Pendências antigas sem envelope exigem nova análise. Nenhuma migração SQL foi necessária. O popup desse relatório corresponde à apresentação anterior, substituída por links diretos a pedido do usuário; os resultados históricos não foram apagados.
 
-Reprodução explícita: [scripts/verify_live.py](../scripts/verify_live.py), com serviços configurados e consumo de créditos. Falhas de provedor e conexão são exercitadas com transporte controlado nos testes locais; não se provocou uma interrupção real dos serviços.
+Reprodução atual: [scripts/verify_live.py](../scripts/verify_live.py), com serviços configurados e consumo de créditos. O script acompanha o comportamento atual. Permite `--only BAdI K10 C03 UI --report-name verificacao-fontes-rag-reteste.json`; a proposta-base sempre é verificada. Falhas de provedor e conexão são exercitadas com transporte controlado nos testes locais; não se provocou uma interrupção real dos serviços.
 
 ## Integração Supabase
 

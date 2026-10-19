@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-18",
+  "mode": "Supabase/OpenRouter reais; cliques e decisões simulados pelo harness",
+  "checks": [
+    {
+      "check": "API: proposta real não altera negócio",
+      "passed": true,
+      "details": {
+        "model": "qwen/qwen3.6-plus",
+        "action": "registrar_recebimento_simulado"
+      },
+      "seconds": 31.23,
+      "coverage_prompt_version": "Versão: 2026-10-18.4 (verificação de cobertura do RAG)"
+    },
+    {
+      "check": "API: regressão do atendimento — C03",
+      "passed": true,
+      "details": {
+        "case": "C03",
+        "references": [
+          "RELATO",
+          "DATA",
+          "K02",
+          "K05"
+        ]
+      },
+      "seconds": 29.9,
+      "coverage_prompt_version": "Versão: 2026-10-18.4 (verificação de cobertura do RAG)"
+    }
+  ],
+  "api_calls": {
+    "embeddings": 2,
+    "completions": 4
+  },
+  "rerun_filters": [
+    "C03"
+  ],
+  "external_catalog_unchanged": true,
+  "external_catalog_hashes": {
+    "before": "75b485015c8c815e3e3ff754f2d1990fafc04bbf48f9d866b699623efbb84043",
+    "after": "75b485015c8c815e3e3ff754f2d1990fafc04bbf48f9d866b699623efbb84043"
+  },
+  "passed": true
+}

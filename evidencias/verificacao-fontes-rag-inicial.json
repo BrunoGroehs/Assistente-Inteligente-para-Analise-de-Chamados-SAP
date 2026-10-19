@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-18",
+  "mode": "Supabase/OpenRouter reais; cliques e decisões simulados pelo harness",
+  "checks": [
+    {
+      "check": "API: proposta real não altera negócio",
+      "passed": false,
+      "error_type": "TypeError",
+      "seconds": 25.04
+    }
+  ],
+  "api_calls": {
+    "embeddings": 2,
+    "completions": 1
+  }
+}

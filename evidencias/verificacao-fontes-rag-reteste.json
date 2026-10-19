@@ -1,0 +1,98 @@
+{
+  "date": "2026-10-18",
+  "mode": "Supabase/OpenRouter reais; cliques e decisões simulados pelo harness",
+  "checks": [
+    {
+      "check": "API: proposta real não altera negócio",
+      "passed": true,
+      "details": {
+        "model": "qwen/qwen3.6-plus",
+        "action": "registrar_recebimento_simulado"
+      },
+      "seconds": 32.58,
+      "coverage_prompt_version": "Versão: 2026-10-18.4 (verificação de cobertura do RAG)"
+    },
+    {
+      "check": "API: abstinência — BAdI não documentada após conversa fundamentada",
+      "passed": true,
+      "details": {
+        "question": "Como implementar o método LINE_MODIFY da BAdI MB_MIGO_BADI para alterar o centro no recebimento?",
+        "analysis": {
+          "summary": "Não tenho informações suficientes na base de conhecimento para responder a esta solicitação com segurança.",
+          "process": "recebimento_pedido_compra",
+          "facts": [],
+          "hypotheses": [],
+          "missing_information": [
+            "Você pode informar a mensagem completa, o aplicativo e a versão utilizada?"
+          ],
+          "next_steps": [
+            "Compartilhe uma fonte confiável ou documentação do caso para complementar a base."
+          ],
+          "references": [],
+          "confidence": "baixa",
+          "confidence_reason": "O RAG não forneceu suporte suficiente para a pergunta atual.",
+          "human_review": true,
+          "action": null
+        },
+        "abstained": true,
+        "pending_proposals_unchanged": true
+      },
+      "seconds": 22.41,
+      "coverage_prompt_version": "Versão: 2026-10-18.4 (verificação de cobertura do RAG)"
+    },
+    {
+      "check": "API: novo conteúdo — K10",
+      "passed": true,
+      "details": {
+        "question": "Qual o papel do perfil de número de série do material no recebimento, conceitualmente?",
+        "cited": "K10",
+        "technical_answer_with_source": true
+      },
+      "seconds": 24.58,
+      "coverage_prompt_version": "Versão: 2026-10-18.4 (verificação de cobertura do RAG)"
+    },
+    {
+      "check": "API: regressão do atendimento — C03",
+      "passed": false,
+      "error_type": "AssertionError",
+      "seconds": 17.81,
+      "coverage_prompt_version": "Versão: 2026-10-18.4 (verificação de cobertura do RAG)"
+    },
+    {
+      "check": "UI real: links oficiais sem conteúdo, Sim, Não e rerun",
+      "passed": true,
+      "details": {
+        "source_ids": [
+          "K02"
+        ],
+        "official_urls": [
+          "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt"
+        ],
+        "direct_source_links": true,
+        "no_content_or_popup": true,
+        "source_render_no_api_calls": true,
+        "approval_once": true,
+        "refusal_unchanged": true,
+        "method": "AppTest; não revisão visual"
+      },
+      "seconds": 165.7,
+      "coverage_prompt_version": "Versão: 2026-10-18.4 (verificação de cobertura do RAG)"
+    }
+  ],
+  "api_calls": {
+    "embeddings": 7,
+    "completions": 12
+  },
+  "rerun_filters": [
+    "BAdI",
+    "K10",
+    "C03",
+    "UI"
+  ],
+  "external_catalog_unchanged": true,
+  "external_catalog_hashes": {
+    "before": "75b485015c8c815e3e3ff754f2d1990fafc04bbf48f9d866b699623efbb84043",
+    "after": "75b485015c8c815e3e3ff754f2d1990fafc04bbf48f9d866b699623efbb84043"
+  },
+  "passed": false
+}

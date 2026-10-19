@@ -36,7 +36,7 @@ Preservar o vínculo entre guia, trecho e URL. Citar a síntese local com o docu
 
 **Atualização confirmada:** a versão 8B substituiu a escolha original 0.6B após o endpoint desta retornar HTTP 404; o usuário aprovou a troca. A integração real retornou dimensão 4.096. O código não troca modelos silenciosamente.
 
-**Estado implementado:** normalização textual em português, contagem de termos, busca vetorial por cosseno no pgvector e fusão RRF com constante 60; até quatro sínteses oficiais por consulta, acrescidas das duas políticas da demonstração como contexto obrigatório. Essa seleção substitui o limite anterior de quatro guias misturados, que podia omitir regras do simulador. A busca usa a mensagem atual e o relato do chamado; a verificação de cobertura prioriza a pergunta atual, com histórico para resolver referências.
+**Estado implementado:** normalização textual em português, contagem de termos, busca vetorial por cosseno no pgvector e fusão RRF com constante 60; até quatro sínteses oficiais por consulta, acrescidas das duas políticas da demonstração como contexto obrigatório. Essa seleção substitui o limite anterior de quatro guias misturados, que podia omitir regras do simulador. A busca usa a mensagem atual, o título e o relato do chamado; a verificação de cobertura prioriza a pergunta atual, com histórico para resolver referências.
 
 O corpus pequeno usa varredura exata, sem índice ANN. Conteúdo/metadados recebem hash, e embeddings são reutilizados enquanto hash e modelo não mudarem. A dimensão é verificada antes da busca. Base vazia produz resposta explícita de insuficiência, sem chamada de geração ou proposta.
 

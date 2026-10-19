@@ -4,6 +4,7 @@ Consome créditos da API. Não altera tabelas externas ao projeto, não modifica
 base compartilhada e cria somente ambientes fictícios próprios de teste.
 """
 from concurrent.futures import ThreadPoolExecutor
+import argparse
 from copy import deepcopy
 from datetime import timedelta
 import hashlib
@@ -33,9 +34,18 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--only", nargs="+", help="Executar checagens cujo nome contém os textos indicados; a proposta-base sempre é verificada.")
+    parser.add_argument("--update-report", action="store_true", help="Atualizar somente as checagens executadas no relatório atual.")
+    parser.add_argument("--report-name", default="verificacao-fontes-rag.json", help="Nome do arquivo JSON em evidencias/.")
+    args = parser.parse_args()
+    if Path(args.report_name).name != args.report_name or not args.report_name.endswith(".json"):
+        parser.error("Use somente um nome de arquivo .json para o relatório.")
+    path = ROOT / "evidencias" / args.report_name
+    previous = json.loads(path.read_text(encoding="utf-8")) if args.update_report and path.exists() else {}
     settings = Settings.load()
     store, assistant, gateway = runtime.create_runtime(settings)
-    calls = {}
+    calls = dict(previous.get("api_calls", {}))
 
     def instrument(service):
         def count(request):
@@ -46,13 +56,17 @@ def main():
     instrument(assistant)
     report = {"date": utcnow().astimezone(ZoneInfo("America/Sao_Paulo")).date().isoformat(),
               "mode": "Supabase/OpenRouter reais; cliques e decisões simulados pelo harness",
-              "checks": [], "api_calls": calls}
-    path = ROOT / "evidencias" / "verificacao-ampliada.json"
+              "checks": previous.get("checks", []), "api_calls": calls}
+    if args.only:
+        report["rerun_filters"] = args.only
 
     def save():
         path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     def run(name, function):
+        if (args.only and name != "API: proposta real não altera negócio"
+                and not any(value.casefold() in name.casefold() for value in args.only)):
+            return
         start = time.perf_counter()
         try:
             details = function() or {}
@@ -61,6 +75,8 @@ def main():
             # Erros de SQL/HTTP podem conter segredos; salvar apenas o tipo.
             entry = {"check": name, "passed": False, "error_type": type(exc).__name__}
         entry["seconds"] = round(time.perf_counter() - start, 2)
+        entry["coverage_prompt_version"] = (ROOT / "prompts" / "knowledge.txt").read_text(encoding="utf-8").splitlines()[0]
+        report["checks"] = [x for x in report["checks"] if x["check"] != name]
         report["checks"].append(entry)
         save()
         print(json.dumps({"check": name, "passed": entry["passed"]}, ensure_ascii=False), flush=True)
@@ -156,10 +172,49 @@ def main():
 
     run("API: injeção em documento recuperado não vira comando", poisoned_document)
 
+    def unsupported(question):
+        before = deepcopy(store.proposals(seed, "C07"))
+        answer = analyze(seed, "C07", question)
+        assert "Não tenho informações suficientes" in answer["summary"]
+        assert answer["confidence"] == "baixa" and not answer["facts"] and not answer["hypotheses"]
+        assert not answer["references"] and answer["action"] is None
+        assert store.proposals(seed, "C07") == before
+        return {"question": question, "analysis": answer, "abstained": True, "pending_proposals_unchanged": True}
+
+    for name, question in [
+        ("BAdI não documentada após conversa fundamentada", "Como implementar o método LINE_MODIFY da BAdI MB_MIGO_BADI para alterar o centro no recebimento?"),
+        ("SAP Note ausente", "Qual SAP Note exata corrige o dump CX_SY_ZERODIVIDE no recebimento após upgrade?"),
+        ("pergunta parcialmente coberta", "Explique o movimento 101 e dê a parametrização completa da OBYC com todas as contas contábeis para meu ambiente.")]:
+        run("API: abstinência — " + name, lambda question=question: unsupported(question))
+
+    def new_topic(question, expected):
+        answer = analyze(store.create_workspace(), "C05", question)
+        assert expected in answer["references"] and answer["action"] is None
+        return {"question": question, "cited": expected, "technical_answer_with_source": True}
+
+    for question, expected in [
+        ("Quais são os requisitos gerais documentados para conferir validade mínima no recebimento? Não tenho um erro específico.", "K11"),
+        ("Qual o papel do perfil de número de série do material no recebimento, conceitualmente?", "K10"),
+    ]:
+        run("API: novo conteúdo — " + expected, lambda question=question, expected=expected: new_topic(question, expected))
+
+    def original_case(case):
+        answer = analyze(store.create_workspace(), case)
+        assert answer["references"] and "Não tenho informações suficientes" not in answer["summary"]
+        assert answer["action"] is None or answer["action"]["operation"] == "atualizar_status_chamado"
+        return {"case": case, "references": answer["references"]}
+
+    for case in ("C02", "C03", "C04"):
+        run("API: regressão do atendimento — " + case, lambda case=case: original_case(case))
+
     def retrieval():
         cases = [("MIGO aplicativo indicador entrega concluída item não aparece", "K03"),
                  ("recebimento parcial quantidade pedida recebida saldo restante", "K02"),
-                 ("aprovação humana prazo 15 minutos simulação autorizar alteração", "K05")]
+                 ("aprovação humana prazo 15 minutos simulação autorizar alteração", "K05"),
+                 ("validade mínima remanescente datas entrega vencimento", "K11"),
+                 ("perfil número de série serial material recebimento", "K10"),
+                 ("estorno recebimento movimento 102 devolução fornecedor", "K12"),
+                 ("verificação fatura baseada recebimento divergência pagamento", "K09")]
         ranks = []
         for query, expected in cases:
             evidence, _ = assistant.retriever.search(query)
@@ -168,7 +223,7 @@ def main():
             ranks.append({"expected": expected, "rank": ids.index(expected) + 1, "retrieved": ids})
         return {"rankings": ranks}
 
-    run("RAG real: recuperação de três assuntos", retrieval)
+    run("RAG real: recuperação de sete assuntos", retrieval)
 
     def new_proposal(quantity="10"):
         context = store.create_workspace()
@@ -368,13 +423,11 @@ def main():
             assert citations
             before_calls = dict(calls)
             before_state = ui_store.state(context)
-            source = next(x for x in app.button if str(x.key).startswith(f"source_{latest['id']}_"))
-            citation_id = source.key.rsplit("_", 1)[-1]
-            expected = next(x for x in citations if x.id == citation_id)
-            source.click().run(timeout=180)
-            assert any(x.value == expected.content.strip() for x in app.text)
-            assert dict(calls) == before_calls
-            click(app, "Fechar")
+            urls = {x.source_url for x in citations if x.source_url}
+            assert app.get("link_button") and urls
+            assert urls <= {x.proto.url for x in app.get("link_button")}
+            assert not app.text and not app.get("dialog")
+            app.run()
             assert ui_store.state(context) == before_state and dict(calls) == before_calls
             app.sidebar.radio[0].set_value("C07").run()
             click(app, "Analisar chamado")
@@ -390,11 +443,11 @@ def main():
             click(app, "Não, recusar")
             assert ui_store.state(context) == before_refusal
             assert not any(x.label == "Sim, autorizar" for x in app.button)
-            return {"source_id": expected.id, "snapshot_sha256": hashlib.sha256(expected.content.encode()).hexdigest(),
-                    "popup_exact_excerpt": True, "popup_no_api_calls": True, "popup_no_business_change": True,
+            return {"source_ids": [x.id for x in citations], "official_urls": sorted(urls),
+                    "direct_source_links": True, "no_content_or_popup": True, "source_render_no_api_calls": True,
                     "approval_once": True, "refusal_unchanged": True, "method": "AppTest; não revisão visual"}
 
-    run("UI real: popup histórico, Sim, Não e rerun", ui)
+    run("UI real: links oficiais sem conteúdo, Sim, Não e rerun", ui)
     outside_after = outside_catalog()
     report["external_catalog_unchanged"] = outside_before == outside_after
     report["external_catalog_hashes"] = {"before": outside_before, "after": outside_after}
