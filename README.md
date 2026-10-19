@@ -1,122 +1,220 @@
 # Assistente SAP MM
 
-Protótipo para análise de chamados de recebimento de mercadorias com referência a pedidos de compra. React + TypeScript na interface e Python/FastAPI na API; Supabase/PostgreSQL com pgvector na persistência; Qwen3.6 Plus e Qwen3 Embedding 8B pelo OpenRouter.
+**[Acessar o aplicativo](https://assistente-inteligente-para-analise.vercel.app/)**
 
-O SAP é simulado. Nenhuma chamada executa transações SAP reais. Oito chamados fictícios estão disponíveis, com histórico isolado por sessão, fontes consultadas e propostas que precisam de aprovação humana.
+Assistente para análise de chamados de recebimento de mercadorias com referência a pedidos de compra. Interface React/TypeScript, API Python/FastAPI, Supabase/PostgreSQL com pgvector e modelos Qwen pelo OpenRouter.
 
-## Executar no Windows
+O SAP e os oito chamados são simulados. **Testar localmente significa executar o aplicativo no computador; o banco continua no Supabase e a IA usa o OpenRouter.** Apenas os testes automatizados padrão usam banco temporário e provedor controlado.
 
-Python 3.12 e Node.js 24.14 são as versões validadas. Não é necessário instalar banco local. Na raiz do repositório:
+- [Preparar e executar localmente](#testar-localmente-no-windows)
+- [Conferir o funcionamento no navegador](#conferir-o-funcionamento-no-navegador)
+- [Executar os testes automatizados](#testes-automatizados-sem-consumo-de-api)
+- [Resolver erros de inicialização](#falha-de-inicialização-da-api)
+- [Desenvolver com atualização automática](#desenvolvimento-com-atualização-automática)
+- [Testar com serviços reais](#testes-com-supabase-e-openrouter-reais)
+- [Deploy na Vercel](#deploy-na-vercel-com-dois-serviços)
+
+## Testar localmente no Windows
+
+Use PowerShell e abra o terminal na **raiz deste repositório**, onde estão `app.py`, `requirements.txt` e `frontend/`. Não é necessário Streamlit, Vercel CLI ou PostgreSQL instalado no computador para este caminho.
+
+### 1. Conferir os pré-requisitos
+
+Tenha Python **3.12**, Node.js **24.x**, acesso ao projeto Supabase e uma chave OpenRouter com créditos. Versões verificadas no projeto: Python 3.12.10 e Node.js 24.14.0.
 
 ```powershell
-python -m venv .venv
+python --version
+node --version
+npm.cmd --version
+```
+
+Se `python` apontar para outra versão, instale/selecione Python 3.12 antes de criar o ambiente virtual.
+
+### 2. Instalar as dependências
+
+Execute na raiz. Não é necessário ativar o ambiente virtual: os comandos usam seu executável diretamente.
+
+```powershell
+if (-not (Test-Path .venv)) { python -m venv .venv }
+.\.venv\Scripts\python.exe --version
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+npm.cmd --prefix frontend ci
 if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 ```
 
-Preencha `.env` localmente com a chave OpenRouter e a conexão Supabase. O arquivo é ignorado pelo Git. Não cole segredos em prompts, issues ou capturas de tela.
+O ambiente `.venv` também deve usar Python 3.12. A cópia acima preserva um `.env` já existente.
 
-### Conexão PostgreSQL no Supabase
+### 3. Configurar o `.env` local
 
-1. Abra o projeto correto no painel Supabase e clique em **Connect**.
-2. Selecione **Session pooler** e copie a conexão PostgreSQL.
-3. Substitua `[YOUR-PASSWORD]` pela senha do banco, codificando caracteres reservados para URL. Não use a chave anon/publishable como senha.
-4. Preencha `DATABASE_URL` no `.env`. O aplicativo aceita `postgresql://`, `postgres://` ou `postgresql+psycopg://`, normalizando o driver internamente. Preserve o usuário, host e porta copiados do painel e use `sslmode=require`.
-5. Em **Database → Extensions**, ative `vector` se ainda não estiver ativa. O aplicativo não instala nem altera extensões.
-
-Exemplo com valores fictícios:
+Edite `.env` no computador, sem enviar seu conteúdo ao Git ou ao chat. Substitua os marcadores fictícios abaixo pelos seus valores:
 
 ```dotenv
-DATABASE_URL=postgresql+psycopg://postgres.PROJECT_REF:SENHA_CODIFICADA@HOST_DO_POOLER:5432/postgres?sslmode=require
-OPENROUTER_API_KEY=CHAVE_LOCAL
+DATABASE_URL=postgresql+psycopg://postgres.PROJECT_REF:SENHA_CODIFICADA@HOST_DO_SESSION_POOLER:5432/postgres?sslmode=require
+OPENROUTER_API_KEY=SUA_CHAVE_OPENROUTER
 OPENROUTER_CHAT_MODEL=qwen/qwen3.6-plus
 OPENROUTER_EMBEDDING_MODEL=qwen/qwen3-embedding-8b
 APP_ENV=local
+APP_PUBLIC_ORIGIN=http://127.0.0.1:8000
+DEMO_ACCESS_CODE=
+MAX_ANALYSES_PER_SESSION=30
 ```
 
-Se precisar codificar uma senha, use uma ferramenta local, não um site externo. [Conexões Supabase](https://supabase.com/docs/guides/database/connecting-to-postgres).
+`DEMO_ACCESS_CODE` pode ficar vazio em modo local; se preenchido, a interface pedirá esse código. As variáveis cadastradas na Vercel não configuram automaticamente seu `.env` local. Variáveis já definidas no terminal têm prioridade sobre o arquivo; confira-as se o app continuar usando uma configuração antiga.
 
-**Na Vercel:** `db.PROJECT_REF.supabase.co:5432` é conexão direta, não Session pooler. Ela usa IPv6 por padrão; o pooler compartilhado é acessível por IPv4. Copie a URL completa em **Connect → Session pooler**, incluindo usuário `postgres.PROJECT_REF` e o host/porta indicados no painel, sem deduzir o host pela região. Acrescente `sslmode=require` e cadastre em `DATABASE_URL` para o ambiente do deploy (por exemplo, Production). Alterar uma variável exige novo deploy para atualizar a função. [Compatibilidade de rede](https://supabase.com/docs/guides/troubleshooting/supabase--your-network-ipv4-and-ipv6-compatibility-cHe3BP).
+Para obter `DATABASE_URL`:
 
-### Preparar e iniciar
+1. No projeto Supabase correto, abra **Connect → Session pooler**.
+2. Copie a **URL completa**. O usuário deve seguir `postgres.PROJECT_REF`, e o host deve terminar em `.pooler.supabase.com`; preserve a porta indicada no painel para Session mode.
+3. Preencha a senha atual do banco, codificando caracteres reservados para URL. A senha do banco não é a chave anon/publishable.
+4. Use `sslmode=require`: acrescente `?sslmode=require` se não houver parâmetros, ou `&sslmode=require` se já houver outros.
+5. Em **Database → Extensions**, confirme que `vector` está ativa.
+
+Não coloque crases ou espaços extras no valor. O aplicativo aceita `postgresql://`, `postgres://` e `postgresql+psycopg://`. O endereço `db.PROJECT_REF.supabase.co` é uma conexão direta, não um pooler, e depende da compatibilidade IPv6/IPv4 do ambiente. Não deduza o host do pooler pela região; copie do painel. [Conexões Supabase](https://supabase.com/docs/guides/database/connecting-to-postgres).
+
+### 4. Conferir o banco e preparar o RAG
+
+Primeiro, prepare o schema e os guias. Esse comando não chama o OpenRouter:
 
 ```powershell
 .\.venv\Scripts\python.exe -m sap_assistant.cli init-db
+```
+
+Resultado esperado: `Base pronta: 12 guias; 0 embeddings gerados nesta execução.` Se falhar, resolva a conexão, as permissões ou a extensão vector antes de continuar.
+
+Depois, gere os embeddings que faltarem:
+
+```powershell
 .\.venv\Scripts\python.exe -m sap_assistant.cli ingest
-cd frontend
-npm.cmd ci
-npm.cmd run build
-cd ..
+```
+
+**A ingestão consome créditos do OpenRouter quando cria embeddings.** Guias inalterados com embeddings já existentes usam o cache. Se o comando informar zero embeddings novos, isso pode estar correto. Os guias também são sincronizados ao iniciar a API; a ingestão antecipada evita deixar essa preparação para a primeira pergunta.
+
+A aplicação manipula somente o schema próprio `sap_chamados_ai`. Não é preciso apagar tabelas nem reiniciar os dados de outros projetos.
+
+### 5. Compilar a interface e iniciar o app
+
+Ainda na raiz:
+
+```powershell
+npm.cmd --prefix frontend run build
 .\.venv\Scripts\python.exe -m uvicorn app:app --host 127.0.0.1 --port 8000
 ```
 
-Abra `http://127.0.0.1:8000`. A API serve a interface compilada e os endpoints na mesma origem. Encerre com Ctrl+C. O chat inicia sem chamado anexado e permite perguntas gerais sobre o processo pelo RAG. A ingestão gera embeddings com cobrança do OpenRouter; documentos inalterados usam o cache. A aplicação também prepara os guias automaticamente e gera embeddings faltantes na primeira consulta. Reinicie o processo após mudar o `.env`.
+Mantenha esse terminal aberto. Após `Application startup complete`, acesse **http://127.0.0.1:8000**. Um único processo serve a interface compilada e a API; não é necessário iniciar Vite em outro terminal para esse teste.
 
-Não há painel lateral. Use **Chamados** no compositor para listar/buscar os casos, **Ver detalhes** para consultar e **Anexar ao chat** para incluir o contexto. O chamado aparece como um cartão removível, semelhante a um arquivo anexado. Você pode substituir ou **Remover anexo** e continuar perguntando na mesma conversa. Cada mensagem preserva seu contexto; novas perguntas sem anexo não herdam dados do caso anterior. Para analisar o anexo, escreva ou clique em **Analisar chamado**. Anexar/remover não chama a IA nem decide aprovações.
-
-**Novo chat**, no cabeçalho, inicia uma conversa vazia e sem anexo, mantendo os dados dos chamados e os registros anteriores no banco. Perguntas e propostas de outra conversa não são reutilizadas. As respostas mostram o resumo e, quando útil, um próximo passo; fontes e verificações completas ficam em um único **Fontes e detalhes**, fechado por padrão. Alertas e cartões de aprovação permanecem visíveis.
-
-Os registros das novas sessões seguem um formato inspirado no SAP for Me: ambiente, componente sugerido, prioridade, impacto e reprodução. IDs `SIM-Cxx` e situações são locais; nenhum case é enviado à SAP. Sessões já abertas mantêm seus dados anteriores; abra uma nova sessão para receber os novos perfis. [Fontes e limites](instrucoes/02-processo-sap.md).
-
-Para conferir os modelos com uma chamada real de cada tipo:
+Em um segundo PowerShell, confira a API:
 
 ```powershell
-.\.venv\Scripts\python.exe -m sap_assistant.cli check-provider
+Invoke-RestMethod http://127.0.0.1:8000/api/health
+Invoke-RestMethod http://127.0.0.1:8000/api/config
 ```
 
-## Dados e aprovação humana
+O primeiro deve informar `status: ok`; o segundo informa se o código de acesso está habilitado. Eles verificam a API, sem fazer uma pergunta ao modelo.
 
-Somente o schema **`sap_chamados_ai`** é criado/utilizado pela aplicação. Ele possui uma identificação de projeto; um schema existente sem identificação compatível causa recusa de inicialização. Não há comando DROP, reset global ou alteração de tabelas externas. Não exponha esse schema pela Data API; o acesso ocorre somente pelo servidor Python.
+### 6. Encerrar e iniciar novamente
 
-As tabelas próprias são `sap_project_identity`, `sap_workspaces`, `sap_messages`, `sap_knowledge`, `sap_proposals` e `sap_audit`. A extensão vector é uma configuração do banco existente, ativada pelo usuário. Não se instala outro banco local: SQLite é usado apenas nos testes temporários.
+Use **Ctrl+C** no terminal da API. Nas próximas execuções, basta iniciar Uvicorn pelo comando da etapa 5. Compile novamente se mudar o frontend; execute `ingest` se mudar o conhecimento e quiser preparar os embeddings antes do uso. Reinicie a API após alterar `.env` ou prompts.
 
-O LLM devolve uma proposta tipada, sem URL/SQL arbitrário. O gateway valida operação, frase, parâmetros, sessão e versões; a interface mostra o efeito concreto e solicita **Sim, autorizar / Não, recusar**. A proposta vale 15 minutos. Recusa, silêncio, mudança de dados ou clique repetido não criam autorização nova. Uma mensagem “sim” no chat não executa nada. Cada alteração de situação do chamado exige decisão separada.
+## Conferir o funcionamento no navegador
 
-Sem chamado anexado, não há proposta de alteração nem consulta aos pedidos simulados. Remover o anexo preserva a proposta anterior e permite perguntas gerais; para decidir, reanexe o chamado original pelo cartão. A decisão continua vinculada à proposta exata, com a mesma validade.
+As perguntas abaixo usam os serviços reais e podem consumir créditos. Para começar com dados fictícios novos, use uma nova sessão do navegador; **Novo chat não reinicia os dados de negócio**.
 
-A navegação reutiliza uma cópia visual exclusiva da sessão no navegador para evitar consultas ao banco em cada clique. Ela é recarregada após análise/decisão ou pelo botão **Atualizar**, usado também para mudanças externas. Essa cópia nunca autoriza operações: o gateway sempre verifica o Supabase atual antes de executar. Durante a análise, o status informa a etapa em andamento. [Medições de desempenho](evidencias/README.md).
+| Verificação | Como testar | Resultado esperado |
+| --- | --- | --- |
+| Seleção de chamado | **Chamados → Ver detalhes → Anexar ao chat**. | Anexo aparece no compositor; anexar não chama a IA nem executa ação. |
+| Orientação com fontes | Anexe C01 e pergunte por que restam 40 UN após receber 60 de 100. | Resposta fundamentada; números das fontes são clicáveis. |
+| Falta de contexto | Anexe C05 e peça ajuda para o erro no recebimento. | Perguntas de esclarecimento, sem inventar os dados ausentes. |
+| Falta de evidência | Anexe C06 e pergunte sobre `ZMM_999`. | Informa insuficiência de conhecimento; não inventa causa nem correção. |
+| Preparação e recusa | Anexe C03, peça a correção, complete os dados solicitados e revise. Clique **Não, recusar**. | Preparar/revisar não altera o negócio; a recusa não registra recebimento. |
+| Aprovação | Em sessão nova, anexe C07 e solicite receber 10 UN com data explícita válida. Revise e clique **Sim, autorizar**. | Recebimento simulado ocorre somente após o clique; saldo atualizado e resultado visível. |
+| Pergunta geral | Remova o anexo e pergunte sobre o processo de recebimento. | Usa o RAG geral, sem consultar o pedido anterior ou propor alteração sem chamado. |
+| Novo chat | Clique **Novo chat**. | Conversa e anexo limpos; alterações de negócio anteriores permanecem. |
 
-O “passo a passo” mostra operações observáveis, evidências e justificativas resumidas. Raciocínio interno bruto não é exibido ou usado como auditoria.
+Use **Fontes e detalhes** para conferir referências, evidências identificadas e etapas observáveis. Fontes oficiais abrem seus sites; regras internas abrem a identificação no próprio bloco. Não há popup ou conteúdo bruto do documento. O passo a passo não expõe raciocínio interno do modelo.
 
-As respostas indicam as fontes do RAG por números e links que abrem diretamente a documentação oficial. URLs repetidas são agrupadas; fontes citadas, referências apenas consultadas e dados simulados têm áreas próprias. Não há exibição de `content`, trechos ou popup. Textos e metadados permanecem salvos internamente para recuperação e auditoria.
+## Testes automatizados sem consumo de API
 
-Antes de gerar a análise, uma chamada estruturada verifica se os trechos cobrem a pergunta atual. O servidor valida os IDs de parágrafo selecionados e exige citação do conhecimento aprovado. Sem suporte, retorna **“Não tenho informações suficientes na base de conhecimento...”**, sem diagnóstico, hipóteses ou proposta. Base vazia, código não documentado e prova inválida também bloqueiam a geração. A verificação semântica usa LLM e continua sujeita à avaliação de qualidade.
-
-## Conhecimento, testes e decisões
-
-- [Catálogo do conhecimento](conhecimento/catalogo.json): 12 guias próprios, sendo dez sínteses de nove fontes oficiais e duas políticas simuladas; nenhum gabarito é indexado.
-- [Instruções e decisões](instrucoes/README.md): requisitos, arquitetura, diagramas, prompts e limites.
-- [Evidências](evidencias/README.md): resultados locais e integrados, com limitações explícitas.
+Execute na raiz; o app pode estar desligado. Esses testes usam banco temporário e provedor controlado, sem precisar de OpenRouter/Supabase acessíveis. Eles validam o código e as barreiras de aprovação, mas não comprovam a qualidade do modelo real.
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 .\.venv\Scripts\python.exe -m pytest -q
 .\.venv\Scripts\python.exe -m ruff check sap_assistant app.py tests scripts
-cd frontend
-npm.cmd test
-npm.cmd run build
-cd ..
+npm.cmd --prefix frontend test
+npm.cmd --prefix frontend run build
 ```
 
-Os testes padrão usam banco temporário e provedor controlado: não leem a chave nem consomem créditos. Não comprovam sozinhos a qualidade do modelo real. Não existe fallback de produção para respostas mockadas ou para outro modelo.
+## Falha de inicialização da API
 
-Para reproduzir a verificação ampliada com os serviços reais configurados no `.env`:
+
+Se a API falhar em `lifespan`, o aplicativo ainda não conseguiu preparar seus serviços. Os logs usam códigos de diagnóstico com orientações fixas, sem imprimir conexão, senha, SQL ou resposta bruta de provedor:
+
+| Código | O que conferir |
+| --- | --- |
+| `SAP_STARTUP_CONFIG` | No `.env` local: `APP_ENV=local`, URL do banco e origem pública. Na hospedagem: `APP_ENV=cloud` e código de acesso. |
+| `SAP_STARTUP_DB_CONNECTION` | URL completa do pooler, SSL e rede. Uma URL direta pode depender de IPv6. |
+| `SAP_STARTUP_DB_AUTH` | Usuário completo do pooler e senha atual do banco, com caracteres reservados codificados. |
+| `SAP_STARTUP_DB_PERMISSION` | Permissões necessárias somente ao schema do projeto. |
+| `SAP_STARTUP_DB_VECTOR` | Extensão vector no projeto Supabase correto. |
+| `SAP_STARTUP_DB_IDENTITY` | Identificação do schema próprio; não apagar ou sobrescrever schema incompatível. |
+| `SAP_STARTUP_KNOWLEDGE_FILES` | `conhecimento/catalogo.json` e os arquivos referenciados no pacote. |
+
+Outros códigos distinguem preparação do banco, sincronização do conhecimento e criação do cliente HTTP. O processo continua recusando inicialização incompleta; nenhuma alternativa local ou resposta mockada é ativada. Uma falha de `vc_handler` após a falha do lifespan pode ser secundária: corrigir primeiro o diagnóstico de inicialização e verificar novamente. Não foi comprovada a recuperação hospedada apenas pelos testes locais.
+
+Se a página disser **Interface ainda não compilada**, execute `npm.cmd --prefix frontend run build` e reinicie a API. Se a porta 8000 estiver ocupada, encerre a instância anterior ou escolha outra porta e ajuste a origem/URL do navegador. **Não há fallback do aplicativo para banco local ou respostas mockadas.**
+
+## Desenvolvimento com atualização automática
+
+Opcional, para editar código. Esta alternativa usa dois terminais e substitui o modo compilado da etapa 5.
+
+**Terminal 1, na raiz — API:**
 
 ```powershell
-.\.venv\Scripts\python.exe scripts/verify_live.py
+.\.venv\Scripts\python.exe -m uvicorn app:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-Esse comando **consome créditos** e cria sessões fictícias próprias no schema do projeto. Verifica fontes diretas, novos conteúdos, perguntas sem suporte, regressões dos chamados e cliques Sim/Não, além de concorrência, isolamento, adulteração, expiração e rollback. Não altera tabelas externas nem injeta documentos na base compartilhada. O histórico do núcleo está em [verificação de fontes/RAG](evidencias/verificacao-fontes-rag.json); cobertura e limites em [verificação dos requisitos](evidencias/verificacao-requisitos.md). A execução atual desse script gera `evidencias/verificacao-ampliada-web.json`, preservando o relatório anterior. Propostas pendentes anteriores ao novo envelope de integridade exigem nova análise; não são executadas usando o formato antigo.
-
-Para verificar a API atual com Supabase/OpenRouter reais:
+**Terminal 2, na raiz — interface:**
 
 ```powershell
-.\.venv\Scripts\python.exe scripts/verify_web_live.py
+npm.cmd --prefix frontend run dev
 ```
 
-Consome créditos; testa RAG geral, fontes diretas, abstinência, Sim/Não, duplicação e Novo chat em sessões fictícias próprias. O relatório é [verificacao-web-api.json](evidencias/verificacao-web-api.json). As decisões desse teste são simuladas, não cliques de uma pessoa. Os testes React exercitam busca, detalhes, anexo, resposta compacta e cartões. Relatórios antigos de Streamlit são históricos; não comprovam a interface atual.
+Abra **http://127.0.0.1:5173** (ou a URL indicada pelo Vite). O proxy encaminha `/api` à porta 8000 mantendo a origem. Se configurar uma origem explícita para esse modo, use `APP_PUBLIC_ORIGIN=http://127.0.0.1:5173` e reinicie a API. Encerre os dois terminais com Ctrl+C ao terminar.
+
+## Testes com Supabase e OpenRouter reais
+
+O `.env` precisa estar configurado. Os comandos abaixo são opcionais, **consomem créditos** e criam sessões fictícias próprias no schema do projeto. Escolha a verificação necessária; não é preciso executar todas para iniciar o app.
+
+| Comando, a partir da raiz | Finalidade |
+| --- | --- |
+| `.\.venv\Scripts\python.exe -m sap_assistant.cli check-provider` | Conferir chat e embeddings com chamadas reais. |
+| `.\.venv\Scripts\python.exe scripts/verify_web_live.py` | API, fontes, falta de evidência, Novo chat e decisões Sim/Não simuladas pelo teste. |
+| `.\.venv\Scripts\python.exe scripts/verify_corrections_live.py` | Correção guiada de C03 e confirmação separada. |
+| `.\.venv\Scripts\python.exe scripts/verify_live.py` | Verificação ampliada, incluindo isolamento e integridade das aprovações. |
+
+### Testes de navegador com serviços reais
+
+Requer Microsoft Edge instalado. Na raiz, após instalar dependências de desenvolvimento e preparar o RAG:
+
+```powershell
+npm.cmd --prefix frontend run build
+$env:RUN_REAL_USER_TESTS='1'
+$env:USER_TEST_RUN='minha-rodada'
+npm.cmd --prefix frontend run test:usuario:real
+```
+
+Use um nome novo para cada rodada. O runner inicia sua própria API na porta 8011 e a encerra ao terminar; não precisa do app da porta 8000. Não executa deploy ou limpeza de tabelas externas. As decisões são automatizadas, não cliques de uma pessoa. Transcrições e capturas ficam em `evidencias/jornadas-usuario/`; não são gravados vídeos/traces com cookies. [Resultados e limites](evidencias/README.md).
+
+## Dados e aprovação humana
+
+Somente o schema **`sap_chamados_ai`** é criado/utilizado pela aplicação, com identificação própria. As tabelas são `sap_project_identity`, `sap_workspaces`, `sap_messages`, `sap_knowledge`, `sap_proposals` e `sap_audit`. Um schema sem identificação compatível impede a inicialização; não há DROP/reset global. O acesso é pelo servidor Python, sem expor o schema pela Data API. SQLite é exclusivo dos testes.
+
+Toda alteração de negócio exige proposta exata e aprovação no servidor, válida por 15 minutos. **Preparar correção → Revisar ação** cria somente a proposta; **Sim, autorizar** executa. Recusa, silêncio, parâmetros/dados alterados ou clique repetido não geram autorização nova. Digitar “sim” no chat não executa nada. Sem anexo, não há proposta de negócio; para decidir uma proposta anterior, reanexe seu chamado original. [Política completa](instrucoes/07-aprovacoes-humanas.md).
+
+Antes de responder sobre SAP, o sistema verifica se a base sustenta a pergunta atual e valida as citações. Sem evidência suficiente, informa a limitação, sem diagnóstico ou proposta. A confiança é qualitativa; a avaliação semântica usa LLM e continua sujeita à revisão.
 
 ## Arquitetura atual
+
 
 ```mermaid
 flowchart LR
@@ -133,75 +231,16 @@ flowchart LR
 
 Busca, filtros, detalhes e anexos são estado React local; não chamam Python nem o banco. A análise envia etapas observáveis por NDJSON enquanto o núcleo consulta o Supabase e o OpenRouter em uma tarefa separada. A resposta técnica aparece depois de validada. O RAG e o gateway permanecem no núcleo Python, sem ferramentas de execução ou aprovação para o modelo. [Arquitetura e contratos](instrucoes/03-arquitetura.md).
 
-Para desenvolver a interface com atualização automática, mantenha a API na porta 8000 e execute `npm.cmd run dev` em `frontend/` em outro terminal. Abra a URL indicada pelo Vite (normalmente porta 5173); o proxy encaminha `/api` sem expor segredos. Para executar normalmente, basta o build e um processo Uvicorn, sem servidor Vite. No Linux/macOS, use `npm` em lugar de `npm.cmd` e o Python do ambiente correspondente.
-
 ## Deploy na Vercel com dois serviços
 
-O [vercel.json](vercel.json) prepara um único projeto Vercel com builds independentes. **Configuração proposta, aguardando confirmação dos nomes e rotas pelo usuário:**
+O teste local acima funciona sem deploy. Para publicar, a configuração em [vercel.json](vercel.json) separa `app` (FastAPI em `/api` e `/api/*`) e `frontend` (Vite nos demais caminhos), no mesmo domínio. As chamadas partem do navegador; não há bindings internos entre funções desses serviços.
 
-| Serviço | Raiz e framework | Caminhos públicos |
-| --- | --- | --- |
-| `app` | `.`; FastAPI; entrada `app:app`; Python 3.12 | `/api` e `/api/*`, preservando o prefixo. |
-| `frontend` | `frontend`; Vite; Node.js 24; build em `dist` | Todos os demais caminhos, incluindo `/` e `/assets/*`. |
+As variáveis locais não são enviadas à Vercel. Cadastre as variáveis no ambiente correspondente, usando `APP_ENV=cloud`, código de acesso com pelo menos 12 caracteres, origem pública HTTPS e URL completa do pooler. Salvar uma variável exige novo deploy para aplicá-la. Validação local não comprova funcionamento hospedado.
 
-As regras específicas da API vêm antes do catch-all. Um endpoint inexistente em `/api/*` retorna o erro da API, sem cair na interface. O navegador continua usando URLs relativas `/api`, com cookie HttpOnly na mesma origem. O frontend Vite é estático: não há chamadas de uma função de um serviço para outro e, portanto, **nenhum binding interno é necessário**. Supabase e OpenRouter são serviços externos, configurados por segredos; não são bindings Vercel. Se futuramente houver comunicação entre funções de serviços distintos, declarar o binding no chamador e ler a URL injetada somente em runtime, sem defini-la manualmente ou expô-la por `VITE_*`.
+Consulte [configuração Vercel, limites e teste com vercel dev](instrucoes/09-execucao-e-entrega.md#vercel-services-e-execução-portátil) para os comandos e detalhes. No Linux/macOS, adapte os executáveis: `npm` em vez de `npm.cmd`, e `.venv/bin/python` em vez de `.venv\Scripts\python.exe`.
 
-No painel Vercel, importe o repositório com **Root Directory na raiz (`.`)**, mantendo os dois serviços do arquivo. Não crie um projeto separado só para `frontend` nem defina build/framework/output globais: essas opções pertencem a cada serviço. O frontend executa `npm ci` e `npm run build`; a API instala as dependências Python. `.python-version` e `pyproject.toml` fixam Python 3.12; `frontend/package.json` especifica Node.js 24. As dependências Python de runtime continuam centralizadas em `requirements.txt`, lidas pelo empacotamento do projeto.
+## Conhecimento, testes e decisões
 
-Cadastre as variáveis do `.env.example` no ambiente Vercel correspondente: conexão Supabase com SSL, chave OpenRouter, modelos, `APP_ENV=cloud`, `DEMO_ACCESS_CODE` com pelo menos 12 caracteres e limite por sessão. Não envie `.env` ao Git e não use prefixo `VITE_` para segredos. Use ambientes Supabase separados se os previews não puderem compartilhar as sessões e o corpus do ambiente principal. O cookie é HttpOnly, SameSite estrito e Secure fora de local. O código de acesso não substitui login individual de produção.
-
-Defina `APP_PUBLIC_ORIGIN` como a origem pública exata usada no navegador, por exemplo `https://SEU_PROJETO.vercel.app`, sem caminho. Isso permite validar Origin mesmo quando o proxy de serviços usa um Host interno. Na ausência desse valor, a aplicação usa `VERCEL_URL` quando a plataforma o fornece; aliases/domínios personalizados podem exigir o valor explícito por ambiente. Nenhum cabeçalho `X-Forwarded-Host` enviado pelo cliente concede essa permissão.
-
-O serviço FastAPI tem duração máxima configurada em 300 segundos. O progresso do chat continua em NDJSON; uma aprovação humana pendente é persistida e encerra a requisição, sem aguardar o clique dentro da função. `.vercelignore` exclui segredos, ambiente virtual e artefatos locais do envio; `functions.app.py.excludeFiles` remove frontend e materiais de desenvolvimento do bundle Python, preservando `conhecimento/` e `prompts/`. Na Vercel, a interface é servida pelo serviço Vite; não depende de `frontend/dist` dentro do backend.
-
-Para conferir os serviços juntos localmente, na raiz, com `.env` configurado e `APP_ENV=local`:
-
-```powershell
-$env:APP_PUBLIC_ORIGIN='http://127.0.0.1:3000'
-npx.cmd --yes vercel@64.5.0 dev -L --listen 127.0.0.1:3000
-```
-
-`-L` executa sem vincular ou publicar um projeto e sem buscar segredos da conta Vercel. Sem essa opção, `vercel dev` pode solicitar vínculo ao projeto. As duas formas coordenam os serviços e injetam os bindings que existirem; a configuração atual não declara nenhum. Teste `/`, `/api/health`, sessão e aprovação; encerre com Ctrl+C. Esse comando pode instalar dependências locais e, ao inicializar a API, prepara somente o schema próprio do projeto. Perguntas ao modelo consomem créditos. O proxy localhost em `vite.config.ts` atende somente o desenvolvimento isolado com `npm run dev`, não chamadas internas da Vercel.
-
-O limite de quatro análises simultâneas e uma por sessão é por instância Python, sem coordenação global entre instâncias Vercel. A idempotência de escritas continua transacional no Supabase. O pool de conexões também é por instância; acompanhe os limites do Supabase ao ampliar o tráfego. Não houve nova migração, deploy ou push nesta configuração. Publicação e validação hospedada são etapas separadas.
-
-A execução portátil fora da Vercel permanece disponível: compile o React em `frontend/dist` e inicie `python -m uvicorn app:app --host 0.0.0.0 --port PORTA_ESCOLHIDA`. Nesse modo, o FastAPI serve também o build da interface.
-
-Referências oficiais: [Services](https://vercel.com/docs/services), [roteamento](https://vercel.com/docs/services/routing), [bindings](https://vercel.com/docs/services/bindings) e [FastAPI](https://vercel.com/docs/frameworks/backend/fastapi).
-
-### Falha de inicialização da API
-
-Se `/api/config` falhar em `lifespan`, a função ainda não conseguiu preparar seus serviços. Os logs usam códigos de diagnóstico com orientações fixas, sem imprimir conexão, senha, SQL ou resposta bruta de provedor:
-
-| Código | O que conferir |
-| --- | --- |
-| `SAP_STARTUP_CONFIG` | Variáveis do ambiente do deploy; `APP_ENV=cloud`, código de acesso e origem pública. |
-| `SAP_STARTUP_DB_CONNECTION` | URL completa do pooler, SSL e rede. Uma URL direta pode depender de IPv6. |
-| `SAP_STARTUP_DB_AUTH` | Usuário completo do pooler e senha atual do banco, com caracteres reservados codificados. |
-| `SAP_STARTUP_DB_PERMISSION` | Permissões necessárias somente ao schema do projeto. |
-| `SAP_STARTUP_DB_VECTOR` | Extensão vector no projeto Supabase correto. |
-| `SAP_STARTUP_DB_IDENTITY` | Identificação do schema próprio; não apagar ou sobrescrever schema incompatível. |
-| `SAP_STARTUP_KNOWLEDGE_FILES` | `conhecimento/catalogo.json` e os arquivos referenciados no pacote. |
-
-Outros códigos distinguem preparação do banco, sincronização do conhecimento e criação do cliente HTTP. O processo continua recusando inicialização incompleta; nenhuma alternativa local ou resposta mockada é ativada. Uma falha de `vc_handler` após a falha do lifespan pode ser secundária: corrigir primeiro o diagnóstico de inicialização e verificar novamente. Não foi comprovada a recuperação hospedada apenas pelos testes locais.
-
-## Correções e citações
-
-Ao identificar correção executável, o chat oferece a proposta **Sim/Não** ou **Preparar correção**, quando faltarem quantidade/data ou situação desejada. Preencha o formulário e clique em **Revisar ação**; isso somente prepara a proposta. A execução exige **Sim, autorizar** separado. Nada escolhe automaticamente a quantidade pelo saldo ou inventa data. “Altere para mim” mantém a correção discutida, sem virar mudança de status.
-
-Os números das fontes são clicáveis, inclusive em respostas antigas. Fonte SAP abre o site oficial; regra interna abre a identificação em **Fontes e detalhes**, sem conteúdo bruto ou popup. Para reproduzir C03 com Supabase/OpenRouter reais: `python scripts/verify_corrections_live.py` (requer dependências de desenvolvimento, consome créditos e simula as decisões humanas em workspace próprio).
-
-## Testes de navegador com serviços reais
-
-Os testes de navegador usam Microsoft Edge instalado, Supabase/OpenRouter reais e sessões fictícias novas. **Consomem créditos**, por isso são separados dos testes padrão e exigem confirmação explícita por variável de ambiente:
-
-```powershell
-cd frontend
-npm.cmd ci
-npm.cmd run build
-$env:RUN_REAL_USER_TESTS='1'
-$env:USER_TEST_RUN='minha-rodada'
-npm.cmd run test:usuario:real
-```
-
-A configuração inicia um Uvicorn temporário na porta local 8011 e o encerra ao terminar. O nome da rodada evita sobrescrever evidências anteriores; use um nome novo para cada execução. Não executa deploy, reset ou limpeza de tabelas. `.env` e credenciais ficam no Python. Não são gravados vídeos ou traces com cookies; os relatórios públicos contêm somente perguntas, respostas e metadados de apresentação. Os resultados e capturas ficam em `evidencias/jornadas-usuario/`. A verificação de links também confere os destinos contra o catálogo; um teste abre uma página oficial em nova aba.
+- [Catálogo do conhecimento](conhecimento/catalogo.json): 12 guias; dez sínteses de nove fontes oficiais e duas políticas simuladas. Nenhum gabarito é indexado.
+- [Instruções e decisões](instrucoes/README.md): requisitos, processo SAP, prompts, arquitetura, interface e segurança.
+- [Evidências](evidencias/README.md): resultados observados, versões e limitações. Relatórios antigos de Streamlit são históricos.

@@ -32,17 +32,40 @@ O fluxo HITL pode ser testado antes do LLM real, usando propostas controladas. I
 
 ## Vercel Services e execução portátil
 
-**Decisão confirmada, substituindo a ausência de plataforma da D33:** preparar um projeto Vercel com múltiplos serviços, sem publicar. **Configuração proposta para confirmação do usuário:** `app`, FastAPI na raiz, recebe `/api` e `/api/*`; `frontend`, Vite em `frontend/`, recebe o restante. Nenhum serviço exclusivamente interno nesta configuração; nenhum binding, porque todas as chamadas à API partem do navegador, não de funções de outro serviço. A solicitação de confirmação dos nomes, exposição e bindings é explícita do usuário. Detalhes e comandos no [README](../README.md#deploy-na-vercel-com-dois-serviços).
+**Decisão confirmada:** preparação Vercel solicitada após a D33; nomes/rotas/bindings seguem registrados em D37. A execução local normal está no [guia passo a passo](../README.md#testar-localmente-no-windows). Os comandos abaixo são alternativas de deploy/desenvolvimento, executados a partir da raiz.
 
-Na Vercel, cada serviço é construído independentemente. Instância FastAPI `app:app`, Python 3.12 definido em `.python-version`/`pyproject.toml`, dependências de runtime obtidas de `requirements.txt`, duração de função de 300 s. Frontend com Node.js 24, `npm ci`, `npm run build` e saída `dist`. Rewrites públicos permanecem no topo de `vercel.json`; configurações de build/runtime ficam em cada serviço. Não incluir o frontend no bundle Python; preservar `conhecimento/` e `prompts/`. Arquivos locais e segredos ficam fora do envio via `.vercelignore`.
 
-Configurar os segredos do `.env.example` no ambiente Vercel correspondente, com HTTPS, `APP_ENV=cloud` e código de acesso de pelo menos 12 caracteres. Não colocar chave ou conexão de banco em variáveis Vite. `/api` mantém o prefixo e a origem pública, preservando cookie e validação Origin/Host. Testar os serviços juntos com `vercel dev` ou `vercel dev -L` para modo local sem vínculo. Bindings, se surgirem no futuro, são injetados pela Vercel no chamador, apenas em funções no runtime; não definir manualmente a variável nem utilizá-la no navegador/build/middleware.
+O [vercel.json](../vercel.json) prepara um único projeto Vercel com builds independentes. **Configuração proposta, aguardando confirmação dos nomes e rotas pelo usuário:**
 
-**Correção verificada em desenvolvimento:** o proxy de serviços usa um Host interno diferente do Origin do navegador. Aceitar adicionalmente a origem exata configurada no servidor por `APP_PUBLIC_ORIGIN` (ou URL de runtime Vercel) preserva o bloqueio de origens externas; não confiar em `X-Forwarded-Host` da requisição. No teste local, usar a origem e porta indicadas no comando do README. Na publicação, preencher o domínio efetivamente utilizado, sem inventar URL do projeto.
+| Serviço | Raiz e framework | Caminhos públicos |
+| --- | --- | --- |
+| `app` | `.`; FastAPI; entrada `app:app`; Python 3.12 | `/api` e `/api/*`, preservando o prefixo. |
+| `frontend` | `frontend`; Vite; Node.js 24; build em `dist` | Todos os demais caminhos, incluindo `/` e `/assets/*`. |
 
-A alternativa portátil permanece: compilar em `frontend/dist` e iniciar um processo Uvicorn que também serve a interface, sem Vite ativo. Não deixar servidores locais de teste rodando ao encerrar o trabalho. Não há publicação automática, Docker obrigatório ou mudança do Supabase nesta etapa.
+As regras específicas da API vêm antes do catch-all. Um endpoint inexistente em `/api/*` retorna o erro da API, sem cair na interface. O navegador continua usando URLs relativas `/api`, com cookie HttpOnly na mesma origem. O frontend Vite é estático: não há chamadas de uma função de um serviço para outro e, portanto, **nenhum binding interno é necessário**. Supabase e OpenRouter são serviços externos, configurados por segredos; não são bindings Vercel. Se futuramente houver comunicação entre funções de serviços distintos, declarar o binding no chamador e ler a URL injetada somente em runtime, sem defini-la manualmente ou expô-la por `VITE_*`.
 
-Inicializar/verificar somente o schema do projeto e ingerir documentos alterados sem reconstruir embeddings desnecessariamente. Limite de tarefas e pool de conexões são por instância; Vercel pode criar várias instâncias. Avaliar coordenação distribuída para limite global e capacidade do Supabase antes de ampliar tráfego. Testes locais não equivalem à validação do ambiente hospedado.
+No painel Vercel, importe o repositório com **Root Directory na raiz (`.`)**, mantendo os dois serviços do arquivo. Não crie um projeto separado só para `frontend` nem defina build/framework/output globais: essas opções pertencem a cada serviço. O frontend executa `npm ci` e `npm run build`; a API instala as dependências Python. `.python-version` e `pyproject.toml` fixam Python 3.12; `frontend/package.json` especifica Node.js 24. As dependências Python de runtime continuam centralizadas em `requirements.txt`, lidas pelo empacotamento do projeto.
+
+Cadastre as variáveis do `.env.example` no ambiente Vercel correspondente: conexão Supabase com SSL, chave OpenRouter, modelos, `APP_ENV=cloud`, `DEMO_ACCESS_CODE` com pelo menos 12 caracteres e limite por sessão. Não envie `.env` ao Git e não use prefixo `VITE_` para segredos. Use ambientes Supabase separados se os previews não puderem compartilhar as sessões e o corpus do ambiente principal. O cookie é HttpOnly, SameSite estrito e Secure fora de local. O código de acesso não substitui login individual de produção.
+
+Defina `APP_PUBLIC_ORIGIN` como a origem pública exata usada no navegador, por exemplo `https://SEU_PROJETO.vercel.app`, sem caminho. Isso permite validar Origin mesmo quando o proxy de serviços usa um Host interno. Na ausência desse valor, a aplicação usa `VERCEL_URL` quando a plataforma o fornece; aliases/domínios personalizados podem exigir o valor explícito por ambiente. Nenhum cabeçalho `X-Forwarded-Host` enviado pelo cliente concede essa permissão.
+
+O serviço FastAPI tem duração máxima configurada em 300 segundos. O progresso do chat continua em NDJSON; uma aprovação humana pendente é persistida e encerra a requisição, sem aguardar o clique dentro da função. `.vercelignore` exclui segredos, ambiente virtual e artefatos locais do envio; `functions.app.py.excludeFiles` remove frontend e materiais de desenvolvimento do bundle Python, preservando `conhecimento/` e `prompts/`. Na Vercel, a interface é servida pelo serviço Vite; não depende de `frontend/dist` dentro do backend.
+
+Para conferir os serviços juntos localmente, conclua primeiro o [guia local](../README.md#testar-localmente-no-windows). Execute na raiz, com `.env` configurado e `APP_ENV=local`:
+
+```powershell
+$env:APP_PUBLIC_ORIGIN='http://127.0.0.1:3000'
+npx.cmd --yes vercel@64.5.0 dev -L --listen 127.0.0.1:3000
+```
+
+`-L` executa sem vincular ou publicar um projeto e sem buscar segredos da conta Vercel. Sem essa opção, `vercel dev` pode solicitar vínculo ao projeto. As duas formas coordenam os serviços e injetam os bindings que existirem; a configuração atual não declara nenhum. Teste `/`, `/api/health`, sessão e aprovação; encerre com Ctrl+C. Esse comando pode instalar dependências locais e, ao inicializar a API, prepara somente o schema próprio do projeto. Perguntas ao modelo consomem créditos. O proxy localhost em `vite.config.ts` atende somente o desenvolvimento isolado com `npm run dev`, não chamadas internas da Vercel.
+
+O limite de quatro análises simultâneas e uma por sessão é por instância Python, sem coordenação global entre instâncias Vercel. A idempotência de escritas continua transacional no Supabase. O pool de conexões também é por instância; acompanhe os limites do Supabase ao ampliar o tráfego. A validação local não comprova o ambiente hospedado. O usuário relatou falha de conexão no deploy; a recuperação remota ainda precisa ser verificada.
+
+A execução portátil fora da Vercel permanece disponível: compile o React em `frontend/dist` e inicie `python -m uvicorn app:app --host 0.0.0.0 --port PORTA_ESCOLHIDA`. Nesse modo, o FastAPI serve também o build da interface.
+
+Referências oficiais: [Services](https://vercel.com/docs/services), [roteamento](https://vercel.com/docs/services/routing), [bindings](https://vercel.com/docs/services/bindings) e [FastAPI](https://vercel.com/docs/frameworks/backend/fastapi).
 
 ## Riscos e evolução
 

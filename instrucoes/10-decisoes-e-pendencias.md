@@ -49,6 +49,8 @@
 
 ## Pendências e tratamento
 
+**Decisão confirmada — D39, 19/10/2026:** priorizar no README o teste local em sequência: dependências, `.env`, Supabase/RAG, build, execução, conferência no navegador e testes automatizados. Desenvolvimento com Vite e detalhes Vercel ficam separados. Incluir no início o link público fornecido pelo usuário; sua inclusão não comprova a disponibilidade dos serviços. Nenhuma alteração de prompts, código, banco ou credenciais faz parte desta atualização documental.
+
 **Correção técnica — D38, 19/10/2026:** após logs de falha em `lifespan` na Vercel, distinguir a etapa de inicialização por códigos seguros, sem expor exceções SQL/HTTP ou segredos. Conexão direta Supabase não deve ser confundida com Session pooler; conferir URL completa, usuário e rede. A recuperação no ambiente publicado depende da configuração e de novo deploy, sem alegar sucesso remoto com base em testes locais. Nenhuma credencial recebida pelo chat é incorporada ao repositório. [Execução e diagnóstico](09-execucao-e-entrega.md).
 
 **Decisão confirmada — D37, 19/10/2026:** preparar o repositório para um único projeto Vercel com múltiplos serviços; substitui a ausência de plataforma em D33, sem alterar RAG, HITL ou Supabase. **Pendente de confirmação explícita:** nomes `app`/`frontend`, API pública em `/api` e `/api/*`, frontend público nos demais caminhos e ausência de bindings por não haver chamadas entre funções de serviços. O usuário pediu revisar a configuração final antes de encerrar. Não realizar deploy ou push por essa autorização. [Configuração](../vercel.json) e [execução](09-execucao-e-entrega.md).

@@ -6,6 +6,8 @@ Este diretório organiza os requisitos, as escolhas e os pontos a discutir do As
 
 ## Como ler
 
+Para executar e conferir o app no computador, comece pelo [guia local do README](../README.md#testar-localmente-no-windows). Os detalhes de hospedagem ficam em [execução e entrega](09-execucao-e-entrega.md); os testes automatizados padrão não precisam acessar os serviços reais.
+
 Ler primeiro o desafio e o processo SAP; depois arquitetura, RAG, prompts, interface e aprovações. Consultar testes e entrega antes de implementar. O histórico registra por que as escolhas foram feitas.
 
 | Documento | Responsabilidade |
