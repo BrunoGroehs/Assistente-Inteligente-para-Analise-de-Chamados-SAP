@@ -42,3 +42,22 @@ Pergunta sobre folha de pagamento será um teste adicional de fora do escopo, se
 ## Aceite do recorte
 
 **Recomendação:** cada chamado deve ser executável isoladamente, com estado inicial conhecido, referências à base e resultado esperado verificável. A apresentação deve explicar quais fatos vieram da documentação, quais vieram do simulador e quais são hipóteses da IA.
+
+## Aproximação ao formato SAP for Me
+
+**Decisão confirmada:** aproximar os chamados fictícios do atendimento SAP. **Implementação:** o perfil `support` de cada nova sessão guarda resumo/descrição, identificação do sistema, produto, prioridade, impacto, resultados esperado e relatado, mensagem de erro, passos de reprodução, ações tentadas e referências de anexos. A lista e o seletor mostram esse contexto antes de iniciar a análise.
+
+**Verificação em fontes oficiais em 18/10/2026:** o SAP for Me usa **case** para atendimento de suporte. “Chamado” permanece como termo da interface em português e `ticket` como nome interno compatível com a persistência existente. O objeto do aplicativo representa também dúvidas e solicitações internas de operação; não significa que toda solicitação seja elegível para envio ao suporte SAP.
+
+| Referência oficial | Aplicação no protótipo |
+| --- | --- |
+| [Get Support — criação de case](https://support.sap.com/content/s4m/help/support/cases/create.html) | Descrição curta, contexto do sistema/produto, reprodução, componente e impacto. Seleção do componente é uma sugestão a validar, não roteamento real. |
+| [Guia de criação pela API SAP Cloud ALM](https://help.sap.com/docs/cloud-alm/apis/implementation-guidance-for-case-creation?locale=en-US&state=PRODUCTION&version=latest) | Prioridades 1 Muito alta, 2 Alta, 3 Média, 4 Baixa, vinculadas ao impacto. Inspirar os campos não torna o JSON local um payload homologado dessa API. |
+| [Metadados públicos da KBA 2913656](https://userapps.support.sap.com/sap/support/knowledge/en/2913656) | Verificação do componente `MM-IM-GR-PO` para recebimento de compras externas. Não houve acesso à solução restrita dessa KBA. |
+| [Notificações de cases](https://support.sap.com/content/s4m/help/support/cases/notifications.html) | O fluxo oficial tem estados próprios, como Customer Action. Não mapear automaticamente nossos estados a estados SAP. |
+
+**Limites implementados:** identificação local `SIM-C01` a `SIM-C08`; número do case SAP vazio; sistema fictício QAS/mandante 100; empresa e solicitante de demonstração; produto SAP S/4HANA sem edição/release informada. `MM-IM-GR-PO` aparece como **componente sugerido**, pois a variante exata depende do produto e da edição. “Aberto”, “Em validação humana” e “Resolvido” são situações locais do atendimento. Autorizar o simulador não concede permissão de reprodução ou acesso a sistemas pelo suporte SAP.
+
+Os perfis são entradas fictícias explícitas, sem diagnósticos esperados ou soluções de gabarito. C05 mantém prioridade, impacto, aplicativo, mensagem e reprodução ausentes. Não inventar valores para preencher um formulário. A data da ocorrência é informada na fixture, sem simular uma abertura real no SAP for Me. Não há criação/edição de cases SAP, S-user, instalação, contatos reais ou upload de anexos nesta versão.
+
+Os novos perfis são criados somente em **novas sessões**. Sessões antigas continuam legíveis e exibem ausências; não são alteradas retroativamente. Metadados informados são `RELATO`, separados dos dados atuais consultados e do conhecimento SAP. O resultado relatado na abertura não prova que uma operação foi executada nem substitui evidência no RAG. Estas referências de formato ficam na documentação de desenvolvimento, fora do corpus de recebimento.

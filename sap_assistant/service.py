@@ -1,5 +1,6 @@
 from copy import deepcopy
 from decimal import Decimal
+import json
 import re
 import time
 
@@ -89,12 +90,13 @@ class AssistantService:
             history = self.store.messages(context, ticket_id)[-10:]
             user_text = "\n".join(dict.fromkeys([ticket["description"], *[
                 x["content"] for x in history if x["role"] == "user"]]))
-            evidence.append(Evidence(id="RELATO", title="Relato do usuário", content=user_text,
+            reported_context = "\n\nDados informados na abertura (fictícios; não comprovam execução atual):\n" + json.dumps(
+                ticket["support"], ensure_ascii=False) if ticket.get("support") else ""
+            evidence.append(Evidence(id="RELATO", title="Relato do usuário", content=user_text + reported_context,
                                      kind="relato_usuario", version=submission_id))
             order = resolve_order(state, ticket, history)
             if order:
                 facts = {**order, "remaining": quantity_text(Decimal(order["ordered"]) - Decimal(order["received"]))}
-                import json
                 evidence.append(Evidence(id="DATA", title="Consulta ao SAP simulado",
                     content=json.dumps(facts, ensure_ascii=False), kind="consulta_simulada", version=str(order["version"])))
                 steps.append({"step": "Pedido e histórico simulados consultados", "elapsed_ms": round((time.perf_counter()-started)*1000)})
