@@ -6,7 +6,21 @@ Resultados coletados em 18/10/2026. A aplicação não foi publicada externament
 
 As suítes em `tests/` exercitam contratos, gateway, recusa, vencimento, concorrência, rollback, isolamento, recuperação híbrida, falhas do provedor e componentes Streamlit via AppTest. O provedor controlado é exclusivo dos testes.
 
-Resultado: **75 testes aprovados, zero falhas, erros ou testes ignorados**. Relatório gerado pelo pytest: [testes.xml](testes.xml). Ruff não encontrou erros, e `pip check` confirmou compatibilidade das dependências instaladas. Python 3.12.10; dependências diretas fixadas nos arquivos requirements.
+Resultado atual: **101 testes aprovados, zero falhas, erros ou testes ignorados** em [testes-ampliados.xml](testes-ampliados.xml). Ruff não encontrou erros, e `pip check` confirmou compatibilidade das dependências instaladas. Python 3.12.10; dependências diretas fixadas nos arquivos requirements. O relatório de [75 testes](testes.xml) permanece como histórico da primeira rodada.
+
+## Verificação ampliada com serviços reais
+
+**20 verificações aprovadas**, com **10 requisições de chat e 13 de embeddings** nesta execução. O usuário autorizou o uso da API. Relatório: [verificacao-ampliada.json](verificacao-ampliada.json); [resumo e versões](resumo-verificacao-ampliada.json); [cobertura do PDF e dos 24 cenários](verificacao-requisitos.md). A rodada anterior com os oito chamados continua registrada abaixo.
+
+- API real: proposta sem execução; texto “sim” sem autorização; código desconhecido sem causa inventada; esclarecimento em duas rodadas; fora do escopo; documento malicioso tratado como dados. A injeção foi somente no contexto de teste, sem modificar o índice compartilhado.
+- Recuperação real: três consultas sobre aplicativo, saldo e aprovação; o guia esperado apareceu na primeira posição em todas. Amostra pequena, sem estimativa estatística de qualidade.
+- Supabase real: aprovação, recusa, expiração exata, parâmetros/envelope adulterados, dados alterados sem nova versão, saldo desatualizado, sessão/token inválidos, quatro aprovações concorrentes, disputa Sim/Não, reconexão e rollback após flush. Operação fora da lista foi bloqueada no contrato. Decisões simuladas pelo harness, sem solicitar cliques de uma pessoa.
+- Interface com Supabase/OpenRouter reais via AppTest: popup com o trecho histórico exato, nenhuma chamada de API ou alteração de negócio ao abrir/fechar; Sim gera uma execução; Não preserva dados; rerun não repete execução nem chamada de IA.
+- Catálogo de estruturas fora de `sap_chamados_ai`: hashes antes/depois iguais. Nenhuma leitura de dados de tabelas externas; a igualdade dos metadados observados não representa backup ou auditoria global.
+
+Os testes motivaram o vínculo do envelope completo ao hash da proposta e o uso de fingerprints dos dados, além das versões. Pendências antigas sem envelope exigem nova análise. Nenhuma migração SQL foi necessária. As citações usam somente as fontes usadas e o snapshot da mensagem; políticas próprias não recebem URL SAP inventada.
+
+Reprodução explícita: [scripts/verify_live.py](../scripts/verify_live.py), com serviços configurados e consumo de créditos. Falhas de provedor e conexão são exercitadas com transporte controlado nos testes locais; não se provocou uma interrupção real dos serviços.
 
 ## Integração Supabase
 
@@ -18,7 +32,7 @@ Resultado: **75 testes aprovados, zero falhas, erros ou testes ignorados**. Rela
 
 O modelo de embeddings 0.6B retornou HTTP 404, sem endpoint disponível. O usuário autorizou a substituição por `qwen/qwen3-embedding-8b`. O chat permanece `qwen/qwen3.6-plus`.
 
-Resultado final: **oito chamados e duas exceções adicionais concluídos com Supabase e OpenRouter reais**. Nenhuma análise alterou o estado de negócio. As propostas de recebimento ficaram pendentes, com quantidade, pedido, item, data e efeito concreto. Os casos adicionais verificam fora do escopo e tentativa de burlar as regras pelo texto do chat.
+Resultado da primeira rodada: **oito chamados e duas exceções adicionais concluídos com Supabase e OpenRouter reais**. Nenhuma análise alterou o estado de negócio. As propostas de recebimento ficaram pendentes, com quantidade, pedido, item, data e efeito concreto. Os casos adicionais verificam fora do escopo e tentativa de burlar as regras pelo texto do chat.
 
 - [Avaliação integrada](avaliacao-integrada.json): respostas estruturadas, referências, propostas pendentes, uso reportado e latência por caso.
 - [Resumo da validação](resumo-validacao.json): verificações por caso, testes automatizados e medidas desta rodada. A mediana observada foi 20,22 segundos, em amostra pequena e fictícia; não é SLA ou benchmark estatístico.

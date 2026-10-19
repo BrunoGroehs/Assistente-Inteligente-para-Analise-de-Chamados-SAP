@@ -26,6 +26,8 @@
 | D18 | Preservar tabelas e dados de outros projetos | Schema exclusivo `sap_chamados_ai`, identificação própria e ausência de DROP/reset global. Extensão vector ativada pelo usuário. |
 | D19 | Substituir embeddings 0.6B por 8B | API real retornou ausência de endpoint para 0.6B; usuário aprovou `qwen/qwen3-embedding-8b`. Chat permanece Qwen3.6 Plus; atualiza o detalhe de embeddings de D07. |
 | D20 | Criar commits locais em português durante o trabalho | Pedido explícito do usuário para manter histórico; separar mudanças coerentes e excluir segredos. Push/publicação requerem solicitação correspondente. |
+| D21 | Citações do RAG com popup do trecho utilizado | Pedido do usuário: referências clicáveis na resposta, vinculadas ao snapshot histórico, sem nova consulta ou efeito de negócio; [interface](06-interface.md). |
+| D22 | Ampliar testes e utilizar a API real | Pedido explícito para verificar HITL e demais critérios; autorização para consumo da API nos testes, com evidências e decisões humanas simuladas identificadas. |
 
 ## Pendências e tratamento
 
@@ -40,7 +42,7 @@
 | P05 | Modelos atuais verificados | Chat Qwen3.6 Plus e embeddings 8B/4.096 dimensões testados; saídas e referências validadas pelo servidor. Revalidar se o provedor mudar. |
 | P06 | Parâmetros iniciais implementados; calibração ampla pendente | Quatro guias por consulta, busca textual/cosseno e RRF 60; avaliar corpus maior com rótulos fora do índice. |
 | P07 | Fixtures executáveis concluídas | Oito chamados com datas explícitas em C07/C08 e gabaritos fora da base. |
-| P08 | Código e validação funcional concluídos; revisão estética pendente | 75 testes aprovados e dez atendimentos reais verificados. AppTest valida componentes; revisão visual em navegador precisa ocorrer na interface em execução. |
+| P08 | Código e validação funcional concluídos; revisão estética pendente | 101 testes locais e 20 verificações ampliadas aprovados, além dos dez atendimentos da rodada inicial. AppTest real verifica popup, Sim/Não e rerun; revisão visual em navegador/teclado precisa ocorrer na interface em execução. |
 | P09 | Publicação, acesso da banca e limites de consumo | Configurar na etapa de publicação, validar hospedado e ensaiar apresentação. |
 
 ## Como incorporar novos pedidos

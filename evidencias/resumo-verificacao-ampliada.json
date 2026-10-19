@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-18",
+  "automated_tests": {
+    "tests": 101,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "live_checks": {
+    "total": 20,
+    "passed": 20,
+    "failed": 0
+  },
+  "http_requests": {
+    "embeddings": 13,
+    "completions": 10
+  },
+  "chat_model": "qwen/qwen3.6-plus",
+  "embedding_model": "qwen/qwen3-embedding-8b",
+  "embedding_dimension": 4096,
+  "external_catalog_unchanged": true,
+  "runtime_commit": "7bc05ea887350cb6bcdd51ec9eb0632cb001058d",
+  "prompt_version": "Versão: 2026-10-18.4 (rascunho implementado para avaliação)",
+  "artifact_sha256": {
+    "app.py": "c03e8c483bf8d88544b27317fc5ad0681c80e6179dc169cd8ad3a1b194402e11",
+    "sap_assistant/approvals.py": "2a9bff41baa7fbf33b5dd04db05ca1e986d0aecadae76846fd003e6b863153e6",
+    "sap_assistant/citations.py": "fef5c9f88ee126ba6b2af7c82a64df5eead94a24db2fc5acfce15b0c12d1aa17",
+    "sap_assistant/database.py": "7f5868615f5982ef9ba6b4f9105d2dfa4946683bb7774dc526f3fd86474417bc",
+    "sap_assistant/service.py": "51e5de3c83b737b7e977d43e33b8fde2933cc653b0add0c7821f9d8f0f2b5c6e",
+    "sap_assistant/provider.py": "3c2a56a06740215727af7838fb20b530a4656b576eef9464a5ddb1679d4922b7",
+    "sap_assistant/retrieval.py": "890d6b3fb065fe57e0d2508f51dbdd31b1b33e7ad4b7522c49621c720fd560f7",
+    "sap_assistant/contracts.py": "3afde2f1cee5723772376a2f0d5e04e07eeae7b9974e3d8e3071e92c577078cf",
+    "prompts/system.txt": "637d86568936bd33eaed40d831b70e700392b84164fb795ab00522d2d9598587",
+    "conhecimento/catalogo.json": "83ef22fb5e93eb812a346026521423e9b7a0bc1e69f4e3d320130f81b82c178c",
+    "evidencias/testes-ampliados.xml": "84dbdca175d44b9b833c520e04257f8eac2f4aa7ff1cdabdb5656b146f364959",
+    "evidencias/verificacao-ampliada.json": "4e01d157c678980e03885f868fddbc1b5d2f1a9c6bb430b622fd3c7fbf6d9009"
+  },
+  "checks": {
+    "ruff": "aprovado",
+    "pip_check": "aprovado",
+    "streamlit_health_http": 200
+  },
+  "limits": [
+    "Decisões humanas e cliques simulados pelo harness; não decisões de uma pessoa.",
+    "AppTest verifica componentes e estados, sem revisão visual em navegador ou teclado.",
+    "Corpus pequeno e fictício; revisão semântica ampla e comparação manual/assistida pendentes.",
+    "Nenhuma publicação externa ou integração SAP real.",
+    "Não se calculou custo total desta rodada; contagem de HTTP não equivale a custo."
+  ]
+}

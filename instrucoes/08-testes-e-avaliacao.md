@@ -4,7 +4,7 @@
 
 **Requisito do PDF:** demonstrar ao menos um sucesso e duas exceções e apresentar evidências reais de testes.
 
-**Estado atual:** implementação autorizada após a etapa documental. Foram executados **75 testes automatizados**, sem falhas, e uma avaliação real de oito chamados e duas exceções com Supabase/OpenRouter. Consulte [evidências e limitações](../evidencias/README.md). Não apresentar testes com provedor controlado como chamadas reais, nem generalizar os dez casos para qualidade de produção.
+**Estado atual:** implementação autorizada após a etapa documental. A suíte ampliada executou **101 testes automatizados**, sem falhas. A primeira rodada real avaliou oito chamados e duas exceções com Supabase/OpenRouter; a rodada ampliada cobre ataques, consentimento, concorrência, rollback e popup. Consulte [evidências e limitações](../evidencias/README.md) e a [cobertura por requisito](../evidencias/verificacao-requisitos.md). Não apresentar testes com provedor controlado como chamadas reais, nem generalizar a amostra fictícia para qualidade de produção.
 
 ## Matriz de aceitação
 
@@ -37,6 +37,8 @@
 | T23 | Silêncio, “sim” no chat ou operação fora da lista | Silêncio não consente; texto não substitui clique; operação proibida não se torna permitida mesmo com tentativa de aprovação. |
 | T24 | Fonte necessária inacessível | Registrar tentativas e lacuna; buscar alternativa oficial e, se necessário, solicitar conteúdo/base/mocks ao usuário. Não fabricar conteúdo. |
 
+**Decisão confirmada:** ampliar a verificação com uso autorizado da API real. Os testes de citações verificam somente fontes utilizadas, numeração, ausência de referências inventadas, trecho/versão históricos, isolamento entre mensagens e abertura do popup sem nova chamada ao provedor ou aprovação de ação. Os testes de HITL também cobrem alterações no envelope (ID, chamado, emissão e validade) e nos dados sem incremento de versão.
+
 ## Camadas de validação
 
 **Recomendação:** testes unitários para validação, vencimento, versões, estado e parâmetros; testes de integração com PostgreSQL para transação, unicidade, concorrência e isolamento; avaliações do RAG/LLM para relevância e fundamentação; testes manuais de interface e demonstração.
@@ -65,9 +67,11 @@ Não afirmar percentuais de ganho sem experimento. Oito casos demonstram comport
 
 Registrar somente verificações realmente executadas, distinguindo testes locais controlados, integração real e revisão visual.
 
-**Atualização de implementação:** resultados funcionais agora estão em [testes.xml](../evidencias/testes.xml), [avaliação integrada](../evidencias/avaliacao-integrada.json) e [resumo](../evidencias/resumo-validacao.json). T01 a T08 tiveram avaliação real dos atendimentos; aceitação e recusa do gateway foram verificadas no Supabase com proposta controlada. As invariantes de autorização, isolamento, integridade, expiração, concorrência e rollback têm testes automatizados. A verificação de instrução maliciosa em documento é controlada; a avaliação adicional E02 usa uma instrução maliciosa no chat. Revisão visual em navegador, calibração ampla do RAG e teste com SAP real não foram realizados.
+**Histórico da primeira rodada:** resultados em [testes.xml](../evidencias/testes.xml), [avaliação integrada](../evidencias/avaliacao-integrada.json) e [resumo](../evidencias/resumo-validacao.json). T01 a T08 tiveram avaliação real dos atendimentos; aceitação e recusa do gateway foram verificadas no Supabase com proposta controlada. A avaliação E02 usa uma instrução maliciosa no chat. A rodada ampliada acrescenta documento malicioso ao contexto da API real, sem indexá-lo na base compartilhada. Revisão visual em navegador, calibração ampla do RAG e teste com SAP real não foram realizados.
 
-A [interface integrada](../evidencias/interface-integrada.json) também foi testada via AppTest com os serviços reais: lista, geração de proposta C08, chat pausado, botão Não e preservação do estado de negócio.
+A [interface integrada inicial](../evidencias/interface-integrada.json) foi testada via AppTest com os serviços reais: lista, geração de proposta C08, chat pausado, botão Não e preservação do estado de negócio. A [rodada ampliada](../evidencias/verificacao-ampliada.json) adiciona popup histórico, autorização e recusa, rerun e testes de transação/concorrência no Supabase. [testes-ampliados.xml](../evidencias/testes-ampliados.xml) registra os 101 casos locais; o XML de 75 casos permanece como histórico inicial.
+
+A [matriz de verificação](../evidencias/verificacao-requisitos.md) distingue requisitos cobertos, casos parcialmente verificados e procedimentos ainda não exercitados. A revisão visual/teclado (T21), um pedido ao usuário por fonte indisponível (T24), a comparação manual/assistida e o ensaio cronometrado não são apresentados como testes concluídos.
 
 ## Histórico da validação documental inicial em 18/10/2026
 

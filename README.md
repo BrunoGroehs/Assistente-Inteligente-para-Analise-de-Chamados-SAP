@@ -62,6 +62,8 @@ O LLM devolve uma proposta tipada, sem URL/SQL arbitrário. O gateway valida ope
 
 O “passo a passo” mostra operações observáveis, evidências e justificativas resumidas. Raciocínio interno bruto não é exibido ou usado como auditoria.
 
+As respostas indicam as fontes do RAG por números e botões correspondentes. Clique em uma fonte para abrir o popup com o trecho exato utilizado, sua origem e versão. O trecho fica salvo no atendimento: abrir a fonte não consulta novamente a IA e não autoriza a operação pendente.
+
 ## Conhecimento, testes e decisões
 
 - [Catálogo do conhecimento](conhecimento/catalogo.json): cinco guias próprios, com fontes oficiais e políticas simuladas identificadas; nenhum gabarito é indexado.
@@ -76,6 +78,14 @@ O “passo a passo” mostra operações observáveis, evidências e justificati
 ```
 
 Os testes padrão usam banco temporário e provedor controlado: não leem a chave nem consomem créditos. Não comprovam sozinhos a qualidade do modelo real. Não existe fallback de produção para respostas mockadas ou para outro modelo.
+
+Para reproduzir a verificação ampliada com os serviços reais configurados no `.env`:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/verify_live.py
+```
+
+Esse comando **consome créditos** e cria sessões fictícias próprias no schema do projeto. Simula cliques Sim/Não para verificar execução, recusa, concorrência, isolamento, adulteração, expiração, rollback e popup do RAG. Não altera tabelas externas nem injeta documentos na base compartilhada. Resultados em [verificação ampliada](evidencias/verificacao-ampliada.json); cobertura e limites em [verificação dos requisitos](evidencias/verificacao-requisitos.md). Propostas pendentes anteriores ao novo envelope de integridade exigem nova análise; não são executadas usando o formato antigo.
 
 ## Publicar posteriormente
 

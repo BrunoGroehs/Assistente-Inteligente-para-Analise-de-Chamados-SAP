@@ -17,7 +17,7 @@ Ler primeiro o desafio e o processo SAP; depois arquitetura, RAG, prompts, inter
 | [05 - Prompts](05-prompts.md) | Estratégia e rascunhos abertos à discussão. |
 | [06 - Interface](06-interface.md) | Chat, lista, detalhes, aprovações e direção visual. |
 | [07 - Aprovações humanas](07-aprovacoes-humanas.md) | Barreira determinística, estados e execução segura. |
-| [08 - Testes e avaliação](08-testes-e-avaliacao.md) | Casos de aceite, métricas e evidências futuras. |
+| [08 - Testes e avaliação](08-testes-e-avaliacao.md) | Casos de aceite, métricas, evidências executadas e limites. |
 | [09 - Execução e entrega](09-execucao-e-entrega.md) | Etapas, configuração, publicação e demonstração. |
 | [10 - Decisões e pendências](10-decisoes-e-pendencias.md) | Histórico, alternativas, perguntas e próximos passos. |
 
@@ -34,6 +34,6 @@ O rótulo de uma seção vale para seus itens, salvo indicação diferente. Link
 
 **Decisões confirmadas:** SAP MM, recebimento com referência a pedido de compra; Python + Streamlit; PostgreSQL/pgvector no Supabase em desenvolvimento e hospedagem; Qwen3.6 Plus e embeddings Qwen3 Embedding 8B pelo OpenRouter; HITL em módulo do servidor; oito chamados fictícios; lista lateral e chat; estilo clean inspirado em iOS; protótipo mais completo, desenvolvido por etapas. Todas as tabelas próprias ficam em `sap_chamados_ai`, preservando os demais projetos.
 
-**Pendências principais:** concluir a avaliação integrada dos casos, discutir os prompts e preparar a publicação quando solicitada. Configuração real e resultados de testes devem ser consultados nas evidências, sem confundir histórico documental com estado atual.
+**Pendências principais:** revisão visual em navegador e teclado, calibração com corpus maior, discussão dos prompts e publicação quando solicitada. A avaliação funcional integrada está registrada nas [evidências](../evidencias/README.md), com [cobertura dos requisitos](../evidencias/verificacao-requisitos.md). Configuração real e resultados de testes devem ser consultados nesses relatórios, sem confundir histórico documental com estado atual.
 
 Novas solicitações devem atualizar seu documento responsável e, se alterarem uma escolha, o [histórico](10-decisoes-e-pendencias.md).

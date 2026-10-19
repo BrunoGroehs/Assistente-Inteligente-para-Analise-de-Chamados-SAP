@@ -107,13 +107,37 @@ def test_format_repair_is_bounded_and_no_execution_tools_sent(monkeypatch):
     assert len(calls) == 2
 
 
-def test_transient_retry_bounded(monkeypatch):
+@pytest.mark.parametrize("code", [429, 502, 503])
+def test_transient_retry_bounded(monkeypatch, code):
     calls = []
     monkeypatch.setattr("sap_assistant.provider.time.sleep", lambda _: None)
-    provider = provider_with(lambda _: (calls.append(1) or httpx.Response(429)))
+    provider = provider_with(lambda _: (calls.append(1) or httpx.Response(code)))
     with pytest.raises(ProviderError):
         provider.embed(["a"])
     assert len(calls) == 3
+
+
+@pytest.mark.parametrize("failure", [httpx.ReadTimeout, httpx.ConnectError])
+def test_network_failure_is_not_retried_or_echoed(failure):
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        raise failure("secret DSN test-only", request=request)
+
+    provider = provider_with(handler)
+    with pytest.raises(ProviderError) as error:
+        provider.embed(["a"])
+    assert len(calls) == 1
+    assert "test-only" not in str(error.value) and "DSN" not in str(error.value)
+
+
+@pytest.mark.parametrize("body", ['not JSON secret', '[]', '{"error":{"message":"secret"}}'])
+def test_invalid_success_envelope_is_rejected_without_echo(body):
+    provider = provider_with(lambda _: httpx.Response(200, text=body))
+    with pytest.raises(ProviderError) as error:
+        provider.embed(["a"])
+    assert "secret" not in str(error.value)
 
 
 def test_model_output_structured_and_usage_available():
