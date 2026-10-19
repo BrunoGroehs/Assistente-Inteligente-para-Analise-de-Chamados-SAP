@@ -6,9 +6,29 @@ Resultados coletados em 18/10/2026. A aplicação não foi publicada externament
 
 As suítes em `tests/` exercitam contratos, gateway, recusa, vencimento, concorrência, rollback, isolamento, recuperação híbrida, falhas do provedor e componentes Streamlit via AppTest. O provedor controlado é exclusivo dos testes.
 
-Resultado atual: **140 testes aprovados, zero falhas, erros ou testes ignorados** em [testes-anexos-chat.xml](testes-anexos-chat.xml). Ruff não encontrou erros, e `pip check` confirmou compatibilidade das dependências instaladas. Python 3.12.10; dependências diretas fixadas nos arquivos requirements. Os relatórios de [75 testes](testes.xml), [101 testes](testes-ampliados.xml), [121 testes](testes-fontes-rag.xml) e [133 testes](testes-selecao-chamados.xml) permanecem como histórico.
+Resultado atual: **147 testes aprovados, zero falhas, erros ou testes ignorados** em [testes-desempenho.xml](testes-desempenho.xml). Ruff não encontrou erros, e `pip check` confirmou compatibilidade das dependências instaladas. Python 3.12.10; dependências diretas fixadas nos arquivos requirements. Os relatórios de [75 testes](testes.xml), [101 testes](testes-ampliados.xml), [121 testes](testes-fontes-rag.xml), [133 testes](testes-selecao-chamados.xml) e [140 testes](testes-anexos-chat.xml) permanecem como histórico.
 
 Os testes de interface foram adaptados ao chat único com anexo opcional; sete cenários adicionais do serviço cobrem RAG geral sem `DATA`, separação de histórico, propostas forjadas de recebimento/status sem anexo, idempotência/vínculo da submissão, isolamento e base vazia. A seleção de linha no AppTest usa o estado nativo documentado do componente; não equivale a clicar numa tabela em navegador real.
+
+## Desempenho da navegação
+
+A reclamação de lag motivou medição com Supabase real. O [antes](desempenho-interface-antes.json) registrou cinco SELECTs por rerun de apresentação; o [depois](desempenho-interface-depois.json) registra zero nessas interações após o primeiro carregamento. Mesma máquina e sequência de AppTest, com uma sessão fictícia nova em cada rodada. Os tempos abaixo são observações isoladas, sem benchmark estatístico, navegador real ou garantia de SLA.
+
+| Interação | Antes | Depois |
+| --- | --- | --- |
+| Abrir chamados | 3,122 s | 0,392 s |
+| Anexar | 2,714 s | 0,029 s |
+| Remover anexo | 2,717 s | 0,031 s |
+| Rerun sem mudanças | 2,720 s | 0,024 s |
+| Primeiro carregamento da sessão, com recursos já preparados | 4,007 s | 2,764 s |
+
+Atualizar explicitamente fez três SELECTs e levou 1,195 s. A preparação fria dos recursos, medida separadamente, levou 9,917 s antes e 8,153 s depois; variabilidade de rede impede atribuir toda diferença à leitura em lote do catálogo. O preparo frio e a primeira leitura continuam tendo custo, e não estão incluídos nos tempos dos cliques já carregados.
+
+A pergunta geral com OpenRouter real levou 25,040 s no AppTest. O serviço registrou 21,435 s após a pré-validação, com busca concluída aos 7,613 s, cobertura aos 12,808 s e resposta validada aos 20,852 s. Houve uma chamada de embeddings e duas de chat; são intervalos de etapas, não medições isoladas de cada requisição HTTP. A melhoria da navegação não elimina a espera por RAG, cobertura e geração. O status agora informa as etapas efetivamente executadas sem exibir conteúdo ainda não validado.
+
+Sete testes adicionais cobrem navegação sem SQL, atualização explícita, isolamento/troca de sessão, snapshot sem mutação de negócio, vencimento visual, aprovação que revalida dados alterados após a exibição e progresso de análise. Reproduzir o benchmark atual: `.\.venv\Scripts\python.exe scripts/benchmark_ui.py`; acrescentar `--with-analysis` consome OpenRouter. A medição anterior foi feita antes da correção, sem consumir LLM; o script atual não reintroduz a implementação lenta para repetir esse baseline.
+
+As [três verificações de aprovação com cache](aprovacoes-com-cache-supabase.json) também passaram no Supabase real: Sim executou uma vez, Não preservou dados e uma alteração de saldo após exibir o cartão invalidou o consentimento. Em todos os cenários a UI recarregou o estado confirmado e rerun não repetiu execução. Propostas controladas e cliques simulados pelo AppTest, sem consumir LLM. Reprodução: `.\.venv\Scripts\python.exe scripts/verify_snapshot_approvals_live.py`.
 
 ## Chat único com anexo opcional — estado atual
 

@@ -1,0 +1,43 @@
+{
+  "phase": "antes",
+  "runtime_initialization_seconds": 9.917,
+  "measurements": [
+    {
+      "interaction": "primeiro_carregamento",
+      "seconds": 4.007,
+      "sql_statements": 6
+    },
+    {
+      "interaction": "rerun_sem_mudancas",
+      "seconds": 2.72,
+      "sql_statements": 5
+    },
+    {
+      "interaction": "abrir_chamados",
+      "seconds": 3.122,
+      "sql_statements": 5
+    },
+    {
+      "interaction": "selecionar_c07",
+      "seconds": 2.714,
+      "sql_statements": 5
+    },
+    {
+      "interaction": "ver_detalhes",
+      "seconds": 2.721,
+      "sql_statements": 5
+    },
+    {
+      "interaction": "anexar",
+      "seconds": 2.714,
+      "sql_statements": 5
+    },
+    {
+      "interaction": "remover",
+      "seconds": 2.717,
+      "sql_statements": 5
+    }
+  ],
+  "provider_calls": 0,
+  "method": "AppTest com Supabase real; sem chamadas ao OpenRouter; nao e revisao visual"
+}

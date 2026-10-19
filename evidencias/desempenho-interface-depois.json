@@ -1,0 +1,87 @@
+{
+  "phase": "depois",
+  "runtime_initialization_seconds": 8.153,
+  "measurements": [
+    {
+      "interaction": "primeiro_carregamento",
+      "seconds": 2.764,
+      "sql_statements": 4
+    },
+    {
+      "interaction": "rerun_sem_mudancas",
+      "seconds": 0.024,
+      "sql_statements": 0
+    },
+    {
+      "interaction": "abrir_chamados",
+      "seconds": 0.392,
+      "sql_statements": 0
+    },
+    {
+      "interaction": "selecionar_c07",
+      "seconds": 0.03,
+      "sql_statements": 0
+    },
+    {
+      "interaction": "ver_detalhes",
+      "seconds": 0.024,
+      "sql_statements": 0
+    },
+    {
+      "interaction": "anexar",
+      "seconds": 0.029,
+      "sql_statements": 0
+    },
+    {
+      "interaction": "remover",
+      "seconds": 0.031,
+      "sql_statements": 0
+    },
+    {
+      "interaction": "atualizacao_explicita",
+      "seconds": 1.195,
+      "sql_statements": 3
+    },
+    {
+      "interaction": "pergunta_geral_com_api",
+      "seconds": 25.04,
+      "sql_statements": 17
+    },
+    {
+      "interaction": "rerun_apos_resposta",
+      "seconds": 0.049,
+      "sql_statements": 0
+    }
+  ],
+  "api_calls": {
+    "embeddings": 1,
+    "completions": 2
+  },
+  "method": "AppTest com Supabase real; não é revisão visual nem SLA",
+  "analysis": {
+    "latency_ms": 21435,
+    "steps": [
+      {
+        "step": "Solicitação recebida",
+        "elapsed_ms": 0
+      },
+      {
+        "step": "Busca híbrida e seleção de evidências concluídas",
+        "elapsed_ms": 7613
+      },
+      {
+        "step": "Cobertura do conhecimento verificada para a pergunta atual",
+        "elapsed_ms": 12808
+      },
+      {
+        "step": "Resposta estruturada e referências validadas",
+        "elapsed_ms": 20852
+      }
+    ],
+    "references": [
+      "RELATO",
+      "K01"
+    ]
+  },
+  "passed": true
+}

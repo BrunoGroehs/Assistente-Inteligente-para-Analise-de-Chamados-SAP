@@ -1,0 +1,28 @@
+{
+  "mode": "Confere cache de apresentação e HITL no Supabase real, sem consumir LLM.\n\nPropostas controladas e cliques automatizados são exclusivos do teste; não são\nconsentimento humano. Cada cenário usa uma sessão fictícia nova deste projeto.\n",
+  "checks": [
+    {
+      "scenario": "aprovar",
+      "passed": true,
+      "result": "executada",
+      "ui_refreshed": true,
+      "rerun_does_not_repeat": true
+    },
+    {
+      "scenario": "recusar",
+      "passed": true,
+      "result": "recusada",
+      "ui_refreshed": true,
+      "rerun_does_not_repeat": true
+    },
+    {
+      "scenario": "dados_alterados",
+      "passed": true,
+      "result": "invalidada",
+      "ui_refreshed": true,
+      "rerun_does_not_repeat": true
+    }
+  ],
+  "openrouter_calls": 0,
+  "passed": true
+}

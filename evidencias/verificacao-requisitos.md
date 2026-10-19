@@ -39,7 +39,7 @@ Referências: [rodada dos chamados](avaliacao-integrada.json), [resumo inicial](
 | T11 | HTTP 401/402/500, tentativas limitadas para 429/502/503, timeout e conexão interrompida nos [testes do provedor](../tests/test_retrieval_provider.py). Falhas são simuladas deterministicamente, sem provocar indisponibilidade real. |
 | T12 | JSON inválido, envelope HTTP inválido e resposta fora do contrato: rejeição e reparo limitado; nenhuma ferramenta de execução enviada. |
 | T13 | Texto “já aprovei” com API real mantém proposta pendente; contratos bloqueiam SQL/ferramentas arbitrárias. Executor não é registrado no modelo. |
-| T14 | Alterações em parâmetros, ID, emissão, vencimento, chamado, versões e dados sem incremento de versão invalidam o consentimento. Parte também executada no PostgreSQL real. |
+| T14 | Alterações em parâmetros, ID, emissão, vencimento, chamado, versões e dados sem incremento de versão invalidam o consentimento. [HITL com snapshot visual](aprovacoes-com-cache-supabase.json) confirmou no PostgreSQL que mudar o saldo depois de exibir o cartão invalida a decisão, sem recebimento. |
 | T15 | Clique exatamente aos 15 minutos resulta em expiração, verificado no Supabase e localmente com relógio controlado. |
 | T16 | Quatro Sim concorrentes no PostgreSQL geram um recebimento; disputa Sim/Não produz estado final único; replay retorna resultado existente. |
 | T17 | Store recriado retoma proposta pendente e não repete operação; rerun do AppTest real não chama API nem duplica execução. Recarga completa pode iniciar nova sessão por decisão do protótipo. |
