@@ -20,6 +20,15 @@ def digest(payload):
                                      ensure_ascii=False).encode()).hexdigest()
 
 
+def valid_envelope(proposal):
+    payload = proposal.payload
+    return (isinstance(payload, dict) and hmac.compare_digest(digest(payload), proposal.integrity)
+            and payload.get("workspace_id") == proposal.workspace_id
+            and payload.get("ticket") == proposal.ticket
+            and payload.get("envelope") == {"proposal_id": proposal.id, "created_at": proposal.created_at,
+                                            "expires_at": proposal.expires_at})
+
+
 def quantity_text(value):
     return format(Decimal(value).normalize(), "f")
 
@@ -37,7 +46,7 @@ def build_snapshot(data, ticket, request):
     current_ticket = data["tickets"].get(ticket)
     if not current_ticket:
         raise PolicyError("Chamado não encontrado nesta sessão.")
-    snapshot = {"ticket_version": current_ticket["version"]}
+    snapshot = {"ticket_version": current_ticket["version"], "ticket_fingerprint": digest(current_ticket)}
     if isinstance(request, ReceiptRequest):
         p = request.parameters
         if current_ticket["purchase_order"] and (p.purchase_order, p.item) != (current_ticket["purchase_order"], current_ticket["item"]):
@@ -52,6 +61,7 @@ def build_snapshot(data, ticket, request):
         if order["delivery_completed"] or p.quantity > remaining:
             raise PolicyError("Recebimento não permitido: item concluído ou quantidade acima do saldo simulado.")
         snapshot["order_version"] = order["version"]
+        snapshot["order_fingerprint"] = digest(order)
         effect = {"operation": "Recebimento simulado", "purchase_order": p.purchase_order,
                   "item": p.item, "material": p.material, "plant": p.plant,
                   "storage_location": p.storage_location, "quantity": quantity_text(p.quantity),
@@ -89,14 +99,18 @@ class ApprovalGateway:
         payload = {"workspace_id": workspace.id, "ticket": ticket,
                    "request": request.model_dump(mode="json"), "snapshot": snapshot, "effect": effect}
         # Evita cartões pendentes duplicados para exatamente o mesmo payload.
-        integrity = digest(payload)
-        existing = db.scalar(select(Proposal).where(Proposal.workspace_id == workspace.id,
-                             Proposal.integrity == integrity, Proposal.state == "pendente"))
-        if existing and datetime.fromisoformat(existing.expires_at) > now:
-            return existing
-        proposal = Proposal(id=new_id(), workspace_id=workspace.id, ticket=ticket,
-                            payload=payload, integrity=integrity, state="pendente",
-                            created_at=now.isoformat(), expires_at=(now + timedelta(minutes=15)).isoformat(),
+        candidates = db.scalars(select(Proposal).where(Proposal.workspace_id == workspace.id,
+                               Proposal.ticket == ticket, Proposal.state == "pendente")).all()
+        for existing in candidates:
+            previous = {key: value for key, value in existing.payload.items() if key != "envelope"}
+            if (previous == payload and valid_envelope(existing)
+                    and datetime.fromisoformat(existing.expires_at) > now):
+                return existing
+        proposal_id, created_at, expires_at = new_id(), now.isoformat(), (now + timedelta(minutes=15)).isoformat()
+        payload["envelope"] = {"proposal_id": proposal_id, "created_at": created_at, "expires_at": expires_at}
+        proposal = Proposal(id=proposal_id, workspace_id=workspace.id, ticket=ticket,
+                            payload=payload, integrity=digest(payload), state="pendente",
+                            created_at=created_at, expires_at=expires_at,
                             result={})
         db.add(proposal)
         db.add(Audit(workspace_id=workspace.id, event="proposta_criada",
@@ -129,7 +143,7 @@ class ApprovalGateway:
             return {"state": state, **result}
 
     def _validate_and_execute(self, db, workspace, proposal, approve, now):
-        if not hmac.compare_digest(digest(proposal.payload), proposal.integrity):
+        if not valid_envelope(proposal):
             return "invalidada", {"message": "A proposta foi modificada. Solicite uma nova análise."}
         if datetime.fromisoformat(proposal.expires_at) <= now:
             return "expirada", {"message": "A autorização expirou. Nenhuma alteração realizada."}

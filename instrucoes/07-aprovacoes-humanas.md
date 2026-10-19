@@ -25,6 +25,10 @@ Sinalizar necessidade de revisão na resposta e criar evento técnico pode ocorr
 
 **Recomendação:** canonicalizar operação/parâmetros/identidade/versões para um hash de integridade, armazenado no servidor. O hash não é credencial de aprovação. Usar contexto de sessão validado e proteção contra requisições forjadas/replay; o LLM não recebe segredos ou mecanismos de decisão.
 
+**Estado implementado após os testes ampliados:** o hash cobre também ID da proposta, emissão, vencimento, sessão e chamado. O servidor confere a correspondência entre esse envelope e as colunas persistidas antes de decidir. Alterar isoladamente a validade, copiar a proposta com outro ID ou trocar seu chamado invalida a solicitação. O snapshot inclui hashes do chamado e do pedido completos, além das versões, para detectar mudanças mesmo sem incremento de versão. Uma alteração em outro chamado não invalida um recebimento independente.
+
+O hash detecta inconsistência do conteúdo armazenado; não é assinatura contra alguém com acesso de escrita irrestrito ao banco. A barreira contra a IA é a ausência de acesso ao executor, às credenciais e à decisão humana. Propostas pendentes criadas antes deste envelope são recusadas na decisão e exigem nova análise; resultados já concluídos permanecem idempotentes. A mudança usa campos JSON existentes e não requer migração SQL nem altera tabelas externas.
+
 Para recebimento, exigir pedido/item existentes, material e localização válidos, quantidade decimal positiva, unidade consistente, data explícita e saldo suficiente conforme as [regras simuladas](02-processo-sap.md). Para status, validar chamado acessível e transição permitida. Valores inválidos não geram cartão executável.
 
 **Decisão confirmada:** a decisão aceita apenas o ID e a escolha humana; a operação não pode ser modificada no clique. Mudança nos parâmetros, versões ou efeito da ação invalida a aprovação. Uma correção produz nova proposta e nova pergunta.

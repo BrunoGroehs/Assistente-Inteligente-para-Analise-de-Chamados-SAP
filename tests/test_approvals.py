@@ -8,7 +8,7 @@ from pydantic import TypeAdapter, ValidationError
 
 from sap_assistant.approvals import ApprovalGateway, PolicyError, canonical_phrase
 from sap_assistant.contracts import ActionRequest, StatusRequest
-from sap_assistant.database import AccessDenied, Proposal, SessionContext, Store, utcnow
+from sap_assistant.database import AccessDenied, Proposal, SessionContext, Store, Workspace, new_id, utcnow
 from conftest import receipt_request
 
 
@@ -189,3 +189,75 @@ def test_gateway_revalidates_mutated_contract(store, context):
     with pytest.raises(ValidationError):
         ApprovalGateway(store).propose(context, "C07", request)
     assert not store.proposals(context, "C07")
+
+
+@pytest.mark.parametrize("field", ["expires_at", "created_at", "ticket"])
+def test_authorization_envelope_rejects_changed_metadata(store, context, field):
+    gateway = ApprovalGateway(store)
+    proposal_id = gateway.propose(context, "C07", receipt_request(store, context))
+    with store.transaction() as db:
+        proposal = db.get(Proposal, proposal_id)
+        setattr(proposal, field, "C05" if field == "ticket" else (utcnow() + timedelta(hours=1)).isoformat())
+    assert gateway.decide(context, proposal_id, True)["state"] == "invalidada"
+    assert not store.state(context)["receipts"]
+
+
+def test_copied_proposal_cannot_reuse_original_authorization(store, context):
+    gateway = ApprovalGateway(store)
+    original = gateway.propose(context, "C07", receipt_request(store, context))
+    copied_id = new_id()
+    with store.transaction() as db:
+        source = db.get(Proposal, original)
+        db.add(Proposal(id=copied_id, workspace_id=source.workspace_id, ticket=source.ticket,
+                        payload=deepcopy(source.payload), integrity=source.integrity, state="pendente",
+                        created_at=source.created_at, expires_at=source.expires_at, result={}))
+    assert gateway.decide(context, copied_id, True)["state"] == "invalidada"
+    assert not store.state(context)["receipts"]
+
+
+@pytest.mark.parametrize("target", ["ticket", "order"])
+def test_unversioned_data_change_invalidates_consent(store, context, target):
+    gateway = ApprovalGateway(store)
+    proposal_id = gateway.propose(context, "C07", receipt_request(store, context))
+    with store.transaction() as db:
+        workspace = db.get(Workspace, context.workspace_id)
+        data = deepcopy(workspace.data)
+        if target == "ticket":
+            data["tickets"]["C07"]["description"] = "Solicitação alterada depois da proposta"
+        else:
+            data["orders"]["4500001007/10"]["material"] = "OUTRO-MATERIAL"
+        workspace.data = data
+    assert gateway.decide(context, proposal_id, True)["state"] == "invalidada"
+    assert not store.state(context)["receipts"]
+
+
+def test_unrelated_ticket_does_not_invalidate_consent(store, context):
+    gateway = ApprovalGateway(store)
+    receipt = gateway.propose(context, "C07", receipt_request(store, context))
+    status = StatusRequest(operation="atualizar_status_chamado", parameters={"status": "resolvido"},
+                           confirmation_phrase="Posso alterar o chamado C01 para resolvido?")
+    other = gateway.propose(context, "C01", status)
+    gateway.decide(context, other, True)
+    assert gateway.decide(context, receipt, True)["state"] == "executada"
+
+
+def test_expired_proposal_is_not_reused_when_reproposed(store, context):
+    gateway = ApprovalGateway(store)
+    now = utcnow()
+    request = receipt_request(store, context)
+    first = gateway.propose(context, "C07", request, now)
+    second = gateway.propose(context, "C07", request, now + timedelta(minutes=16))
+    assert first != second
+    assert gateway.decide(context, first, True, now + timedelta(minutes=16))["state"] == "expirada"
+
+
+def test_legacy_pending_proposal_requires_new_consent(store, context):
+    from sap_assistant.approvals import digest
+    gateway = ApprovalGateway(store)
+    proposal_id = gateway.propose(context, "C07", receipt_request(store, context))
+    with store.transaction() as db:
+        row = db.get(Proposal, proposal_id)
+        payload = {key: value for key, value in row.payload.items() if key != "envelope"}
+        row.payload, row.integrity = payload, digest(payload)
+    assert gateway.decide(context, proposal_id, True)["state"] == "invalidada"
+    assert not store.state(context)["receipts"]
