@@ -141,3 +141,9 @@ O usuário escolherá a hospedagem posteriormente. O contrato portátil é: inst
 Configure as variáveis do `.env.example` somente no servidor, `APP_ENV=cloud`, `DEMO_ACCESS_CODE` com pelo menos 12 caracteres e HTTPS. O cookie de sessão é HttpOnly, SameSite estrito e Secure fora do ambiente local. Mantenha interface e `/api` na mesma origem, preservando Host/Origin no proxy, streaming sem buffering e timeout compatível com a análise. O código de demonstração não substitui login individual de produção.
 
 O limite de quatro análises simultâneas e uma por sessão é por processo. Use inicialmente um processo; escalar exigirá coordenação compartilhada de tarefas. A idempotência de escritas continua transacional no Supabase. Nenhuma migração adicional ou tabela nova foi necessária nesta troca de interface.
+
+## Correções e citações
+
+Ao identificar correção executável, o chat oferece a proposta **Sim/Não** ou **Preparar correção**, quando faltarem quantidade/data ou situação desejada. Preencha o formulário e clique em **Revisar ação**; isso somente prepara a proposta. A execução exige **Sim, autorizar** separado. Nada escolhe automaticamente a quantidade pelo saldo ou inventa data. “Altere para mim” mantém a correção discutida, sem virar mudança de status.
+
+Os números das fontes são clicáveis, inclusive em respostas antigas. Fonte SAP abre o site oficial; regra interna abre a identificação em **Fontes e detalhes**, sem conteúdo bruto ou popup. Para reproduzir C03 com Supabase/OpenRouter reais: `python scripts/verify_corrections_live.py` (requer dependências de desenvolvimento, consome créditos e simula as decisões humanas em workspace próprio).

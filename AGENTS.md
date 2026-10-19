@@ -51,6 +51,9 @@ Antes de trabalhar, ler o [índice das instruções](instrucoes/README.md) e os 
 
 - **Decisão confirmada:** Streamlit removido, inclusive da dependência de execução. Aplicação portátil, sem escolher provedor de hospedagem; o usuário fará o deploy manual posteriormente. Não publicar nem deixar servidor local rodando ao terminar. A interface é compilada em `frontend/dist` e servida pela API na mesma origem; segredos ficam exclusivamente no Python.
 
+
+- **Decisão confirmada:** correção executável identificada deve oferecer caminho visual para aprovação. Com dados completos, mostrar Sim/Não; quando faltarem quantidade, data ou situação desejada, mostrar Preparar correção e formulário, sem valores inventados. Preparar cria somente proposta; executar exige decisão separada. Pedidos vagos como “altere para mim” preservam a operação discutida, sem virar mudança de status. Citações numéricas conhecidas devem ser clicáveis: fonte oficial abre o site; regra interna abre sua identificação em Fontes e detalhes, sem conteúdo bruto/popup.
+
 ## Fontes indisponíveis e colaboração
 
 **Decisão confirmada do usuário:** não abandonar uma informação necessária porque um site falhou. Tentar novamente por meios adequados, conferir URL e buscar páginas oficiais equivalentes ou uma versão pública acessível, sem contornar autenticação ou restrições de acesso.

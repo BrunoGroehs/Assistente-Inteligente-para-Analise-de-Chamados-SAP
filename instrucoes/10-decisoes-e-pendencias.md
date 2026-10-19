@@ -41,6 +41,8 @@
 
 **Decisão confirmada — D33, 18/10/2026:** remover Streamlit por travadas percebidas pelo usuário. A stack atual é React + TypeScript/Vite na interface e Python/FastAPI na API, preservando Supabase, OpenRouter, RAG e HITL. Substitui escolhas anteriores de Streamlit e Community Cloud; essas linhas permanecem como histórico. Entregar sem plataforma de deploy definida; o usuário adicionará hospedagem manualmente. Navegação local no navegador, etapas por NDJSON, cookie HttpOnly e build servido na mesma origem. Não publicar nem deixar processo local de teste ativo. Ver [arquitetura](03-arquitetura.md) e [execução](09-execucao-e-entrega.md).
 
+**Decisão confirmada — D34, 18/10/2026:** toda correção executável identificada oferece caminho visual para aprovação: proposta completa com Sim/Não, ou preparação guiada quando faltarem parâmetros. “Altere para mim” preserva o recebimento discutido, sem pressupor mudança de status. Formulário não executa; gateway confirma a proposta exata. Citações numéricas conhecidas abrem fonte oficial ou identificação da regra interna, inclusive nas respostas antigas; sem popup de conteúdo. [Interface](06-interface.md), [aprovações](07-aprovacoes-humanas.md) e [prompts](05-prompts.md).
+
 ## Pendências e tratamento
 
 **Estado atualizado:** itens concluídos e pendências remanescentes; consultar as evidências antes de declarar uma nova capacidade validada.
@@ -54,7 +56,7 @@
 | P05 | Modelos atuais verificados | Chat Qwen3.6 Plus e embeddings 8B/4.096 dimensões testados; saídas e referências validadas pelo servidor. Revalidar se o provedor mudar. |
 | P06 | Parâmetros iniciais implementados; calibração ampla pendente | Quatro sínteses mais duas políticas, busca textual/cosseno, RRF 60 e checagem de cobertura; avaliar relevância, falsos bloqueios e sustentação com rótulos fora do índice. |
 | P07 | Fixtures executáveis concluídas | Oito chamados com datas explícitas em C07/C08, perfis de suporte fictícios para novas sessões e gabaritos fora da base; C05 preserva lacunas. |
-| P08 | Código e validação funcional; revisão estética pendente | Rodada anterior: 158 testes locais e quatro verificações reais de Novo chat/respostas compactas. Migração React/FastAPI: 152 testes Python, 12 React e cinco verificações HTTP com serviços reais aprovados; build e análise estática aprovados. Rodadas anteriores de anexos, RAG, cache/HITL e desempenho preservadas. Novo chat não transfere histórico ou aprovação nem reinicia negócio; fontes/verificações em um único bloco. Revisão visual/teclado ainda pendente. |
+| P08 | Código e validação funcional; revisão estética pendente | Rodada anterior: 158 testes locais e quatro verificações reais de Novo chat/respostas compactas. Migração React/FastAPI: 152 testes Python, 12 React e cinco verificações HTTP com serviços reais aprovados. Rodada posterior de correções: 170 Python, 14 React e quatro verificações reais C03 aprovados; build e análise estática aprovados. Rodadas anteriores de anexos, RAG, cache/HITL e desempenho preservadas. Novo chat não transfere histórico ou aprovação nem reinicia negócio; fontes/verificações em um único bloco. Revisão visual/teclado ainda pendente. |
 | P09 | Publicação, acesso da banca e limites de consumo | Configurar na etapa de publicação, validar hospedado e ensaiar apresentação. |
 | P10 | PDF original ausente no diretório de trabalho | Remoção já existente fora desta migração; mantida fora dos commits. O link em `01-desafio.md` depende de disponibilizar novamente o arquivo. Requisitos transcritos foram preservados. |
 

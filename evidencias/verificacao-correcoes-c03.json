@@ -1,0 +1,68 @@
+{
+  "date": "2026-10-19T02:57:29.525181+00:00",
+  "mode": "Reproduz C03 e HITL via HTTP com Supabase/OpenRouter reais. Consome créditos.\n\nSomente workspace fictício próprio. Decisões simuladas pelo harness, não por uma\npessoa. Não altera corpus nem objetos externos e não executa SAP real.\n",
+  "checks": [
+    {
+      "check": "C03: como resolvo oferece correção preenchível",
+      "passed": true,
+      "details": {
+        "preparation_available": true,
+        "missing_quantity_and_date_not_invented": true,
+        "sources": [
+          {
+            "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+            "title": "Conferência de quantidade e histórico",
+            "numbers": [
+              2
+            ],
+            "ids": [
+              "K02"
+            ]
+          }
+        ],
+        "policies": [
+          {
+            "number": 1,
+            "title": "Regras do recebimento simulado"
+          }
+        ]
+      },
+      "seconds": 28.681
+    },
+    {
+      "check": "C03: altere para mim mantém recebimento",
+      "passed": true,
+      "details": {
+        "receipt_context_preserved": true,
+        "no_status_substitution": true
+      },
+      "seconds": 37.765
+    },
+    {
+      "check": "C03: revisão, parâmetros e Não",
+      "passed": true,
+      "details": {
+        "invalid_and_incomplete_rejected": true,
+        "prepare_is_idempotent_and_not_execution": true,
+        "refusal_preserves_business": true
+      },
+      "seconds": 16.431
+    },
+    {
+      "check": "C03: dados completos oferecem Sim e execução única",
+      "passed": true,
+      "details": {
+        "complete_correction_offers_approval": true,
+        "double_click_one_receipt": true,
+        "ticket_status_not_changed": true
+      },
+      "seconds": 46.733
+    }
+  ],
+  "api_calls": {
+    "embeddings": 3,
+    "completions": 6
+  },
+  "external_catalog_unchanged": true,
+  "passed": true
+}

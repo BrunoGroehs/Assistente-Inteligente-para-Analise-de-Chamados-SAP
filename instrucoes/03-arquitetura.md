@@ -132,3 +132,11 @@ Na retomada após reinício, reconstruir estado a partir do banco somente quando
 **Recomendação:** registrar IDs de correlação, modelo solicitado/efetivo, versão do prompt e da base, fontes recuperadas/utilizadas, latência, uso informado pelo provedor e estado da proposta. Dados ausentes de consumo devem ficar como indisponíveis, nunca como zero estimado.
 
 Aplicar timeout e tentativas limitadas a chamadas de leitura/LLM. Falha do banco impede escrita e aprovação; falha do LLM produz erro claro sem fabricar resposta. Validar integralmente a saída antes de criar propostas. Reenvios HTTP não podem repetir cobranças ou operações já concluídas: correlacionar cada submissão com um ID e recuperar seu resultado.
+
+## Correção com dados complementados pelo humano
+
+**Decisão confirmada e implementada:** `Analysis.correction_operation` identifica recebimento ou mudança de situação quando falta um parâmetro humano. `corrections.py` cria um rascunho somente com chamado autorizado, contexto consultado e elegibilidade; o JSON da mensagem guarda operação, dados/fingerprints e validade. A projeção pública omite fingerprints e não escolhe quantidade/data.
+
+`POST /api/chats/{id}/messages/{message_id}/correction` recebe `CorrectionInput` e usa o gateway para preparar, sem executar. A mensagem deve pertencer à sessão/conversa atual, ser a análise mais recente do caso e manter dados/validade. Repetição idêntica recupera a proposta anterior. O endpoint de decisão permanece separado e recebe somente `approve`. A complementação não chama o OpenRouter; auditoria e propostas continuam nas seis tabelas próprias existentes.
+
+No React, a transformação de marcadores `[n]` consulta apenas metadados validados da resposta. URLs oficiais abrem diretamente; regras internas focam sua identificação no expansível da própria mensagem. A transformação também atende mensagens antigas sem reescrever o histórico; ignora código e não inventa links para números desconhecidos.

@@ -86,3 +86,9 @@ Saída inválida não gera proposta. **Recomendação:** permitir uma tentativa 
 **Pendências não bloqueantes para a documentação:** extensão padrão da resposta; tom mais direto ou didático; quantidade de perguntas por rodada; apresentação da confiança; uso de exemplos no prompt.
 
 **Recomendação inicial:** respostas curtas com contexto suficiente, poucas perguntas direcionadas e detalhes expansíveis. Avaliar os rascunhos contra os mesmos casos, registrar versão, modelo e resultado. Não alterar o prompt apenas para memorizar um chamado específico.
+
+## Ajuste do rascunho 2026-10-18.10
+
+**Decisão confirmada do usuário:** oferecer aprovação visual sempre que houver correção executável. O contrato acrescenta `correction_operation` para os casos que precisam de complemento humano; `action` permanece reservada à proposta completa. O prompt pede manter a correção anterior em solicitações como “altere para mim”, com `pending_correction_operation` fornecida pelo servidor. Não interpretar esse texto como pedido de alterar status.
+
+C03 pode oferecer preparação de recebimento dentro do saldo, mas não escolhe 20 UN automaticamente nem inventa data. A interface pede esses dados e o servidor prepara a proposta sem nova chamada de LLM; o Sim/Não continua separado. Correção sem suporte, não elegível ou fora das operações implementadas não recebe um botão de execução fictício. Rascunhos continuam abertos à discussão e não controlam autorização.

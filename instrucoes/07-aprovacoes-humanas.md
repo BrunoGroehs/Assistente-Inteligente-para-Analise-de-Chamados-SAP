@@ -77,3 +77,11 @@ Um futuro adaptador SAP remoto exigirá idempotência e conciliação de resulta
 **Recomendação:** manter o executor em módulo interno e validar invariantes também no gateway, mesmo que a UI já desabilite botões. Não aceitar SQL, URLs ou métodos arbitrários como parâmetros de ferramentas. Registrar estado anterior/posterior, autor da decisão, proposta, sessão, resultado e horário, sem segredos.
 
 **Aceite recomendado:** nenhuma escrita de negócio ocorre sem decisão válida; Não e silêncio preservam dados; aprovação não é reutilizável para outro payload; sessões não interferem; rerun/restart e clique repetido não repetem operação. Cenários detalhados em [testes](08-testes-e-avaliacao.md).
+
+## Complementação humana de correções
+
+**Decisão confirmada:** identificar correção executável não deve terminar apenas em “precisa de confirmação”. O modelo retorna `action` completa ou `correction_operation` indicando uma das operações permitidas. A segunda opção é um rascunho técnico, sem autorização ou efeito de negócio. “Altere para mim” mantém o contexto da correção; mudar situação precisa ser pedido de modo inequívoco.
+
+O servidor deriva pedido, item, material e localização dos dados consultados. O humano informa quantidade e data, ou seleciona a situação desejada. `POST /api/chats/{chat_id}/messages/{message_id}/correction` aceita somente esses campos tipados; não aceita operação, chamado, SQL, URL ou decisão de execução. O servidor seleciona a operação registrada na mensagem autenticada, revalida a análise mais recente, validade de 15 minutos, fingerprints e saldo/eligibilidade. A pergunta canônica final usa os parâmetros complementados pelo humano; a análise da IA identifica a correção, sem gerar ou conceder consentimento.
+
+Preparar persiste a proposta e seu vínculo na mensagem/auditoria, sem alterar negócio. Uma nova chamada ao endpoint de decisão, com Sim/Não explícito, continua obrigatória. Preparação repetida não renova a autorização, não repete escrita e não cria nova proposta após recusa/execução. Alterar os parâmetros exige outra análise. Rascunhos usam JSON de mensagens existentes, sem migração ou tabela nova.

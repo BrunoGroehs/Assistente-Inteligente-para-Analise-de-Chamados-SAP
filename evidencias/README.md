@@ -1,6 +1,19 @@
 # Evidências de validação
 
-## Migração atual: React + FastAPI
+## Correções guiadas e citações clicáveis — rodada mais recente
+
+**170 testes Python e 14 testes React aprovados**, build TypeScript/Vite aprovado, Ruff sem erros e `pip check` sem conflitos. [XML Python](testes-correcoes.xml), [relatório React](testes-react-correcoes.json). As contagens de versões anteriores permanecem abaixo como histórico, sem soma cumulativa. Revisão visual em navegador real não foi realizada.
+
+[Quatro verificações com Supabase/OpenRouter reais](verificacao-correcoes-c03.json) reproduzem C03: “como resolvo isso?” identifica recebimento com quantidade/data faltantes; “altere para mim” mantém a mesma operação, sem virar status; preparação bloqueia 35 UN/data ausente, cria proposta idempotente e Não preserva negócio; pedido completo produz cartão pendente e dois Sim geram só um recebimento. O chamado permanece aberto após registrar a entrega. Três chamadas de embeddings e seis de chat; decisões simuladas pelo harness no seu próprio workspace fictício. Catálogo externo sem alterações; não se alega comparação dos dados de todas as tabelas externas.
+
+A resposta real citou a política do simulador como número 1 e o SAP Learning como número 2. O teste React verifica `[1]` abrindo a identificação da regra no expansível e `[2]` abrindo a URL oficial, também para texto histórico sem links. Fatos numerados usam os mesmos destinos. Números desconhecidos não recebem links inventados; código inline é preservado. Conteúdo bruto do RAG continua fora da interface.
+
+Os testes controlados cobrem parâmetros ausentes/excedentes, tentativa de trocar a operação, sessão/conversa errada, análise supersedida, vencimento do rascunho, dados modificados, idempotência antes/depois da decisão, mudança nos parâmetros de uma preparação existente, status explicitamente selecionado, falta de anexo e base insuficiente. Preparar não executa nem concede autorização; a pergunta final usa exatamente os parâmetros complementados pelo humano. O endpoint de decisão do gateway permanece separado.
+
+Reprodução: `python scripts/verify_corrections_live.py`, com dependências de desenvolvimento e `.env` configurado; consome créditos. Não foram criadas tabelas ou migrações, alterado corpus, feita publicação ou deixado servidor local rodando.
+
+
+## Histórico da migração: React + FastAPI
 
 **Executado em 18/10/2026 (horário de São Paulo).** Streamlit removido do código, das dependências e do ambiente virtual deste projeto. Nenhum deploy realizado; nenhum servidor local de teste ficou em execução.
 

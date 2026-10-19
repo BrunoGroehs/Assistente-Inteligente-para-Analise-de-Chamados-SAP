@@ -47,3 +47,5 @@ O rótulo de uma seção vale para seus itens, salvo indicação diferente. Link
 Novas solicitações devem atualizar seu documento responsável e, se alterarem uma escolha, o [histórico](10-decisoes-e-pendencias.md).
 
 **Atualização confirmada:** Streamlit removido. Aplicação portátil com frontend compilado servido pela API, navegação local no navegador e sem plataforma de hospedagem definida. Deploy manual posterior pelo usuário. [Arquitetura](03-arquitetura.md), [execução](09-execucao-e-entrega.md) e decisão D33.
+
+**Atualização confirmada:** correções executáveis sempre oferecem preparação/Sim/Não, sem inventar parâmetros; citações numéricas conhecidas são clicáveis, inclusive em mensagens antigas. Decisão D34 e documentos de interface, aprovações e prompts atualizados.

@@ -61,3 +61,11 @@ Após decisão, desabilitar ambos os botões e mostrar o resultado confirmado pe
 Aceite: chat e lista localizáveis imediatamente; conteúdo sem sobreposição ou corte; contraste e foco de teclado legíveis; botões acessíveis por teclado; aprovação não depende apenas de cor; fontes podem ser abertas; troca de chamado não troca sua proposta; reenvio não duplica mensagens nem ações.
 
 **Decisão confirmada:** dúvidas materiais sobre o fluxo devem ser discutidas com o usuário. Detalhes menores de espaçamento e apresentação seguem essa direção e podem ser refinados com uma primeira captura real da interface.
+
+## Correções guiadas e referências clicáveis
+
+**Decisão confirmada:** quando a análise identificar uma correção executável, deve oferecer um controle visual para o humano. Dados completos produzem o cartão Sim/Não existente. Dados faltantes produzem **Preparar correção**, com formulário para quantidade e data explícitas no recebimento, ou situação desejada quando a mudança de situação tiver sido pedida. Não preencher quantidade pelo saldo máximo nem presumir data ou situação. **Revisar ação** cria somente a proposta; após conferir efeito, parâmetros e prazo, **Sim, autorizar / Não, recusar** decide a execução. Sem RAG suficiente, pedido/item identificado ou elegibilidade, informar a limitação sem fabricar operação substituta.
+
+O rascunho de correção fica na mensagem e vale 15 minutos; sua preparação exige mesma sessão/conversa, última análise do chamado e dados ainda iguais aos consultados. Troca de anexo oferece reanexar; revisão posterior mostra somente a correção mais recente. Repetir a preparação com os mesmos parâmetros retorna a proposta já criada; parâmetros diferentes exigem nova análise. Botões ficam indisponíveis durante envio/preparação.
+
+**Decisão confirmada:** todos os marcadores numéricos conhecidos da resposta e dos fatos são links. Fontes oficiais abrem sua URL catalogada. Regras próprias abrem o mesmo **Fontes e detalhes** na identificação da regra, sem inventar URL SAP e sem mostrar trechos. Isso vale também para `[1]` armazenado em mensagens antigas. Um número não validado não ganha link inventado. Código, referências de Markdown já existentes e links oficiais são preservados.
