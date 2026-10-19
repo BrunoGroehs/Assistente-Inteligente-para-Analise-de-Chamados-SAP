@@ -40,6 +40,7 @@ Antes de trabalhar, ler o [índice das instruções](instrucoes/README.md) e os 
 - Mensagens, consultas e auditoria técnica são automáticas. O critério é o efeito da operação, não seu método HTTP. A política completa está em [aprovações humanas](instrucoes/07-aprovacoes-humanas.md).
 - Usar somente dados fictícios. Não expor credenciais em código, interface, prompts ou logs. Isolar dados e aprovações por sessão.
 - Apresentar fontes, etapas observáveis e justificativas resumidas. Não usar raciocínio interno bruto do modelo como trilha de auditoria.
+- **Decisão confirmada:** respostas podem citar fontes do RAG por referências numeradas com botões que abrem um popup. O popup deve mostrar o trecho do snapshot daquele atendimento, sua versão e origem; abri-lo não consulta a IA nem autoriza ações. Ver [interface](instrucoes/06-interface.md).
 - Não indexar instruções de desenvolvimento, gabaritos, prompts ou resultados esperados como conhecimento SAP.
 - **Decisão confirmada:** interface organizada, clean, inspirada em iOS, com pouco ruído visual. Seguir [interface](instrucoes/06-interface.md).
 
@@ -53,5 +54,6 @@ Se a lacuna continuar e bloquear a qualidade da entrega, pedir ao usuário o con
 
 - Validar links locais, consistência entre documentos e cobertura dos requisitos ao alterar esta documentação.
 - Na implementação, executar os testes relevantes e registrar resultado real, versão, limitações e evidências; testes planejados não são testes aprovados.
+- **Decisão confirmada:** o usuário autorizou o uso da API real para os testes ampliados de RAG, interface e HITL. Distinguir decisões simuladas pelo teste de cliques de uma pessoa e preservar tabelas externas ao projeto.
 - Distinguir diagnóstico provável, recomendação, solicitação de autorização e operação efetivamente executada.
 - Ao concluir, informar o que mudou, o que foi verificado e as pendências que afetam a próxima etapa.

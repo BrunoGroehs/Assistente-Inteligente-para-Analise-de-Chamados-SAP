@@ -196,7 +196,8 @@ class Store:
             self.authorize(db, context)
             rows = db.scalars(select(Message).where(Message.workspace_id == context.workspace_id,
                               Message.ticket == ticket).order_by(Message.created_at, Message.id)).all()
-            return [{"role": x.role, "content": x.content, "details": deepcopy(x.details)} for x in rows]
+            return [{"id": x.id, "role": x.role, "content": x.content, "details": deepcopy(x.details),
+                     "created_at": x.created_at} for x in rows]
 
     def proposals(self, context, ticket, now=None):
         with self.transaction() as db:

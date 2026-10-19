@@ -7,6 +7,7 @@ from sqlalchemy import func, select
 
 from .approvals import ApprovalGateway, PolicyError, quantity_text
 from .contracts import Evidence, validate_grounding
+from .citations import cited_knowledge, safe_answer_text
 from .database import Audit, Message, new_id
 from .provider import ProviderError
 
@@ -28,16 +29,19 @@ def resolve_order(state, ticket, history):
     return deepcopy(state["orders"].get(f"{ticket['purchase_order']}/{ticket['item']}"))
 
 
-def render_analysis(analysis):
-    lines = [analysis.summary]
+def render_analysis(analysis, evidence=()):
+    numbers = {item.id: index for index, item in enumerate(cited_knowledge(analysis, evidence), 1)}
+    lines = [safe_answer_text(analysis.summary)]
     if analysis.facts:
         lines.extend(["", "**Fatos consultados**"])
-        lines.extend(f"- {x.text} ({', '.join(x.evidence_ids)})" for x in analysis.facts)
+        for fact in analysis.facts:
+            citations = " ".join(f"[{numbers[key]}]" for key in dict.fromkeys(fact.evidence_ids) if key in numbers)
+            lines.append(f"- {safe_answer_text(fact.text)}" + (f" {citations}" if citations else ""))
     for title, values in [("Possíveis causas", analysis.hypotheses),
                           ("Precisamos esclarecer", analysis.missing_information),
                           ("Próximos passos", analysis.next_steps)]:
         if values:
-            lines.extend(["", f"**{title}**", *[f"- {x}" for x in values]])
+            lines.extend(["", f"**{title}**", *[f"- {safe_answer_text(x)}" for x in values]])
     if analysis.human_review:
         lines.extend(["", "Este caso precisa de validação humana."])
     if analysis.action:
@@ -107,7 +111,7 @@ class AssistantService:
             steps.append({"step": "Resposta estruturada e referências validadas", "elapsed_ms": round((time.perf_counter()-started)*1000)})
             metadata = {"retrieval": retrieval_meta, "provider": provider_meta,
                         "analysis": analysis.model_dump(mode="json")}
-            content = render_analysis(analysis)
+            content = render_analysis(analysis, evidence)
             with self.store.transaction() as db:
                 workspace = self.store.authorize(db, context, lock=True)
                 if analysis.action:

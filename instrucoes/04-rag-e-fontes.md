@@ -48,6 +48,10 @@ Mostrar quais documentos foram recuperados e quais foram efetivamente citados. D
 
 **Estado implementado:** `DATA` identifica a consulta simulada; `RELATO` identifica o que foi informado pelo usuário, sem comprová-lo como fato SAP; K01 a K05 identificam conhecimento curado. O servidor verifica IDs e cobertura de referências e aplica política de abstinência para códigos customizados não documentados. Isso não substitui revisão semântica da sustentação de cada frase.
 
+**Decisão confirmada e implementada:** fontes de conhecimento efetivamente citadas recebem números na resposta e botões correspondentes. O clique abre um popup com o trecho exato enviado ao modelo, título, origem e versão, usando o snapshot salvo junto à mensagem. Uma atualização posterior da base não altera o trecho de uma resposta anterior. Nenhuma busca ou chamada ao OpenRouter ocorre ao abrir ou fechar a fonte.
+
+As fontes apenas recuperadas continuam nos detalhes, sem virar citações de uso. Políticas próprias são identificadas como simulação, sem link oficial inventado. Links de fontes são obtidos dos metadados catalogados; URLs/imagens livres geradas no texto da resposta são removidas. O trecho é exibido como texto literal, sem transformar instruções do documento em controles ou links ativos.
+
 | Confiança recomendada | Evidência necessária | Comportamento |
 | --- | --- | --- |
 | Alta | Fonte aplicável e fatos suficientes, sem conflito relevante. | Orientação fundamentada; escrita continua exigindo HITL. |

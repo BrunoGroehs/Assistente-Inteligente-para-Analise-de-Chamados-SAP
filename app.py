@@ -5,6 +5,7 @@ from zoneinfo import ZoneInfo
 import streamlit as st
 
 from sap_assistant.config import Settings
+from sap_assistant.citations import message_citations
 from sap_assistant.database import AccessDenied, DatabaseSetupError, new_id
 from sap_assistant import runtime
 
@@ -37,6 +38,31 @@ def configuration_screen(message):
     st.stop()
 
 
+@st.dialog("Fonte da resposta", width="medium")
+def show_source(citation, number):
+    st.markdown(f"**[{number}] {citation.title}**")
+    origin = "Síntese própria de documentação SAP" if citation.kind == "sintese_de_fonte_oficial" else "Política da demonstração"
+    st.caption(f"{origin} · Versão {citation.version}")
+    st.caption("Trecho exato recuperado e enviado à IA neste atendimento")
+    # Texto literal: documentos não podem inserir links, imagens ou controles no popup.
+    st.text(citation.content)
+    if citation.source_url:
+        st.link_button("Abrir documento oficial", citation.source_url)
+    if st.button("Fechar", key="close_source_dialog"):
+        st.rerun()
+
+
+def display_citations(message):
+    citations = message_citations(message["details"])
+    if not citations:
+        return
+    st.caption("Fontes citadas · clique para ver o trecho")
+    for index, citation in enumerate(citations, 1):
+        if st.button(f"[{index}] {citation.title}", type="tertiary",
+                     key=f"source_{message['id']}_{citation.id}"):
+            show_source(citation, index)
+
+
 def display_details(details):
     analysis = details.get("analysis", {})
     if analysis:
@@ -56,7 +82,7 @@ def display_details(details):
                     st.write(f"Pedido: {data['ordered']} {data['unit']} · Recebido: {data['received']} {data['unit']} · Saldo: {data['remaining']} {data['unit']}")
                     st.caption(f"Centro {data['plant']} · Depósito {data['storage_location']}")
                 else:
-                    st.write(item["content"])
+                    st.text(item["content"])
                 if item.get("source_url"):
                     st.link_button("Consultar fonte oficial", item["source_url"])
                 else:
@@ -164,6 +190,8 @@ def main():
                 st.error(message["content"])
             else:
                 st.markdown(message["content"])
+            if message["role"] == "assistant" and not message["details"].get("error"):
+                display_citations(message)
             display_details(message["details"])
     for proposal in proposals:
         approval_card(proposal, gateway, context)

@@ -24,6 +24,10 @@ Em telas estreitas, usar a lateral recolhível do Streamlit e manter texto, deta
 
 ## Fontes e etapas observáveis
 
+**Decisão confirmada e implementada:** ao final de cada resposta, referências numeradas clicáveis abrem o popup **Fonte da resposta**. Os fatos fundamentados indicam os mesmos números. Mostrar título, origem, versão e o trecho exato recuperado no atendimento; oferecer o documento oficial quando o catálogo possuir URL. Políticas simuladas recebem identificação própria. O conteúdo vem do histórico daquela mensagem, mesmo que a base mude depois.
+
+O popup usa o diálogo nativo do Streamlit e texto literal com quebra de linha, mantendo a direção clean. Abrir/fechar uma fonte não gera nova análise, não altera o chamado nem decide uma proposta pendente. Os botões de fontes têm identidade por mensagem para permitir várias respostas na mesma conversa. **Sim/Não** continuam exclusivos do cartão de aprovação.
+
 **Recomendação:** mostrar título, origem, link quando existente, trecho relevante e indicação de fonte utilizada ou apenas recuperada. Consultas transacionais aparecem como “SAP simulado”, com referência à consulta, sem fingir conexão real.
 
 Registrar etapas reais: solicitação recebida, dados consultados, busca realizada, evidências selecionadas, esclarecimento necessário, proposta aguardando decisão e resultado da execução. Incluir horário e duração quando medidos. Não gerar uma lista fictícia de atividades a partir de texto livre do LLM.
