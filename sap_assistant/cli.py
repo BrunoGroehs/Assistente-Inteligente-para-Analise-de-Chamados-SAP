@@ -2,9 +2,9 @@ import argparse
 import json
 
 from .config import Settings
-from .provider import OpenRouter
+from .provider import OpenRouter, ProviderError
 from .retrieval import Retriever, synchronize_knowledge
-from .database import Store
+from .database import DatabaseSetupError, Store
 
 
 def main():
@@ -27,6 +27,8 @@ def main():
         count = synchronize_knowledge(store)
         embedded = Retriever(store, OpenRouter(settings)).ensure_embeddings() if args.command == "ingest" else 0
         print(f"Base pronta: {count} guias; {embedded} embeddings gerados nesta execução.")
+    except (ProviderError, DatabaseSetupError) as exc:
+        parser.exit(1, str(exc) + "\n")
     except Exception:
         # Não imprimir DSN, senha, chave ou payload de exceções SQL/HTTP.
         parser.exit(1, "Falha na preparação. Confira credenciais, acesso ao banco/pgvector e disponibilidade do provedor.\n")

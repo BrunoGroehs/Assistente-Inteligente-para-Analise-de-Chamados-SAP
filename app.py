@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 import streamlit as st
 
 from sap_assistant.config import Settings
-from sap_assistant.database import AccessDenied, new_id
+from sap_assistant.database import AccessDenied, DatabaseSetupError, new_id
 from sap_assistant import runtime
 
 st.set_page_config(page_title="Assistente SAP", page_icon="◦", layout="wide")
@@ -49,11 +49,19 @@ def display_details(details):
             for item in evidence:
                 st.markdown(f"**{item['id']} · {item['title']}**")
                 st.caption("Usada na resposta" if item["id"] in used else "Recuperada para consulta")
-                st.write(item["content"])
+                if item["kind"] == "consulta_simulada":
+                    import json
+                    data = json.loads(item["content"])
+                    st.write(f"Pedido {data['purchase_order']} · Item {data['item']} · {data['material']}")
+                    st.write(f"Pedido: {data['ordered']} {data['unit']} · Recebido: {data['received']} {data['unit']} · Saldo: {data['remaining']} {data['unit']}")
+                    st.caption(f"Centro {data['plant']} · Depósito {data['storage_location']}")
+                else:
+                    st.write(item["content"])
                 if item.get("source_url"):
                     st.link_button("Consultar fonte oficial", item["source_url"])
                 else:
-                    st.caption("Dados do simulador" if item["kind"] == "consulta_simulada" else "Política da demonstração")
+                    origins = {"consulta_simulada": "Dados do simulador", "relato_usuario": "Informação fornecida pelo usuário"}
+                    st.caption(origins.get(item["kind"], "Política da demonstração"))
     if details.get("steps"):
         with st.expander("Etapas do atendimento"):
             for step in details["steps"]:
@@ -124,6 +132,8 @@ def main():
     except AccessDenied:
         st.error("Esta sessão não pode ser retomada. Reabra a página para iniciar um novo ambiente.")
         st.stop()
+    except DatabaseSetupError as exc:
+        configuration_screen(str(exc))
     except Exception:
         configuration_screen("Não foi possível conectar ao banco. Confira a configuração Supabase e tente novamente.")
 

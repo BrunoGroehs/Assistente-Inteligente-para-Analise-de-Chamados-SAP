@@ -40,7 +40,7 @@ def build_snapshot(data, ticket, request):
     snapshot = {"ticket_version": current_ticket["version"]}
     if isinstance(request, ReceiptRequest):
         p = request.parameters
-        if (p.purchase_order, p.item) != (current_ticket["purchase_order"], current_ticket["item"]):
+        if current_ticket["purchase_order"] and (p.purchase_order, p.item) != (current_ticket["purchase_order"], current_ticket["item"]):
             raise PolicyError("O pedido/item não pertence ao chamado selecionado.")
         order = data["orders"].get(f"{p.purchase_order}/{p.item}")
         if not order:
@@ -74,6 +74,12 @@ class ApprovalGateway:
         self.store = store
 
     def prepare(self, db, workspace, ticket, request, now=None):
+        from pydantic import TypeAdapter
+        from .contracts import ActionRequest
+
+        # Revalidar na fronteira, mesmo se um objeto Python tiver sido alterado
+        # depois da validação inicial do adaptador de LLM.
+        request = TypeAdapter(ActionRequest).validate_python(request.model_dump(mode="json"))
         now = now or utcnow()
         snapshot, effect = build_snapshot(workspace.data, ticket, request)
         phrase = canonical_phrase(request, ticket)

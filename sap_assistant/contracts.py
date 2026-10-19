@@ -59,8 +59,10 @@ class Analysis(Contract):
 
     @model_validator(mode="after")
     def check_action(self):
-        if self.action and (self.process == "fora_do_escopo" or self.missing_information):
-            raise ValueError("Ação não permitida fora do escopo ou com dados faltantes.")
+        if self.action and self.process == "fora_do_escopo":
+            raise ValueError("Ação não permitida fora do escopo.")
+        if isinstance(self.action, ReceiptRequest) and self.missing_information:
+            raise ValueError("Recebimento não permitido com dados faltantes. Use action=null.")
         if isinstance(self.action, ReceiptRequest) and self.confidence == "baixa":
             raise ValueError("Recebimento não pode ser proposto sem fundamentação suficiente.")
         if self.process == "fora_do_escopo" and self.facts:
@@ -75,4 +77,20 @@ class Evidence(Contract):
     kind: str
     source_url: str | None = None
     version: str
+
+
+def validate_grounding(analysis, evidence, undocumented_codes=()):
+    allowed = {x.id for x in evidence}
+    referenced = set(analysis.references)
+    facts = {key for fact in analysis.facts for key in fact.evidence_ids}
+    if not referenced <= allowed or not facts <= referenced:
+        raise ValueError("references deve conter todos os IDs de facts, inclusive DATA/RELATO, e somente IDs fornecidos.")
+    knowledge = {x.id for x in evidence if x.kind not in {"consulta_simulada", "relato_usuario"}}
+    if analysis.process != "fora_do_escopo" and analysis.confidence == "alta" and not (referenced & knowledge):
+        raise ValueError("Confiança alta exige citar conhecimento aplicável além do relato/dados.")
+    if isinstance(analysis.action, ReceiptRequest) and "DATA" not in referenced:
+        raise ValueError("Recebimento exige citar os dados consultados em DATA.")
+    if analysis.process != "fora_do_escopo" and undocumented_codes and (analysis.hypotheses or analysis.confidence != "baixa" or not analysis.human_review
+                               or isinstance(analysis.action, ReceiptRequest)):
+        raise ValueError("Código não documentado: hypotheses=[], confidence=baixa, human_review=true; não propor recebimento.")
 

@@ -1,13 +1,31 @@
 from copy import deepcopy
 from decimal import Decimal
+import re
 import time
 
 from sqlalchemy import func, select
 
 from .approvals import ApprovalGateway, PolicyError, quantity_text
-from .contracts import Evidence
+from .contracts import Evidence, validate_grounding
 from .database import Audit, Message, new_id
 from .provider import ProviderError
+
+
+def resolve_order(state, ticket, history):
+    """Resolve apenas leituras dentro da sessão; não altera o vínculo do chamado."""
+    for entry in reversed(history):
+        if entry["role"] != "user":
+            continue
+        references = set(re.findall(r"\b\d{10}\b", entry["content"]))
+        if len(references) > 1:
+            return None
+        if references:
+            purchase_order = references.pop()
+            item_match = re.search(r"\bitem\s+(\d{1,5})\b", entry["content"], re.I)
+            candidates = [x for x in state["orders"].values() if x["purchase_order"] == purchase_order
+                          and (not item_match or x["item"] == item_match.group(1))]
+            return deepcopy(candidates[0]) if len(candidates) == 1 else None
+    return deepcopy(state["orders"].get(f"{ticket['purchase_order']}/{ticket['item']}"))
 
 
 def render_analysis(analysis):
@@ -36,6 +54,7 @@ class AssistantService:
     def analyze(self, context, ticket_id, message, submission_id=None):
         if not message.strip() or len(message) > 6000:
             raise ValueError("Envie uma mensagem de até 6.000 caracteres.")
+        message = message.strip()
         submission_id = submission_id or new_id()
         with self.store.transaction() as db:
             workspace = self.store.authorize(db, context, lock=True)
@@ -61,22 +80,30 @@ class AssistantService:
         evidence, metadata = [], {}
         try:
             steps.append({"step": "Solicitação recebida", "elapsed_ms": 0})
-            order = state["orders"].get(f"{ticket['purchase_order']}/{ticket['item']}")
+            history = self.store.messages(context, ticket_id)[-10:]
+            user_text = "\n".join(dict.fromkeys([ticket["description"], *[
+                x["content"] for x in history if x["role"] == "user"]]))
+            evidence.append(Evidence(id="RELATO", title="Relato do usuário", content=user_text,
+                                     kind="relato_usuario", version=submission_id))
+            order = resolve_order(state, ticket, history)
             if order:
                 facts = {**order, "remaining": quantity_text(Decimal(order["ordered"]) - Decimal(order["received"]))}
                 import json
                 evidence.append(Evidence(id="DATA", title="Consulta ao SAP simulado",
                     content=json.dumps(facts, ensure_ascii=False), kind="consulta_simulada", version=str(order["version"])))
                 steps.append({"step": "Pedido e histórico simulados consultados", "elapsed_ms": round((time.perf_counter()-started)*1000)})
-            history = self.store.messages(context, ticket_id)[-10:]
             query = ticket["description"] + "\n" + "\n".join(x["content"] for x in history if x["role"] == "user")
             recovered, retrieval_meta = self.retriever.search(query)
             evidence.extend(recovered)
+            metadata["retrieval"] = retrieval_meta
+            codes = set(re.findall(r"\b[ZY][A-Z0-9_]*\d[A-Z0-9_]*\b", user_text))
+            undocumented = sorted(code for code in codes if not any(code in x.content for x in recovered))
             steps.append({"step": "Busca híbrida e seleção de evidências concluídas", "elapsed_ms": round((time.perf_counter()-started)*1000)})
             analysis, provider_meta = self.provider.analyze(
-                {"ticket": ticket, "message": message, "evidence": [x.model_dump() for x in evidence]},
+                {"ticket": ticket, "message": message, "evidence": [x.model_dump() for x in evidence],
+                 "undocumented_codes": undocumented},
                 [{"role": x["role"], "content": x["content"]} for x in history])
-            self._validate_evidence(analysis, evidence)
+            self._validate_evidence(analysis, evidence, undocumented)
             steps.append({"step": "Resposta estruturada e referências validadas", "elapsed_ms": round((time.perf_counter()-started)*1000)})
             metadata = {"retrieval": retrieval_meta, "provider": provider_meta,
                         "analysis": analysis.model_dump(mode="json")}
@@ -86,9 +113,13 @@ class AssistantService:
                 if analysis.action:
                     try:
                         current_ticket = workspace.data["tickets"][ticket_id]
-                        current_order = workspace.data["orders"].get(f"{ticket['purchase_order']}/{ticket['item']}")
+                        current_order = workspace.data["orders"].get(f"{order['purchase_order']}/{order['item']}") if order else None
                         if current_ticket != ticket or current_order != order:
                             raise PolicyError("Os dados mudaram durante a análise. Solicite uma nova proposta.")
+                        if analysis.action.operation == "registrar_recebimento_simulado":
+                            parameters = analysis.action.parameters
+                            if not order or (parameters.purchase_order, parameters.item) != (order["purchase_order"], order["item"]):
+                                raise PolicyError("A proposta não corresponde ao pedido/item consultado nesta análise.")
                         proposal = self.gateway.prepare(db, workspace, ticket_id, analysis.action)
                         metadata["proposal_id"] = proposal.id
                         steps.append({"step": "Proposta validada; aguardando decisão humana"})
@@ -112,8 +143,12 @@ class AssistantService:
             content = str(exc) if isinstance(exc, ProviderError) else "Não foi possível validar a análise. Nenhuma ação executada."
             with self.store.transaction() as db:
                 workspace = self.store.authorize(db, context, lock=True)
+                failure_details = {"error": True, "steps": steps, "evidence": [x.model_dump() for x in evidence],
+                                   "retrieval": metadata.get("retrieval"),
+                                   "provider": getattr(exc, "metadata", {}),
+                                   "latency_ms": round((time.perf_counter()-started)*1000)}
                 db.add(Message(workspace_id=workspace.id, ticket=ticket_id, submission_id=submission_id,
-                               role="assistant", content=content, details={"error": True, "steps": steps}))
+                               role="assistant", content=content, details=failure_details))
                 row = db.scalar(select(Message).where(Message.workspace_id == workspace.id,
                                 Message.submission_id == submission_id, Message.role == "user"))
                 row.details = {"state": "failed"}
@@ -122,13 +157,5 @@ class AssistantService:
             return {"submission_id": submission_id, "state": "failed"}
 
     @staticmethod
-    def _validate_evidence(analysis, evidence):
-        allowed = {x.id for x in evidence}
-        referenced = set(analysis.references)
-        facts = {key for fact in analysis.facts for key in fact.evidence_ids}
-        if not referenced <= allowed or not facts <= referenced:
-            raise ValueError("Referências inválidas.")
-        if analysis.confidence == "alta" and not (referenced - {"DATA"}):
-            raise ValueError("Confiança alta exige conhecimento aplicável.")
-        if analysis.action and analysis.action.operation == "registrar_recebimento_simulado" and "DATA" not in referenced:
-            raise ValueError("Recebimento exige dados consultados.")
+    def _validate_evidence(analysis, evidence, undocumented_codes=()):
+        validate_grounding(analysis, evidence, undocumented_codes)

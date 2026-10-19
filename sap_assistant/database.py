@@ -18,6 +18,10 @@ PROJECT_SCHEMA = "sap_chamados_ai"
 PROJECT_KEY = "assistente-inteligente-chamados-sap-v1"
 
 
+class DatabaseSetupError(ValueError):
+    """Mensagem de configuração controlada e segura para exibição."""
+
+
 def utcnow():
     return datetime.now(timezone.utc)
 
@@ -137,14 +141,14 @@ class Store:
                 # Serialize apenas a inicialização deste projeto. Nunca usar DROP/alterar tabelas externas.
                 connection.execute(text("SELECT pg_advisory_xact_lock(734002118)"))
                 if not connection.scalar(text("SELECT EXISTS(SELECT 1 FROM pg_extension WHERE extname='vector')")):
-                    raise ValueError("Ative a extensão vector no painel Supabase antes de inicializar.")
+                    raise DatabaseSetupError("Ative a extensão vector no painel Supabase antes de inicializar.")
                 inspector = inspect(connection)
                 if inspector.has_schema(PROJECT_SCHEMA):
                     if not inspector.has_table(ProjectIdentity.__tablename__, schema=PROJECT_SCHEMA):
-                        raise ValueError("Schema existente sem identificação deste projeto. Nenhuma tabela alterada.")
+                        raise DatabaseSetupError("Schema existente sem identificação deste projeto. Nenhuma tabela alterada.")
                     keys = connection.scalars(select(ProjectIdentity.project_key)).all()
                     if keys != [PROJECT_KEY]:
-                        raise ValueError("Schema pertence a outro projeto. Nenhuma tabela alterada.")
+                        raise DatabaseSetupError("Schema pertence a outro projeto. Nenhuma tabela alterada.")
                 else:
                     from sqlalchemy.schema import CreateSchema
                     connection.execute(CreateSchema(PROJECT_SCHEMA))

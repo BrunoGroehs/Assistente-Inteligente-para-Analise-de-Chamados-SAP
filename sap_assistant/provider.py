@@ -6,13 +6,15 @@ import time
 import httpx
 from pydantic import ValidationError
 
-from .contracts import Analysis
+from .contracts import Analysis, Evidence, validate_grounding
 
 PROMPT_PATH = Path(__file__).resolve().parents[1] / "prompts" / "system.txt"
 
 
 class ProviderError(RuntimeError):
-    pass
+    def __init__(self, message, metadata=None):
+        super().__init__(message)
+        self.metadata = metadata or {}
 
 
 class OpenRouter:
@@ -66,27 +68,56 @@ class OpenRouter:
 
     def analyze(self, context, history):
         prompt = PROMPT_PATH.read_text(encoding="utf-8")
-        messages = [{"role": "system", "content": prompt},
+        schema = Analysis.model_json_schema()
+        # Alguns endpoints traduzem json_schema para JSON mode. O modelo também
+        # recebe o contrato explicitamente, e o servidor continua validando-o.
+        messages = [{"role": "system", "content": prompt + "\nJSON_SCHEMA OBRIGATÓRIO:\n" + json.dumps(schema, ensure_ascii=False)},
                     {"role": "user", "content": json.dumps({"context": context, "history": history},
                                                             ensure_ascii=False)}]
         attempts = []
         for repair in range(2):
             data = self._post("chat/completions", {
                 "model": self.settings.chat_model, "messages": messages, "temperature": 0.1,
-                "max_tokens": 3500, "provider": {"require_parameters": True},
+                "max_tokens": 3500, "reasoning": {"enabled": False, "exclude": True},
+                "provider": {"require_parameters": True},
                 "response_format": {"type": "json_schema", "json_schema": {
-                    "name": "sap_analysis", "strict": True, "schema": Analysis.model_json_schema()}}})
+                    "name": "sap_analysis", "strict": True, "schema": schema}}})
             attempts.append({"model": data.get("model", self.settings.chat_model),
                              "usage": data.get("usage"), "request_id": data.get("id")})
             try:
                 content = data["choices"][0]["message"]["content"]
-                analysis = Analysis.model_validate_json(content)
+                raw = json.loads(content)
+                scope_policy = isinstance(raw, dict) and raw.get("process") == "fora_do_escopo"
+                if scope_policy:
+                    # Limite de produto determinado no servidor. Descarta fatos,
+                    # recomendações externas e qualquer ação dessa classificação.
+                    analysis = Analysis(summary="Este assistente atende recebimento de mercadorias com referência "
+                        "a pedidos de compra em SAP MM. Sua solicitação está fora desse escopo.",
+                        process="fora_do_escopo", facts=[], hypotheses=[], missing_information=[],
+                        next_steps=["Para analisar um recebimento, informe o pedido, o item e o problema apresentado."],
+                        references=[], confidence="alta", confidence_reason="Aplicação do escopo configurado, sem diagnóstico SAP.",
+                        human_review=False, action=None)
+                else:
+                    analysis = Analysis.model_validate(raw)
+                validate_grounding(analysis, [Evidence.model_validate(x) for x in context.get("evidence", [])],
+                                   context.get("undocumented_codes", []))
                 return analysis, {"requested_model": self.settings.chat_model,
-                                  "attempts": attempts, "prompt_version": prompt.splitlines()[0]}
-            except (ValidationError, KeyError, IndexError, TypeError, ValueError):
+                                  "attempts": attempts, "prompt_version": prompt.splitlines()[0],
+                                  "server_policy": "fora_do_escopo" if scope_policy else None}
+            except (ValidationError, KeyError, IndexError, TypeError, ValueError) as exc:
+                if isinstance(exc, ValidationError):
+                    errors = [{"field": list(x["loc"]), "type": x["type"], "message": x["msg"]}
+                              for x in exc.errors()[:8]]
+                elif type(exc) is ValueError:
+                    errors = [{"field": [], "message": str(exc)}]
+                else:
+                    errors = [{"field": [], "message": "Resposta vazia ou formato inválido."}]
                 if repair:
-                    raise ProviderError("A IA retornou uma resposta incompatível após uma tentativa de reparo.") from None
+                    raise ProviderError("A IA retornou uma resposta incompatível após uma tentativa de reparo.",
+                                        {"requested_model": self.settings.chat_model, "attempts": attempts,
+                                         "validation_errors": errors}) from None
                 # Não devolver o conteúdo inválido ao modelo nem executar ações para repará-lo.
                 messages.append({"role": "user", "content": "A resposta anterior não passou na validação. "
-                                 "Responda novamente com todos os campos do esquema, sem ações se houver dúvida."})
+                                 "Responda novamente com todos os campos do esquema, sem ações se houver dúvida. "
+                                 "Erros que precisam ser corrigidos: " + json.dumps(errors, ensure_ascii=False)})
         raise ProviderError("Não foi possível validar a resposta.")
