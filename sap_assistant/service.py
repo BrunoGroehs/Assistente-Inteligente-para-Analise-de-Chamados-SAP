@@ -12,6 +12,7 @@ from .citations import cited_knowledge, official_url, safe_answer_text
 from .database import GENERAL_CHAT, Audit, Message, new_id, validate_chat_id
 from .provider import ProviderError
 from .grounding import insufficient_analysis, insufficient_assessment, out_of_scope_analysis, supported_ids
+from .corrections import correction_draft
 
 
 def resolve_order(state, ticket, history):
@@ -153,12 +154,15 @@ class AssistantService:
                 generation_evidence = [x for x in evidence if x.kind in {"consulta_simulada", "relato_usuario"}
                                        or x.id in approved_ids]
                 progress("Preparando a resposta com as fontes verificadas…")
+                pending_correction = next((x["details"]["analysis"].get("correction_operation")
+                    for x in reversed(history) if x["role"] == "assistant" and x["details"].get("analysis")), None)
                 analysis, provider_meta = self.provider.analyze(
                     {"ticket": ticket, "case_attached": ticket is not None, "message": message,
+                     "pending_correction_operation": pending_correction,
                      "evidence": [x.model_dump() for x in generation_evidence],
                      "undocumented_codes": undocumented, "validated_scope": assessment.scope},
                     [{"role": x["role"], "content": x["content"]} for x in history])
-                if ticket is None and analysis.action:
+                if ticket is None and (analysis.action or analysis.correction_operation):
                     analysis = Analysis(summary="Para solicitar uma alteração, anexe o chamado correspondente. "
                                         "Nenhuma operação foi proposta ou executada.",
                         process="recebimento_pedido_compra", facts=[], hypotheses=[], missing_information=[],
@@ -180,6 +184,14 @@ class AssistantService:
             progress("Salvando o atendimento…")
             with self.store.transaction() as db:
                 workspace = self.store.authorize(db, context, lock=True)
+                if analysis.correction_operation and not analysis.action:
+                    if (workspace.data["tickets"].get(ticket_id) == ticket
+                            and (not order or workspace.data["orders"].get(f"{order['purchase_order']}/{order['item']}") == order)):
+                        metadata["correction"] = correction_draft(analysis, ticket, order)
+                    if metadata.get("correction"):
+                        steps.append({"step": "Correção identificada; aguardando dados para revisão humana"})
+                    else:
+                        content += "\n\nNão foi possível preparar essa correção com os dados atuais. Solicite uma nova análise para verificar o pedido e a elegibilidade."
                 if analysis.action:
                     try:
                         current_ticket = workspace.data["tickets"][ticket_id]

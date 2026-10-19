@@ -56,11 +56,14 @@ class Analysis(Contract):
     confidence_reason: str = Field(min_length=1, max_length=1200)
     human_review: bool
     action: ActionRequest | None
+    correction_operation: Literal["registrar_recebimento_simulado", "atualizar_status_chamado"] | None = None
 
     @model_validator(mode="after")
     def check_action(self):
-        if self.action and self.process == "fora_do_escopo":
+        if (self.action or self.correction_operation) and self.process == "fora_do_escopo":
             raise ValueError("Ação não permitida fora do escopo.")
+        if self.action and self.correction_operation and self.action.operation != self.correction_operation:
+            raise ValueError("A proposta deve corresponder à correção indicada.")
         if isinstance(self.action, ReceiptRequest) and self.missing_information:
             raise ValueError("Recebimento não permitido com dados faltantes. Use action=null.")
         if isinstance(self.action, ReceiptRequest) and self.confidence == "baixa":
@@ -88,9 +91,9 @@ def validate_grounding(analysis, evidence, undocumented_codes=()):
     knowledge = {x.id for x in evidence if x.kind not in {"consulta_simulada", "relato_usuario"}}
     if analysis.process != "fora_do_escopo" and analysis.confidence == "alta" and not (referenced & knowledge):
         raise ValueError("Confiança alta exige citar conhecimento aplicável além do relato/dados.")
-    if isinstance(analysis.action, ReceiptRequest) and "DATA" not in referenced:
+    if (isinstance(analysis.action, ReceiptRequest) or analysis.correction_operation == "registrar_recebimento_simulado") and "DATA" not in referenced:
         raise ValueError("Recebimento exige citar os dados consultados em DATA.")
     if analysis.process != "fora_do_escopo" and undocumented_codes and (analysis.hypotheses or analysis.confidence != "baixa" or not analysis.human_review
-                               or isinstance(analysis.action, ReceiptRequest)):
+                               or isinstance(analysis.action, ReceiptRequest) or analysis.correction_operation):
         raise ValueError("Código não documentado: hypotheses=[], confidence=baixa, human_review=true; não propor recebimento.")
 

@@ -226,3 +226,25 @@ def test_api_decision_rechecks_expiry_and_current_business_data(web, change, exp
     response = client.post(f"/api/chats/initial/proposals/{proposal}/decision", json={"approve": True})
     assert response.status_code == 200 and response.json()["state"] == expected
     assert store.state(context) == before and not before["receipts"]
+
+
+def test_http_correction_preparation_cannot_execute_or_change_operation(web):
+    from test_corrections import CorrectionProvider
+    client, store, service, _ = web
+    context = login(client)
+    provider = CorrectionProvider()
+    service.provider, service.retriever = provider, Retriever(store, provider)
+    send(client, ticket="C03", text="como resolvo isso?")
+    message = client.get("/api/chats/initial").json()["messages"][-1]
+    assert message["correction"]["max_quantity"] == "20"
+    url = f"/api/chats/initial/messages/{message['id']}/correction"
+    assert client.post(url, json={"quantity": "20"}).status_code == 409
+    assert client.post(url, json={"quantity": "35", "posting_date": "2026-10-18"}).status_code == 409
+    assert client.post(url, json={"operation": "execute_sql"}).status_code == 422
+    before = store.state(context)
+    result = client.post(url, json={"quantity": "20", "posting_date": "2026-10-18"})
+    assert result.status_code == 200 and store.state(context) == before
+    proposal = result.json()["proposal_id"]
+    assert client.get("/api/chats/initial").json()["messages"][-1]["proposal_id"] == proposal
+    assert client.post(f"/api/chats/initial/proposals/{proposal}/decision", json={"approve": True}).json()["state"] == "executada"
+    assert len(store.state(context)["receipts"]) == 1

@@ -5,6 +5,7 @@ from .cases import case_order, case_reference, priority_label
 from .citations import message_citations, source_groups
 from .presentation import visible_proposals
 from .database import utcnow
+from .corrections import public_correction
 
 
 def public_snapshot(snapshot):
@@ -29,6 +30,7 @@ def public_snapshot(snapshot):
             attachment = {"id": ticket["id"], "reference": case_reference(ticket), "title": ticket["title"]}
         messages.append({"id": message["id"], "role": message["role"], "content": message["content"],
             "attachment": attachment, "error": bool(details.get("error")), "proposal_id": details.get("proposal_id"),
+            "correction": public_correction(details.get("correction")),
             "details": {"confidence": analysis.get("confidence"), "confidence_reason": analysis.get("confidence_reason"),
                 "facts": [{"text": fact["text"], "numbers": [i for i, source in enumerate(citations, 1)
                             if source.id in fact["evidence_ids"]]} for fact in analysis.get("facts", [])],

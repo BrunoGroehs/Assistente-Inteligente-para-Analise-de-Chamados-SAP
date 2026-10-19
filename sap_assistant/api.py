@@ -17,6 +17,8 @@ from . import runtime
 from .config import Settings
 from .database import AccessDenied, SessionContext, new_id, validate_chat_id
 from .web_views import public_snapshot
+from .approvals import PolicyError
+from .corrections import CorrectionInput, prepare_correction
 
 COOKIE = "sap_session"
 CLIENT_HEADER = "sap-assistant"
@@ -145,6 +147,14 @@ def create_app(settings=None, services=None, frontend_path=None):
     def decide(chat_id: str, proposal_id: str, body: Decision, request: Request, context=Depends(authenticated)):
         result = request.app.state.services[2].decide(context, proposal_id, body.approve, chat_id=chat_key(chat_id))
         return {"state": result["state"], "message": result.get("message", "Solicitação atualizada.")}
+
+    @app.post("/api/chats/{chat_id}/messages/{message_id}/correction")
+    def prepare(chat_id: str, message_id: str, body: CorrectionInput, request: Request, context=Depends(authenticated)):
+        try:
+            proposal = prepare_correction(request.app.state.services[0], context, message_id, body, chat_key(chat_id))
+        except PolicyError as exc:
+            raise HTTPException(409, str(exc)) from None
+        return {"proposal_id": proposal}
 
     @app.post("/api/chats/{chat_id}/messages")
     def analyze(chat_id: str, body: MessageInput, request: Request, context=Depends(authenticated)):
