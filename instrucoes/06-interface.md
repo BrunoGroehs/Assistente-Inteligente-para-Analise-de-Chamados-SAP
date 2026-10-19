@@ -10,7 +10,7 @@ Evitar gradientes chamativos, banners grandes, emojis em excesso, sombras fortes
 
 ## Organização
 
-**Decisão confirmada:** lista lateral de chamados e chat do chamado selecionado; fontes e etapas em detalhes expansíveis.
+**Decisão confirmada:** lista lateral de chamados e chat do chamado selecionado; fontes e etapas em detalhes expansíveis. Acrescentar acesso à seleção junto ao campo de conversa e uma lista completa com os dados do caso.
 
 **Recomendação de composição:**
 
@@ -21,6 +21,18 @@ Evitar gradientes chamativos, banners grandes, emojis em excesso, sombras fortes
 5. Cartão de aprovação próximo da mensagem que o originou. Não criar um centro de aprovações separado nesta versão.
 
 Em telas estreitas, usar a lateral recolhível do Streamlit e manter texto, detalhes e botões utilizáveis. Não exigir rolagem horizontal para ler o conteúdo essencial.
+
+## Selecionar e consultar chamados
+
+**Decisão confirmada e implementada:** o botão **Chamados**, com ícone de identificação de chamado, fica junto ao chat. Abre um diálogo de busca por referência, resumo, pedido ou componente. O seletor mostra uma prévia completa; **Abrir no chat** efetiva a troca, enquanto **Cancelar** ou fechar mantém o chamado ativo. Uma busca sem resultados mostra uma orientação curta. Reabrir o diálogo parte do chamado atual.
+
+**Lista completa** abre uma visão com os oito registros, busca e filtro de prioridade, incluindo a opção “Não informada”. A tabela mostra referência, resumo, prioridade, situação local, sistema e componente sugerido. Clicar em uma linha seleciona o caso para os detalhes abaixo; um seletor equivalente também fica disponível. A seleção acompanha a posição original do registro, inclusive após ordenação visual da tabela. Filtrar muda o conjunto de linhas e impede reutilizar um índice de seleção de outro conjunto.
+
+Os detalhes apresentam descrição integral, produto/release, sistema/mandante/ambiente, aplicativo, prioridade, impacto, solicitante/empresa/data, resultado esperado, resultado relatado na abertura, erro, reprodução, ações tentadas, pedido/item e quantidades atuais, indicador de entrega concluída e anexos. Campos ausentes são explícitos; nenhum anexo é inventado. Ver [formato inspirado no SAP for Me e seus limites](02-processo-sap.md).
+
+O cabeçalho do chat mantém referência `SIM-Cxx`, título, situação e prioridade; os demais campos ficam em **Detalhes do chamado**, recolhido por padrão para preservar a limpeza. A listagem oferece **Voltar ao chat** e **Abrir no chat**. Seleção, busca, prévia e retorno são consultas de apresentação: não chamam o modelo nem alteram dados de negócio. A análise começa somente por **Analisar chamado** ou mensagem do usuário.
+
+Trocar de chamado preserva seu histórico e as propostas associadas. Um pedido de aprovação pendente não aparece em outra conversa nem impede consultar a lista. Ao retornar, reaparecem a mesma proposta e o chat pausado; apenas sua decisão válida no cartão permite execução. O diálogo de seleção é independente das fontes, que continuam com links diretos sem popup de conteúdo.
 
 ## Fontes e etapas observáveis
 

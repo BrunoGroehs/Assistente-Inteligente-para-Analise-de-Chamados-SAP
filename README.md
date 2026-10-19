@@ -46,6 +46,8 @@ Se precisar codificar uma senha, use uma ferramenta local, não um site externo.
 
 Abra `http://127.0.0.1:8507`. Selecione um chamado e clique em **Analisar chamado** ou escreva no chat. A ingestão gera embeddings com cobrança do OpenRouter; documentos inalterados usam o cache. A aplicação também prepara os guias automaticamente e gera embeddings faltantes na primeira consulta. Reinicie o processo após mudar o `.env`.
 
+Use **Chamados**, junto ao chat, para buscar e conferir um caso antes de abri-lo. **Lista completa** oferece seleção por linha, filtro de prioridade e todos os detalhes do caso. Navegar não inicia análise nem decide aprovações. Os registros das novas sessões seguem um formato inspirado no SAP for Me: ambiente, componente sugerido, prioridade, impacto e reprodução. IDs `SIM-Cxx` e situações são locais; nenhum case é enviado à SAP. Sessões já abertas mantêm seus dados anteriores; abra uma nova sessão para receber os novos perfis. [Fontes e limites](instrucoes/02-processo-sap.md).
+
 Para conferir os modelos com uma chamada real de cada tipo:
 
 ```powershell

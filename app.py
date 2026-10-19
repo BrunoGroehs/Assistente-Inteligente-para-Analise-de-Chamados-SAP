@@ -6,6 +6,10 @@ import streamlit as st
 
 from sap_assistant.config import Settings
 from sap_assistant.citations import message_citations, safe_answer_text, source_groups
+from sap_assistant.cases import (
+    NOT_PROVIDED, PRIORITIES, case_order, case_reference, case_rows, matching_cases,
+    occurrence_label, order_summary, priority_label,
+)
 from sap_assistant.database import AccessDenied, DatabaseSetupError, new_id
 from sap_assistant import runtime
 
@@ -36,6 +40,127 @@ def configuration_screen(message):
     st.write("Configure o arquivo `.env` local ou os secrets do Streamlit Cloud conforme o README.")
     st.write("O aplicativo usa PostgreSQL no Supabase e os modelos Qwen pelo OpenRouter.")
     st.stop()
+
+
+def show_chat():
+    st.session_state.case_view = "chat"
+    st.session_state.case_selector_open = False
+
+
+def show_case_list():
+    st.session_state.case_view = "list"
+    st.session_state.case_selector_open = False
+
+
+def close_case_selector():
+    st.session_state.case_selector_open = False
+
+
+def clear_case_row(table_key):
+    st.session_state[table_key] = {"selection": {"rows": [], "columns": [], "cells": []}}
+
+
+def activate_case(case_id, allowed):
+    if case_id not in allowed:
+        raise ValueError("Chamado não disponível nesta sessão.")
+    st.session_state.selected_ticket = case_id
+    show_chat()
+
+
+def display_case_details(state, key):
+    ticket = state["tickets"][key]
+    profile = ticket.get("support", {})
+    st.markdown(f"**{case_reference(ticket)} · {ticket['title']}**")
+    st.write(ticket["description"])
+    left, right = st.columns(2)
+    with left:
+        st.markdown("**Identificação e ambiente**")
+        st.write("Produto: " + (profile.get("product") or NOT_PROVIDED))
+        st.write("Versão / release: " + (profile.get("product_version") or NOT_PROVIDED))
+        st.write("Sistema: " + (profile.get("system_id") or NOT_PROVIDED))
+        st.write("Mandante: " + (profile.get("client") or NOT_PROVIDED))
+        st.write("Ambiente: " + (profile.get("system_role") or NOT_PROVIDED))
+        st.write("Aplicativo: " + (profile.get("application") or NOT_PROVIDED))
+    with right:
+        st.markdown("**Atendimento**")
+        st.write("Situação local: " + LABELS[ticket["status"]])
+        st.write("Prioridade: " + priority_label(ticket))
+        st.write("Componente sugerido: " + (profile.get("component") or NOT_PROVIDED))
+        st.write("Solicitante: " + (profile.get("reporter") or NOT_PROVIDED))
+        st.write("Empresa: " + (profile.get("customer") or NOT_PROVIDED))
+        st.write("Ocorrência informada: " + occurrence_label(profile.get("reported_at")))
+        st.caption("Case SAP: " + (profile.get("sap_case_number") or "Não enviado ao SAP for Me"))
+    st.markdown("**Impacto no negócio**")
+    st.write(profile.get("business_impact") or NOT_PROVIDED)
+    expected, actual = st.columns(2)
+    with expected:
+        st.markdown("**Resultado esperado pelo solicitante**")
+        st.write(profile.get("expected_result") or NOT_PROVIDED)
+    with actual:
+        st.markdown("**Resultado relatado na abertura**")
+        st.write(profile.get("actual_result") or NOT_PROVIDED)
+    st.markdown("**Mensagem de erro informada**")
+    if profile.get("error_message"):
+        st.code(profile["error_message"], language=None)
+    else:
+        st.write(NOT_PROVIDED)
+    st.markdown("**Passos de reprodução informados**")
+    steps = profile.get("steps_to_reproduce", [])
+    for index, step in enumerate(steps, 1):
+        st.write(f"{index}. {step}")
+    if not steps:
+        st.write(NOT_PROVIDED)
+    st.markdown("**Ações já tentadas**")
+    st.write(" · ".join(profile.get("actions_taken", [])) or NOT_PROVIDED)
+    st.markdown("**Pedido e estoque atuais no simulador**")
+    st.write(order_summary(case_order(state, ticket)))
+    st.caption("Anexos: " + (", ".join(profile.get("attachments", [])) or "Nenhum anexo"))
+
+
+@st.dialog("Selecionar chamado", width="large", icon=":material/confirmation_number:", on_dismiss=close_case_selector)
+def case_selector(state):
+    query = st.text_input("Buscar chamado", placeholder="Número, resumo, pedido ou componente", key="dialog_search")
+    keys = matching_cases(state, query)
+    if keys:
+        selected = st.selectbox("Chamado", keys, key="dialog_case",
+                                format_func=lambda key: f"{case_reference(state['tickets'][key])} · {state['tickets'][key]['title']}")
+        with st.container(height=400, border=False):
+            display_case_details(state, selected)
+        if st.button("Abrir no chat", type="primary", icon=":material/chat:",
+                     on_click=activate_case, args=(selected, list(state["tickets"]))):
+            st.rerun()
+    else:
+        st.info("Nenhum chamado encontrado. Ajuste a busca.")
+    if st.button("Cancelar", key="cancel_case_selector", on_click=close_case_selector):
+        st.rerun()
+
+
+def display_case_list(state):
+    st.title("Chamados")
+    st.caption("Casos fictícios inspirados no SAP for Me · Situações locais do atendimento")
+    st.button("Voltar ao chat", icon=":material/chat:", on_click=show_chat)
+    search, filter_column = st.columns([3, 1])
+    query = search.text_input("Buscar na lista", placeholder="Resumo, pedido, material, sistema ou componente", key="list_search")
+    priority = filter_column.selectbox("Prioridade", ["all", *PRIORITIES, "missing"], key="list_priority",
+        format_func=lambda value: "Todas" if value == "all" else ("Não informada" if value == "missing" else f"{value} · {PRIORITIES[value]}"))
+    keys = matching_cases(state, query, None if priority == "all" else priority)
+    st.caption(f"{len(keys)} de {len(state['tickets'])} chamados")
+    if not keys:
+        st.info("Nenhum chamado encontrado com esses filtros.")
+        return
+    st.caption("Clique em uma linha para ver o caso completo, ou use o seletor abaixo.")
+    table_key = "case_table_" + "_".join(keys)
+    selection = st.dataframe(case_rows(state, keys), hide_index=True, width="stretch", key=table_key,
+                             on_select="rerun", selection_mode="single-row")
+    rows = selection.selection.rows
+    if rows and 0 <= rows[0] < len(keys):
+        st.session_state.list_case = keys[rows[0]]
+    selected = st.selectbox("Ver todas as informações do chamado", keys, key="list_case",
+                            on_change=clear_case_row, args=(table_key,),
+                            format_func=lambda key: f"{case_reference(state['tickets'][key])} · {state['tickets'][key]['title']}")
+    display_case_details(state, selected)
+    st.button("Abrir no chat", key="open_from_case_list", icon=":material/chat:", type="primary",
+              on_click=activate_case, args=(selected, list(state["tickets"])))
 
 
 def display_citations(message):
@@ -152,21 +277,22 @@ def main():
         st.markdown("### Assistente SAP")
         st.caption("CHAMADOS · MM")
         selected = st.radio("Chamados", list(state["tickets"]), label_visibility="collapsed",
-                            format_func=lambda key: f"{key} · {state['tickets'][key]['title']}", key="selected_ticket")
+                            format_func=lambda key: f"{case_reference(state['tickets'][key])} · {state['tickets'][key]['title']}",
+                            key="selected_ticket", on_change=show_chat)
         st.divider()
         st.caption("Ambiente simulado\n\nDados isolados nesta sessão")
 
+    if st.session_state.get("case_view") == "list":
+        display_case_list(state)
+        return
     ticket = state["tickets"][selected]
-    st.caption(f"SAP MM / RECEBIMENTO · {selected}")
-    st.title(ticket["title"])
-    st.caption(LABELS[ticket["status"]] + " · Dados fictícios")
-    with st.expander("Contexto do chamado", expanded=not bool(store.messages(context, selected))):
-        st.write(ticket["description"])
-        order = state["orders"].get(f"{ticket['purchase_order']}/{ticket['item']}")
-        if order:
-            st.caption(f"Pedido {order['purchase_order']} · Item {order['item']} · {order['material']}")
-
     messages = store.messages(context, selected)
+    st.caption(f"SAP MM / RECEBIMENTO · {case_reference(ticket)}")
+    st.title(ticket["title"])
+    st.caption(LABELS[ticket["status"]] + " · Prioridade " + priority_label(ticket) + " · Dados fictícios")
+    with st.expander("Detalhes do chamado"):
+        display_case_details(state, selected)
+
     proposals = store.proposals(context, selected)
     pending = any(x["state"] == "pendente" for x in proposals)
     for message in messages:
@@ -185,6 +311,15 @@ def main():
         st.info("Configure a chave OpenRouter para iniciar a análise com IA.")
     if pending:
         st.caption("Decida a solicitação pendente antes de continuar este atendimento.")
+    with st.container(horizontal=True, vertical_alignment="center"):
+        if st.button("Chamados", icon=":material/confirmation_number:", help="Selecionar um chamado para esta conversa", key="open_case_selector"):
+            st.session_state.dialog_case = selected
+            st.session_state.dialog_search = ""
+            st.session_state.case_selector_open = True
+        st.button("Lista completa", icon=":material/list_alt:", on_click=show_case_list)
+        st.caption("Em análise: " + case_reference(ticket))
+    if st.session_state.get("case_selector_open"):
+        case_selector(state)
     request = None
     if not messages and st.button("Analisar chamado", type="primary", disabled=not settings.api_key or pending):
         request = ticket["description"]

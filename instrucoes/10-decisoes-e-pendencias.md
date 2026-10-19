@@ -32,6 +32,8 @@
 | D24 | Ampliar o corpus de conhecimento | Novo pedido: 12 guias, com sete novos conteúdos oficiais relacionados ao recebimento; sem ampliar operações executáveis. |
 | D25 | Exigir suporte no RAG antes de responder | Novo pedido: mensagem explícita de insuficiência sem diagnóstico/proposta; verificação de cobertura e de IDs antes da geração. |
 | D26 | Quatro sínteses oficiais mais as duas políticas como contexto obrigatório | Detalhe técnico da recuperação após a expansão: a primeira rodada omitiu as regras do simulador e bloqueou uma proposta válida; substitui o limite anterior de quatro guias misturados. |
+| D27 | Selecionar chamados junto ao chat e pela lista completa | Pedido do usuário: botão com ícone, busca, prévia, seleção de linha e detalhes integrais; selecionar não inicia análise nem aprova. Complementa D08; [interface](06-interface.md). |
+| D28 | Aproximar o formato dos chamados do SAP for Me | Pedido do usuário: conferir uso SAP de “ticket”. Fontes oficiais usam case; perfis fictícios incluem contexto, componente sugerido, prioridade, impacto e reprodução. IDs/situações permanecem locais, sem envio à SAP nem migração de sessões antigas; [processo](02-processo-sap.md). |
 
 ## Pendências e tratamento
 
@@ -45,7 +47,7 @@
 | P04 | Configuração autenticada concluída localmente | Usuário configurou `.env`; Supabase e OpenRouter verificados sem versionar credenciais. Configuração de hospedagem ainda pendente. |
 | P05 | Modelos atuais verificados | Chat Qwen3.6 Plus e embeddings 8B/4.096 dimensões testados; saídas e referências validadas pelo servidor. Revalidar se o provedor mudar. |
 | P06 | Parâmetros iniciais implementados; calibração ampla pendente | Quatro sínteses mais duas políticas, busca textual/cosseno, RRF 60 e checagem de cobertura; avaliar relevância, falsos bloqueios e sustentação com rótulos fora do índice. |
-| P07 | Fixtures executáveis concluídas | Oito chamados com datas explícitas em C07/C08 e gabaritos fora da base. |
+| P07 | Fixtures executáveis concluídas | Oito chamados com datas explícitas em C07/C08, perfis de suporte fictícios para novas sessões e gabaritos fora da base; C05 preserva lacunas. |
 | P08 | Código e validação funcional; revisão estética pendente | 121 testes locais e 28 verificações reais consolidadas aprovados após ajustes/retestes. A UI usa links diretos, sem popup/conteúdo. Revisão visual em navegador/teclado precisa ocorrer na interface em execução. |
 | P09 | Publicação, acesso da banca e limites de consumo | Configurar na etapa de publicação, validar hospedado e ensaiar apresentação. |
 

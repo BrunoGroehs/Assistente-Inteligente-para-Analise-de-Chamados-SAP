@@ -44,6 +44,8 @@ Antes de trabalhar, ler o [índice das instruções](instrucoes/README.md) e os 
 - **Decisão confirmada:** sem suporte suficiente no RAG para a pergunta atual, informar falta de informações, sem resposta técnica, hipóteses ou proposta. Verificar cobertura antes de gerar, validar os IDs dos parágrafos e exigir citação do conhecimento aprovado. Conhecimento prévio do modelo, histórico e políticas simuladas não substituem uma fonte SAP aplicável.
 - Não indexar instruções de desenvolvimento, gabaritos, prompts ou resultados esperados como conhecimento SAP.
 - **Decisão confirmada:** interface organizada, clean, inspirada em iOS, com pouco ruído visual. Seguir [interface](instrucoes/06-interface.md).
+- **Decisão confirmada:** botão Chamados com ícone junto ao chat abre busca e prévia; a lista completa permite selecionar uma linha e consultar todos os detalhes. Selecionar ou abrir um chamado não analisa nem aprova operações. Preservar histórico e vínculo das propostas ao chamado original.
+- **Decisão confirmada:** aproximar os dados do formato de suporte SAP for Me: resumo, ambiente, componente sugerido, prioridade, impacto e reprodução. Exibir referências `SIM-Cxx` e situações locais; não fingir case SAP real. Valores ausentes são “Não informado”. Ver [processo e fontes verificadas](instrucoes/02-processo-sap.md).
 
 ## Fontes indisponíveis e colaboração
 
