@@ -8,31 +8,23 @@
 
 Evitar gradientes chamativos, banners grandes, emojis em excesso, sombras fortes, menus duplicados, cartões para todo parágrafo e painéis de métricas sem função no atendimento. Preferir CSS pequeno e estável; não depender de seletores internos frágeis para a experiência principal. Não adicionar componentes React personalizados nesta versão.
 
-## Organização
+## Organização e anexo opcional
 
-**Decisão confirmada:** lista lateral de chamados e chat do chamado selecionado; fontes e etapas em detalhes expansíveis. Acrescentar acesso à seleção junto ao campo de conversa e uma lista completa com os dados do caso.
+**Decisão confirmada, substituindo a navegação lateral e a tela separada de lista:** uma única conversa central, sem painel lateral e sem chamado selecionado automaticamente. O chat inicia livre para perguntas gerais sobre recebimento em SAP MM, com a mesma exigência de evidência no RAG. Não ampliar o escopo para assuntos sem documentação.
 
-**Recomendação de composição:**
+O compositor contém o botão **Chamados**, com ícone de identificação. Ele abre um diálogo com todos os chamados, busca por referência/resumo/pedido/material/sistema/componente e filtro de prioridade. A tabela mostra referência, resumo, prioridade, situação local, sistema e componente sugerido. Clicar numa linha escolhe o candidato; um seletor equivalente fica disponível. Filtrar troca o conjunto de linhas e não reutiliza um índice de outro conjunto.
 
-1. Lateral com título curto, lista dos oito chamados e indicação textual de situação. Trocar de chamado preserva o histórico correto.
-2. Área principal com título do chamado, breve contexto e aviso discreto de ambiente simulado.
-3. Conversa com mensagens do usuário e do assistente, campo de entrada e indicador de processamento.
-4. Em cada resposta, resumo útil primeiro; detalhes de fontes, confiança e etapas disponíveis sem dominar a tela.
-5. Cartão de aprovação próximo da mensagem que o originou. Não criar um centro de aprovações separado nesta versão.
+**Ver detalhes** abre/recolhe o contexto completo no próprio diálogo: descrição, produto/release, sistema/mandante/ambiente, aplicativo, prioridade/impacto, solicitante/empresa/data, resultado esperado e relatado, erro, reprodução, ações tentadas, pedido/item/quantidades atuais e anexos. Valores ausentes ficam explícitos. **Anexar ao chat** é uma ação separada da consulta. **Cancelar** ou fechar mantém o anexo atual. Não navegar para uma tela de outro chamado.
 
-Em telas estreitas, usar a lateral recolhível do Streamlit e manter texto, detalhes e botões utilizáveis. Não exigir rolagem horizontal para ler o conteúdo essencial.
+Depois de anexar, mostrar um cartão compacto junto ao campo de mensagem, com referência/título, acesso aos detalhes e **Remover anexo** com ícone de fechar, como um arquivo anexado à conversa. Um único chamado pode estar anexado por vez; anexar outro substitui o contexto das próximas perguntas. Remover o anexo devolve o compositor ao modo geral. Consultar, anexar e remover não chamam a IA nem alteram negócio.
 
-## Selecionar e consultar chamados
+**Analisar chamado** fica disponível quando há um chamado anexado ainda sem atendimento. Perguntas digitadas com anexo usam esse contexto; sem anexo usam apenas o canal geral e o RAG. A análise começa somente por mensagem ou por esse botão. Não é necessário anexar um chamado para fazer perguntas conceituais documentadas.
 
-**Decisão confirmada e implementada:** o botão **Chamados**, com ícone de identificação de chamado, fica junto ao chat. Abre um diálogo de busca por referência, resumo, pedido ou componente. O seletor mostra uma prévia completa; **Abrir no chat** efetiva a troca, enquanto **Cancelar** ou fechar mantém o chamado ativo. Uma busca sem resultados mostra uma orientação curta. Reabrir o diálogo parte do chamado atual.
+A linha do tempo não desaparece ao remover/substituir o anexo. Cada pergunta mostra qual chamado foi anexado naquele momento, ou “Sem chamado anexado”; esse vínculo histórico não muda. O servidor envia ao modelo somente o histórico correspondente ao contexto atual, evitando herdar dados do caso removido. Fontes e etapas ficam junto à resposta que as gerou, sem duplicar o contexto completo no cabeçalho.
 
-**Lista completa** abre uma visão com os oito registros, busca e filtro de prioridade, incluindo a opção “Não informada”. A tabela mostra referência, resumo, prioridade, situação local, sistema e componente sugerido. Clicar em uma linha seleciona o caso para os detalhes abaixo; um seletor equivalente também fica disponível. A seleção acompanha a posição original do registro, inclusive após ordenação visual da tabela. Filtrar muda o conjunto de linhas e impede reutilizar um índice de seleção de outro conjunto.
+Uma proposta pendente continua junto à resposta original. Com outro anexo ou sem anexo, o cartão oferece reanexar o chamado para revisão, sem botões de consentimento ativos. Reanexar o chamado correto restaura **Sim/Não** e o chat desse contexto permanece pausado até decidir. É possível remover o anexo e perguntar no canal geral. Remoção e troca nunca concedem, cancelam ou transferem aprovação. A validade original continua correndo.
 
-Os detalhes apresentam descrição integral, produto/release, sistema/mandante/ambiente, aplicativo, prioridade, impacto, solicitante/empresa/data, resultado esperado, resultado relatado na abertura, erro, reprodução, ações tentadas, pedido/item e quantidades atuais, indicador de entrega concluída e anexos. Campos ausentes são explícitos; nenhum anexo é inventado. Ver [formato inspirado no SAP for Me e seus limites](02-processo-sap.md).
-
-O cabeçalho do chat mantém referência `SIM-Cxx`, título, situação e prioridade; os demais campos ficam em **Detalhes do chamado**, recolhido por padrão para preservar a limpeza. A listagem oferece **Voltar ao chat** e **Abrir no chat**. Seleção, busca, prévia e retorno são consultas de apresentação: não chamam o modelo nem alteram dados de negócio. A análise começa somente por **Analisar chamado** ou mensagem do usuário.
-
-Trocar de chamado preserva seu histórico e as propostas associadas. Um pedido de aprovação pendente não aparece em outra conversa nem impede consultar a lista. Ao retornar, reaparecem a mesma proposta e o chat pausado; apenas sua decisão válida no cartão permite execução. O diálogo de seleção é independente das fontes, que continuam com links diretos sem popup de conteúdo.
+Em telas estreitas, preservar leitura, detalhes e botões, sem depender de uma barra lateral ou de rolagem horizontal para informações essenciais. Usar componentes nativos; a tabela é uma visão resumida, com detalhes em texto acessível. Ver [formato inspirado no SAP for Me](02-processo-sap.md) e [aprovações](07-aprovacoes-humanas.md).
 
 ## Fontes e etapas observáveis
 

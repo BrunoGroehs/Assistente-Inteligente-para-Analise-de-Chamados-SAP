@@ -13,7 +13,7 @@
 | D05 | Substituir a escolha inicial React + FastAPI | Alternativa discutida, inclusive Vercel; Streamlit foi escolhido no plano final aprovado; [entrega](09-execucao-e-entrega.md). |
 | D06 | Supabase/PostgreSQL com pgvector | Persistência externa e recuperação vetorial; [RAG](04-rag-e-fontes.md). |
 | D07 | Qwen3.6 Plus via OpenRouter | Modelo indicado pelo usuário; embeddings inicialmente Qwen3 Embedding 0.6B pela mesma plataforma; [arquitetura](03-arquitetura.md). |
-| D08 | Lista lateral de chamados com chat e detalhes expansíveis | Preferência confirmada na conversa; [interface](06-interface.md). |
+| D08 | Lista lateral de chamados — substituída por D29 | Histórico da navegação anterior; chat atual usa anexo opcional sem painel lateral. |
 | D09 | HITL em módulo determinístico no servidor | Não exigir microsserviço; modelo só propõe; [aprovações](07-aprovacoes-humanas.md). |
 | D10 | Aprovação para alterações de negócio, não para todo POST técnico | Interpretação confirmada de “não GET”; chat, buscas e logs automáticos; [política](07-aprovacoes-humanas.md). |
 | D11 | Proposta específica, vinculada aos dados e válida por 15 minutos | Regra do plano aprovado contra reutilização de autorização; [HITL](07-aprovacoes-humanas.md). |
@@ -32,8 +32,9 @@
 | D24 | Ampliar o corpus de conhecimento | Novo pedido: 12 guias, com sete novos conteúdos oficiais relacionados ao recebimento; sem ampliar operações executáveis. |
 | D25 | Exigir suporte no RAG antes de responder | Novo pedido: mensagem explícita de insuficiência sem diagnóstico/proposta; verificação de cobertura e de IDs antes da geração. |
 | D26 | Quatro sínteses oficiais mais as duas políticas como contexto obrigatório | Detalhe técnico da recuperação após a expansão: a primeira rodada omitiu as regras do simulador e bloqueou uma proposta válida; substitui o limite anterior de quatro guias misturados. |
-| D27 | Selecionar chamados junto ao chat e pela lista completa | Pedido do usuário: botão com ícone, busca, prévia, seleção de linha e detalhes integrais; selecionar não inicia análise nem aprova. Complementa D08; [interface](06-interface.md). |
+| D27 | Selecionar chamados junto ao chat e pela lista completa — refinada por D29 | Histórico: a seleção abria a conversa do caso e mantinha a lateral. Usuário esclareceu que deseja anexar/remover o chamado na mesma conversa. |
 | D28 | Aproximar o formato dos chamados do SAP for Me | Pedido do usuário: conferir uso SAP de “ticket”. Fontes oficiais usam case; perfis fictícios incluem contexto, componente sugerido, prioridade, impacto e reprodução. IDs/situações permanecem locais, sem envio à SAP nem migração de sessões antigas; [processo](02-processo-sap.md). |
+| D29 | Chat único, sem painel lateral, com chamado como anexo opcional | Esclarecimento explícito do usuário: botão lista chamados, detalhes e Anexar ao chat; cartão removível como arquivo do GPT; perguntas gerais sem anexo. Histórico preservado com contexto por mensagem; sem anexo não há consulta transacional ou proposta de negócio. Substitui D08 e o fluxo de navegação de D27; [interface](06-interface.md). |
 
 ## Pendências e tratamento
 

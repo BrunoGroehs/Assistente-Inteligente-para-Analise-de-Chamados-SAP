@@ -19,7 +19,6 @@ st.markdown("""<style>
 h1 {letter-spacing: -0.035em; font-weight: 650 !important;}
 h2,h3 {letter-spacing: -0.02em;}
 button {border-radius: 12px !important;}
-section[data-testid="stSidebar"] {border-right: 1px solid #e8e8ed;}
 [data-testid="stChatMessage"] {border-radius: 16px;}
 </style>""", unsafe_allow_html=True)
 
@@ -42,16 +41,6 @@ def configuration_screen(message):
     st.stop()
 
 
-def show_chat():
-    st.session_state.case_view = "chat"
-    st.session_state.case_selector_open = False
-
-
-def show_case_list():
-    st.session_state.case_view = "list"
-    st.session_state.case_selector_open = False
-
-
 def close_case_selector():
     st.session_state.case_selector_open = False
 
@@ -60,11 +49,24 @@ def clear_case_row(table_key):
     st.session_state[table_key] = {"selection": {"rows": [], "columns": [], "cells": []}}
 
 
-def activate_case(case_id, allowed):
+def attach_case(case_id, allowed):
     if case_id not in allowed:
         raise ValueError("Chamado não disponível nesta sessão.")
-    st.session_state.selected_ticket = case_id
-    show_chat()
+    st.session_state.attached_case = case_id
+    close_case_selector()
+
+
+def detach_case():
+    st.session_state.attached_case = None
+    close_case_selector()
+
+
+def open_case_selector(case_id=None, details=False):
+    st.session_state.dialog_case = case_id
+    st.session_state.dialog_search = ""
+    st.session_state.dialog_priority = "all"
+    st.session_state.dialog_details = details
+    st.session_state.case_selector_open = True
 
 
 def display_case_details(state, key):
@@ -112,55 +114,42 @@ def display_case_details(state, key):
         st.write(NOT_PROVIDED)
     st.markdown("**Ações já tentadas**")
     st.write(" · ".join(profile.get("actions_taken", [])) or NOT_PROVIDED)
-    st.markdown("**Pedido e estoque atuais no simulador**")
+    st.markdown("**Pedido e quantidades atuais no simulador**")
     st.write(order_summary(case_order(state, ticket)))
     st.caption("Anexos: " + (", ".join(profile.get("attachments", [])) or "Nenhum anexo"))
 
 
-@st.dialog("Selecionar chamado", width="large", icon=":material/confirmation_number:", on_dismiss=close_case_selector)
+@st.dialog("Chamados", width="large", icon=":material/confirmation_number:", on_dismiss=close_case_selector)
 def case_selector(state):
-    query = st.text_input("Buscar chamado", placeholder="Número, resumo, pedido ou componente", key="dialog_search")
-    keys = matching_cases(state, query)
+    search, priority_column = st.columns([3, 1])
+    query = search.text_input("Buscar chamado", placeholder="Número, resumo, pedido ou componente", key="dialog_search")
+    priority = priority_column.selectbox("Prioridade", ["all", *PRIORITIES, "missing"], key="dialog_priority",
+        format_func=lambda value: "Todas" if value == "all" else ("Não informada" if value == "missing" else f"{value} · {PRIORITIES[value]}"))
+    keys = matching_cases(state, query, None if priority == "all" else priority)
+    st.caption(f"{len(keys)} de {len(state['tickets'])} chamados · Dados fictícios")
     if keys:
-        selected = st.selectbox("Chamado", keys, key="dialog_case",
-                                format_func=lambda key: f"{case_reference(state['tickets'][key])} · {state['tickets'][key]['title']}")
-        with st.container(height=400, border=False):
-            display_case_details(state, selected)
-        if st.button("Abrir no chat", type="primary", icon=":material/chat:",
-                     on_click=activate_case, args=(selected, list(state["tickets"]))):
+        table_key = "case_table_" + "_".join(keys)
+        selection = st.dataframe(case_rows(state, keys), hide_index=True, width="stretch", key=table_key,
+                                 on_select="rerun", selection_mode="single-row")
+        rows = selection.selection.rows
+        if rows and 0 <= rows[0] < len(keys):
+            st.session_state.dialog_case = keys[rows[0]]
+        if st.session_state.get("dialog_case") not in keys:
+            st.session_state.dialog_case = keys[0]
+        selected = st.selectbox("Chamado", keys, key="dialog_case", on_change=clear_case_row, args=(table_key,),
+            format_func=lambda key: f"{case_reference(state['tickets'][key])} · {state['tickets'][key]['title']}")
+        if st.button("Ver detalhes", icon=":material/description:"):
+            st.session_state.dialog_details = not st.session_state.get("dialog_details", False)
+        if st.session_state.get("dialog_details"):
+            with st.container(height=400, border=False):
+                display_case_details(state, selected)
+        if st.button("Anexar ao chat", type="primary", icon=":material/attach_file:",
+                     on_click=attach_case, args=(selected, list(state["tickets"]))):
             st.rerun()
     else:
         st.info("Nenhum chamado encontrado. Ajuste a busca.")
     if st.button("Cancelar", key="cancel_case_selector", on_click=close_case_selector):
         st.rerun()
-
-
-def display_case_list(state):
-    st.title("Chamados")
-    st.caption("Casos fictícios inspirados no SAP for Me · Situações locais do atendimento")
-    st.button("Voltar ao chat", icon=":material/chat:", on_click=show_chat)
-    search, filter_column = st.columns([3, 1])
-    query = search.text_input("Buscar na lista", placeholder="Resumo, pedido, material, sistema ou componente", key="list_search")
-    priority = filter_column.selectbox("Prioridade", ["all", *PRIORITIES, "missing"], key="list_priority",
-        format_func=lambda value: "Todas" if value == "all" else ("Não informada" if value == "missing" else f"{value} · {PRIORITIES[value]}"))
-    keys = matching_cases(state, query, None if priority == "all" else priority)
-    st.caption(f"{len(keys)} de {len(state['tickets'])} chamados")
-    if not keys:
-        st.info("Nenhum chamado encontrado com esses filtros.")
-        return
-    st.caption("Clique em uma linha para ver o caso completo, ou use o seletor abaixo.")
-    table_key = "case_table_" + "_".join(keys)
-    selection = st.dataframe(case_rows(state, keys), hide_index=True, width="stretch", key=table_key,
-                             on_select="rerun", selection_mode="single-row")
-    rows = selection.selection.rows
-    if rows and 0 <= rows[0] < len(keys):
-        st.session_state.list_case = keys[rows[0]]
-    selected = st.selectbox("Ver todas as informações do chamado", keys, key="list_case",
-                            on_change=clear_case_row, args=(table_key,),
-                            format_func=lambda key: f"{case_reference(state['tickets'][key])} · {state['tickets'][key]['title']}")
-    display_case_details(state, selected)
-    st.button("Abrir no chat", key="open_from_case_list", icon=":material/chat:", type="primary",
-              on_click=activate_case, args=(selected, list(state["tickets"])))
 
 
 def display_citations(message):
@@ -206,7 +195,7 @@ def display_details(details):
                 st.caption(f"Duração medida: {details['latency_ms'] / 1000:.1f} s")
 
 
-def approval_card(proposal, gateway, context):
+def approval_card(proposal, gateway, context, attached_case, tickets):
     state, payload = proposal["state"], proposal["payload"]
     with st.container(border=True):
         st.markdown(f"**{LABELS.get(state, state)}**")
@@ -221,6 +210,12 @@ def approval_card(proposal, gateway, context):
                 st.write(f"{effect['ticket']} · {LABELS.get(effect['before'], effect['before'])} → {LABELS[effect['after']]}")
             expiry = datetime.fromisoformat(proposal["expires_at"]).astimezone(ZoneInfo("America/Sao_Paulo"))
             st.caption(f"Somente no simulador · Válida até {expiry:%H:%M:%S} (Brasília)")
+            if attached_case != proposal["ticket"]:
+                key = proposal["ticket"]
+                st.caption("Anexe o chamado correspondente para revisar e decidir esta solicitação.")
+                st.button(f"Anexar {case_reference(tickets[key])}", key=f"review_{proposal['id']}",
+                          icon=":material/attach_file:", on_click=attach_case, args=(key, list(tickets)))
+                return
             yes, no = st.columns(2)
             decision = None
             if yes.button("Sim, autorizar", type="primary", key=f"yes_{proposal['id']}"):
@@ -273,30 +268,32 @@ def main():
     except Exception:
         configuration_screen("Não foi possível conectar ao banco. Confira a configuração Supabase e tente novamente.")
 
-    with st.sidebar:
-        st.markdown("### Assistente SAP")
-        st.caption("CHAMADOS · MM")
-        selected = st.radio("Chamados", list(state["tickets"]), label_visibility="collapsed",
-                            format_func=lambda key: f"{case_reference(state['tickets'][key])} · {state['tickets'][key]['title']}",
-                            key="selected_ticket", on_change=show_chat)
-        st.divider()
-        st.caption("Ambiente simulado\n\nDados isolados nesta sessão")
-
-    if st.session_state.get("case_view") == "list":
-        display_case_list(state)
-        return
-    ticket = state["tickets"][selected]
-    messages = store.messages(context, selected)
-    st.caption(f"SAP MM / RECEBIMENTO · {case_reference(ticket)}")
-    st.title(ticket["title"])
-    st.caption(LABELS[ticket["status"]] + " · Prioridade " + priority_label(ticket) + " · Dados fictícios")
-    with st.expander("Detalhes do chamado"):
-        display_case_details(state, selected)
-
-    proposals = store.proposals(context, selected)
-    pending = any(x["state"] == "pendente" for x in proposals)
+    # Um único chat. Anexo é contexto explícito das próximas mensagens, sem seleção automática.
+    selected = st.session_state.get("attached_case")
+    if selected not in state["tickets"]:
+        selected = None
+        st.session_state.attached_case = None
+    ticket = state["tickets"].get(selected)
+    messages = store.messages(context)
+    proposals = store.proposals(context)
+    proposals_by_id = {item["id"]: item for item in proposals}
+    pending = any(x["state"] == "pendente" and x["ticket"] == selected for x in proposals)
+    st.title("Assistente SAP")
+    st.caption("MM · Recebimento de mercadorias · Ambiente simulado")
+    if not messages:
+        st.write("Pergunte sobre o processo ou anexe um chamado para analisar o caso.")
+    displayed_proposals = set()
     for message in messages:
         with st.chat_message(message["role"]):
+            if message["role"] == "user":
+                attachment = message["details"].get("attachment")
+                if attachment is None and message["ticket"] in state["tickets"]:
+                    original = state["tickets"][message["ticket"]]
+                    attachment = {"reference": case_reference(original), "title": original["title"]}
+                if attachment:
+                    st.caption("Chamado anexado · " + attachment["reference"] + " · " + attachment["title"])
+                else:
+                    st.caption("Sem chamado anexado")
             if message["details"].get("error"):
                 st.error(message["content"])
             else:
@@ -304,27 +301,39 @@ def main():
             if message["role"] == "assistant" and not message["details"].get("error"):
                 display_citations(message)
             display_details(message["details"])
+            proposal_id = message["details"].get("proposal_id")
+            if proposal_id in proposals_by_id:
+                approval_card(proposals_by_id[proposal_id], gateway, context, selected, state["tickets"])
+                displayed_proposals.add(proposal_id)
     for proposal in proposals:
-        approval_card(proposal, gateway, context)
+        if proposal["id"] not in displayed_proposals:
+            approval_card(proposal, gateway, context, selected, state["tickets"])
 
     if not settings.api_key:
         st.info("Configure a chave OpenRouter para iniciar a análise com IA.")
     if pending:
-        st.caption("Decida a solicitação pendente antes de continuar este atendimento.")
-    with st.container(horizontal=True, vertical_alignment="center"):
-        if st.button("Chamados", icon=":material/confirmation_number:", help="Selecionar um chamado para esta conversa", key="open_case_selector"):
-            st.session_state.dialog_case = selected
-            st.session_state.dialog_search = ""
-            st.session_state.case_selector_open = True
-        st.button("Lista completa", icon=":material/list_alt:", on_click=show_case_list)
-        st.caption("Em análise: " + case_reference(ticket))
+        st.caption("Decida a solicitação pendente deste chamado antes de continuar sua análise. Você pode remover o anexo para fazer uma pergunta geral.")
+    request = None
+    with st.container(key="composer"):
+        if ticket:
+            with st.container(horizontal=True, vertical_alignment="center", border=True):
+                st.button(case_reference(ticket) + " · " + ticket["title"], icon=":material/description:",
+                          key="attached_case_details", type="tertiary", help="Ver detalhes do chamado anexado",
+                          on_click=open_case_selector, args=(selected, True))
+                st.button("Remover anexo", icon=":material/close:", key="detach_case", type="tertiary",
+                          on_click=detach_case)
+        with st.container(horizontal=True, vertical_alignment="center"):
+            st.button("Chamados", icon=":material/confirmation_number:", help="Consultar e anexar um chamado",
+                      key="open_case_selector", on_click=open_case_selector, args=(selected,))
+            if ticket and not any(x["ticket"] == selected for x in messages):
+                if st.button("Analisar chamado", type="primary", disabled=not settings.api_key or pending):
+                    request = ticket["description"]
+            if not ticket:
+                st.caption("Sem chamado anexado")
+        typed = st.chat_input("Pergunte sobre o chamado…" if ticket else "Faça uma pergunta sobre SAP MM…",
+                              key="chat_draft", disabled=not settings.api_key or pending, max_chars=6000)
     if st.session_state.get("case_selector_open"):
         case_selector(state)
-    request = None
-    if not messages and st.button("Analisar chamado", type="primary", disabled=not settings.api_key or pending):
-        request = ticket["description"]
-    typed = st.chat_input("Descreva o que aconteceu ou complemente os dados…", disabled=not settings.api_key or pending,
-                          max_chars=6000)
     if typed:
         request = typed
     if request:

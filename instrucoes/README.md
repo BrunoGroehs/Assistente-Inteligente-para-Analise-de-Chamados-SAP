@@ -32,11 +32,11 @@ O rótulo de uma seção vale para seus itens, salvo indicação diferente. Link
 
 ## Direção atual
 
-**Decisões confirmadas:** SAP MM, recebimento com referência a pedido de compra; Python + Streamlit; PostgreSQL/pgvector no Supabase em desenvolvimento e hospedagem; Qwen3.6 Plus e embeddings Qwen3 Embedding 8B pelo OpenRouter; HITL em módulo do servidor; oito chamados fictícios; lista lateral e chat; estilo clean inspirado em iOS; protótipo mais completo, desenvolvido por etapas. Todas as tabelas próprias ficam em `sap_chamados_ai`, preservando os demais projetos.
+**Decisões confirmadas:** SAP MM, recebimento com referência a pedido de compra; Python + Streamlit; PostgreSQL/pgvector no Supabase em desenvolvimento e hospedagem; Qwen3.6 Plus e embeddings Qwen3 Embedding 8B pelo OpenRouter; HITL em módulo do servidor; oito chamados fictícios; chat único com anexo opcional e sem painel lateral; estilo clean inspirado em iOS; protótipo mais completo, desenvolvido por etapas. Todas as tabelas próprias ficam em `sap_chamados_ai`, preservando os demais projetos.
 
 **Atualização confirmada:** corpus ampliado para 12 guias; fontes agrupadas com links diretos, sem conteúdo/popup na interface; verificação de cobertura antes da geração e mensagem explícita de insuficiência quando o RAG não sustentar a pergunta atual. Essas decisões substituem a apresentação anterior por popup.
 
-**Atualização confirmada:** botão Chamados no chat com busca e prévia; lista completa com seleção de linha, filtros e detalhes. Novas sessões têm perfis de suporte inspirados no SAP for Me, com referências simuladas e campos ausentes explícitos. Fontes e limites do formato em [processo](02-processo-sap.md); fluxo em [interface](06-interface.md).
+**Atualização confirmada:** botão Chamados no compositor lista os casos, permite ver detalhes e anexar ao chat. O cartão do chamado pode ser removido ou substituído; perguntas sem anexo usam o RAG geral, sem dados/histórico do caso anterior nem propostas de alteração. Uma única linha do tempo preserva o contexto de cada mensagem. Isso substitui a lista lateral e a tela separada de listagem. Perfis de suporte seguem inspirados no SAP for Me; [processo](02-processo-sap.md) e [interface](06-interface.md).
 
 **Pendências principais:** revisão visual em navegador e teclado, calibração com corpus maior, discussão dos prompts e publicação quando solicitada. A avaliação funcional integrada está registrada nas [evidências](../evidencias/README.md), com [cobertura dos requisitos](../evidencias/verificacao-requisitos.md). Configuração real e resultados de testes devem ser consultados nesses relatórios, sem confundir histórico documental com estado atual.
 

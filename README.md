@@ -44,9 +44,11 @@ Se precisar codificar uma senha, use uma ferramenta local, não um site externo.
 .\.venv\Scripts\python.exe -m streamlit run app.py --server.address 127.0.0.1 --server.port 8507
 ```
 
-Abra `http://127.0.0.1:8507`. Selecione um chamado e clique em **Analisar chamado** ou escreva no chat. A ingestão gera embeddings com cobrança do OpenRouter; documentos inalterados usam o cache. A aplicação também prepara os guias automaticamente e gera embeddings faltantes na primeira consulta. Reinicie o processo após mudar o `.env`.
+Abra `http://127.0.0.1:8507`. O chat inicia sem chamado anexado e permite perguntas gerais sobre o processo pelo RAG. A ingestão gera embeddings com cobrança do OpenRouter; documentos inalterados usam o cache. A aplicação também prepara os guias automaticamente e gera embeddings faltantes na primeira consulta. Reinicie o processo após mudar o `.env`.
 
-Use **Chamados**, junto ao chat, para buscar e conferir um caso antes de abri-lo. **Lista completa** oferece seleção por linha, filtro de prioridade e todos os detalhes do caso. Navegar não inicia análise nem decide aprovações. Os registros das novas sessões seguem um formato inspirado no SAP for Me: ambiente, componente sugerido, prioridade, impacto e reprodução. IDs `SIM-Cxx` e situações são locais; nenhum case é enviado à SAP. Sessões já abertas mantêm seus dados anteriores; abra uma nova sessão para receber os novos perfis. [Fontes e limites](instrucoes/02-processo-sap.md).
+Não há painel lateral. Use **Chamados** no compositor para listar/buscar os casos, **Ver detalhes** para consultar e **Anexar ao chat** para incluir o contexto. O chamado aparece como um cartão removível, semelhante a um arquivo anexado. Você pode substituir ou **Remover anexo** e continuar perguntando na mesma conversa. Cada mensagem preserva seu contexto; novas perguntas sem anexo não herdam dados do caso anterior. Para analisar o anexo, escreva ou clique em **Analisar chamado**. Anexar/remover não chama a IA nem decide aprovações.
+
+Os registros das novas sessões seguem um formato inspirado no SAP for Me: ambiente, componente sugerido, prioridade, impacto e reprodução. IDs `SIM-Cxx` e situações são locais; nenhum case é enviado à SAP. Sessões já abertas mantêm seus dados anteriores; abra uma nova sessão para receber os novos perfis. [Fontes e limites](instrucoes/02-processo-sap.md).
 
 Para conferir os modelos com uma chamada real de cada tipo:
 
@@ -61,6 +63,8 @@ Somente o schema **`sap_chamados_ai`** é criado/utilizado pela aplicação. Ele
 As tabelas próprias são `sap_project_identity`, `sap_workspaces`, `sap_messages`, `sap_knowledge`, `sap_proposals` e `sap_audit`. A extensão vector é uma configuração do banco existente, ativada pelo usuário. Não se instala outro banco local: SQLite é usado apenas nos testes temporários.
 
 O LLM devolve uma proposta tipada, sem URL/SQL arbitrário. O gateway valida operação, frase, parâmetros, sessão e versões; a interface mostra o efeito concreto e solicita **Sim, autorizar / Não, recusar**. A proposta vale 15 minutos. Recusa, silêncio, mudança de dados ou clique repetido não criam autorização nova. Uma mensagem “sim” no chat não executa nada. Cada alteração de situação do chamado exige decisão separada.
+
+Sem chamado anexado, não há proposta de alteração nem consulta aos pedidos simulados. Remover o anexo preserva a proposta anterior e permite perguntas gerais; para decidir, reanexe o chamado original pelo cartão. A decisão continua vinculada à proposta exata, com a mesma validade.
 
 O “passo a passo” mostra operações observáveis, evidências e justificativas resumidas. Raciocínio interno bruto não é exibido ou usado como auditoria.
 

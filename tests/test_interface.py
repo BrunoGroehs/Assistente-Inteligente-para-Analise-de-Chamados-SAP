@@ -30,6 +30,14 @@ def button(app, label):
     return next(x for x in app.button if x.label == label)
 
 
+def attach(app, key):
+    button(app, "Chamados").click().run()
+    app.selectbox(key="dialog_case").set_value(key).run()
+    button(app, "Anexar ao chat").click().run()
+    assert not app.exception and not app.error
+    assert app.session_state["attached_case"] == key
+
+
 def test_configuration_without_credentials_shows_setup(monkeypatch):
     monkeypatch.setattr(Settings, "load", classmethod(lambda cls, secrets=None: Settings(database_url="")))
     app = AppTest.from_file(str(APP)).run()
@@ -53,22 +61,21 @@ def test_database_failure_shows_safe_configuration_screen(ui, monkeypatch):
                    for x in [*app.info, *app.markdown])
 
 
-def test_clean_sidebar_chat_and_sources(ui):
-    _, _, _ = ui
+def test_single_chat_starts_without_sidebar_or_attachment(ui):
     app = AppTest.from_file(str(APP), default_timeout=15).run()
-    assert not app.exception
-    assert len(app.sidebar.radio[0].options) == 8
-    assert len(app.chat_input) == 1
+    assert not app.exception and not app.sidebar.radio and not app.radio
+    assert len(app.chat_input) == 1 and app.session_state["attached_case"] is None
+    assert not any(x.label == "Analisar chamado" for x in app.button)
     assert not any(x.label.startswith("Sim") or x.label.startswith("Não") for x in app.button)
-    button(app, "Analisar chamado").click().run()
-    assert not app.exception
+    app.chat_input[0].set_value("O que é recebimento com referência ao pedido?").run()
     assert len(app.chat_message) == 2
     assert any(x.label == "Fontes citadas" for x in app.expander)
-    assert any(x.label == "Etapas do atendimento" for x in app.expander)
-    app.sidebar.radio[0].set_value("C02").run()
-    assert not app.chat_message
-    app.sidebar.radio[0].set_value("C01").run()
+    attach(app, "C01")
     assert len(app.chat_message) == 2
+    button(app, "Analisar chamado").click().run()
+    assert len(app.chat_message) == 4
+    attach(app, "C02")
+    assert len(app.chat_message) == 4 and not app.exception
 
 
 def test_approval_button_executes_once_and_disappears(ui):
@@ -77,7 +84,7 @@ def test_approval_button_executes_once_and_disappears(ui):
     service.provider = provider
     service.retriever = Retriever(store, provider)
     app = AppTest.from_file(str(APP), default_timeout=15).run()
-    app.sidebar.radio[0].set_value("C07").run()
+    attach(app, "C07")
     button(app, "Analisar chamado").click().run()
     assert not app.exception
     context = app.session_state["context"]
@@ -97,7 +104,7 @@ def test_refusal_preserves_data_and_removes_buttons(ui):
     service.provider = provider
     service.retriever = Retriever(store, provider)
     app = AppTest.from_file(str(APP), default_timeout=15).run()
-    app.sidebar.radio[0].set_value("C07").run()
+    attach(app, "C07")
     button(app, "Analisar chamado").click().run()
     context = app.session_state["context"]
     before = store.state(context)
@@ -124,6 +131,7 @@ def test_shared_access_gate_precedes_runtime(ui):
 def test_sources_link_directly_without_showing_content(ui):
     store, service, _ = ui
     app = AppTest.from_file(str(APP), default_timeout=15).run()
+    attach(app, "C01")
     button(app, "Analisar chamado").click().run()
     context = app.session_state["context"]
     message = store.messages(context, "C01")[-1]
@@ -146,7 +154,7 @@ def test_source_links_do_not_authorize_pending_action(ui):
     provider = ReceiptProvider()
     service.provider, service.retriever = provider, Retriever(store, provider)
     app = AppTest.from_file(str(APP), default_timeout=15).run()
-    app.sidebar.radio[0].set_value("C07").run()
+    attach(app, "C07")
     button(app, "Analisar chamado").click().run()
     context = app.session_state["context"]
     assert app.get("link_button")
@@ -165,6 +173,7 @@ def test_sources_keep_original_url_when_knowledge_changes(ui):
 
     store, service, _ = ui
     app = AppTest.from_file(str(APP), default_timeout=15).run()
+    attach(app, "C01")
     button(app, "Analisar chamado").click().run()
     context = app.session_state["context"]
     original = store.messages(context, "C01")[-1]
@@ -180,129 +189,132 @@ def test_sources_keep_original_url_when_knowledge_changes(ui):
     assert not app.text
 
 
-def test_chat_button_previews_case_and_selects_only_on_confirmation(ui):
+def test_picker_lists_all_cases_and_details_without_attaching(ui):
     store, service, _ = ui
     app = AppTest.from_file(str(APP), default_timeout=15).run()
     context = app.session_state["context"]
     before = store.state(context)
     button(app, "Chamados").click().run()
-    assert not app.exception
-    assert len(app.selectbox(key="dialog_case").options) == 8
-    app.selectbox(key="dialog_case").set_value("C04").run()
-    assert app.session_state["selected_ticket"] == "C01"
-    assert any("Post Goods Receipt for Purchasing Document" in x.value for x in app.markdown)
-    button(app, "Abrir no chat").click().run()
-    assert not app.exception and app.session_state["selected_ticket"] == "C04"
-    assert app.title[0].value == before["tickets"]["C04"]["title"]
-    assert not app.get("dialog") and service.provider.calls == 0 and store.state(context) == before
-
-
-def test_case_selector_search_cancel_and_no_results(ui):
-    store, service, _ = ui
-    app = AppTest.from_file(str(APP), default_timeout=15).run()
-    context = app.session_state["context"]
-    before = store.state(context)
-    button(app, "Chamados").click().run()
-    app.text_input(key="dialog_search").set_value("4500001007").run()
-    assert app.selectbox(key="dialog_case").value == "C07"
-    button(app, "Cancelar").click().run()
-    assert app.session_state["selected_ticket"] == "C01" and not app.get("dialog")
-    button(app, "Chamados").click().run()
-    assert app.selectbox(key="dialog_case").value == "C01"
-    app.text_input(key="dialog_search").set_value("inexistente").run()
-    assert not any(x.key == "dialog_case" for x in app.selectbox)
-    assert any("Nenhum chamado" in x.value for x in app.info)
-    button(app, "Cancelar").click().run()
-    assert store.state(context) == before and service.provider.calls == 0
-
-
-def test_complete_case_list_filters_shows_details_and_opens_chat(ui):
-    store, service, _ = ui
-    app = AppTest.from_file(str(APP), default_timeout=15).run()
-    context = app.session_state["context"]
-    before = store.state(context)
-    button(app, "Lista completa").click().run()
-    assert not app.exception and app.title[0].value == "Chamados" and not app.chat_input
     assert len(app.dataframe[0].value) == 8
-    app.selectbox(key="list_priority").set_value("missing").run()
-    assert app.selectbox(key="list_case").value == "C05"
-    assert any(x.value == "Aplicativo: Não informado" for x in app.markdown)
-    app.selectbox(key="list_priority").set_value("all").run()
-    app.text_input(key="list_search").set_value("4500001003").run()
-    assert len(app.dataframe[0].value) == 1 and app.selectbox(key="list_case").value == "C03"
+    app.selectbox(key="dialog_case").set_value("C04").run()
+    button(app, "Ver detalhes").click().run()
+    assert app.session_state["attached_case"] is None
     assert any(x.value == "Sistema: QAS" for x in app.markdown)
     assert any(x.value == "Componente sugerido: MM-IM-GR-PO" for x in app.markdown)
-    assert any(x.value == "**Passos de reprodução informados**" for x in app.markdown)
-    assert any(x.value == "**Impacto no negócio**" for x in app.markdown)
-    button(app, "Abrir no chat").click().run()
-    assert not app.exception and app.session_state["selected_ticket"] == "C03" and app.chat_input
+    assert any("Passos de reprodução" in x.value for x in app.markdown)
+    assert any("Impacto no negócio" in x.value for x in app.markdown)
+    button(app, "Anexar ao chat").click().run()
+    assert app.session_state["attached_case"] == "C04" and not app.get("dialog")
+    assert app.button(key="attached_case_details").label.startswith("SIM-C04")
     assert store.state(context) == before and service.provider.calls == 0
 
 
-def test_navigation_keeps_history_and_pending_approval_bound_to_original_case(ui):
+def test_picker_search_filters_cancel_and_empty_results(ui):
+    store, service, _ = ui
+    app = AppTest.from_file(str(APP), default_timeout=15).run()
+    context = app.session_state["context"]
+    before = store.state(context)
+    button(app, "Chamados").click().run()
+    app.selectbox(key="dialog_priority").set_value("missing").run()
+    assert app.selectbox(key="dialog_case").value == "C05"
+    button(app, "Ver detalhes").click().run()
+    assert any(x.value == "Aplicativo: Não informado" for x in app.markdown)
+    app.selectbox(key="dialog_priority").set_value("all").run()
+    app.text_input(key="dialog_search").set_value("4500001007").run()
+    assert app.selectbox(key="dialog_case").value == "C07"
+    app.text_input(key="dialog_search").set_value("nenhum-chamado").run()
+    assert not app.dataframe and any("Nenhum chamado" in x.value for x in app.info)
+    button(app, "Cancelar").click().run()
+    assert app.session_state["attached_case"] is None and not app.get("dialog")
+    assert store.state(context) == before and service.provider.calls == 0
+
+
+def test_attachment_can_be_replaced_removed_and_inspected_without_analysis(ui):
+    store, service, _ = ui
+    app = AppTest.from_file(str(APP), default_timeout=15).run()
+    context = app.session_state["context"]
+    before = store.state(context)
+    attach(app, "C07")
+    app.button(key="attached_case_details").click().run()
+    assert any(x.value == "**Impacto no negócio**" for x in app.markdown)
+    button(app, "Cancelar").click().run()
+    assert app.session_state["attached_case"] == "C07"
+    attach(app, "C08")
+    assert app.button(key="attached_case_details").label.startswith("SIM-C08")
+    button(app, "Remover anexo").click().run()
+    assert app.session_state["attached_case"] is None
+    assert not any(x.key == "attached_case_details" for x in app.button)
+    assert not app.chat_input[0].disabled and not app.chat_message
+    assert store.state(context) == before and service.provider.calls == 0
+
+
+def test_picker_table_selection_matches_case_and_dropdown_can_override(ui):
+    store, service, _ = ui
+    app = AppTest.from_file(str(APP), default_timeout=15).run()
+    context = app.session_state["context"]
+    before = store.state(context)
+    button(app, "Chamados").click().run()
+    table_key = "case_table_" + "_".join(before["tickets"])
+    # AppTest não oferece clique em linha; injeta o estado nativo do componente.
+    app.session_state[table_key] = {"selection": {"rows": [3], "columns": [], "cells": []}}
+    app.run()
+    assert not app.exception and app.selectbox(key="dialog_case").value == "C04"
+    app.selectbox(key="dialog_case").set_value("C06").run()
+    assert app.selectbox(key="dialog_case").value == "C06"
+    assert not app.session_state[table_key]["selection"]["rows"]
+    button(app, "Anexar ao chat").click().run()
+    assert app.session_state["attached_case"] == "C06"
+    assert store.state(context) == before and service.provider.calls == 0
+
+
+def test_detaching_pending_case_keeps_proposal_and_unlocks_general_chat(ui):
     store, service, _ = ui
     provider = ReceiptProvider()
     service.provider, service.retriever = provider, Retriever(store, provider)
     app = AppTest.from_file(str(APP), default_timeout=15).run()
-    app.sidebar.radio[0].set_value("C07").run()
+    attach(app, "C07")
     button(app, "Analisar chamado").click().run()
     context = app.session_state["context"]
     proposal = store.proposals(context, "C07")[0]["id"]
     before = store.state(context)
-    button(app, "Chamados").click().run()
-    app.selectbox(key="dialog_case").set_value("C08").run()
-    button(app, "Abrir no chat").click().run()
-    assert not app.chat_message and not any(x.label == "Sim, autorizar" for x in app.button)
-    button(app, "Lista completa").click().run()
-    app.selectbox(key="list_case").set_value("C07").run()
-    button(app, "Abrir no chat").click().run()
-    assert len(app.chat_message) == 2 and app.chat_input[0].disabled
+    assert app.chat_input[0].disabled
+    button(app, "Remover anexo").click().run()
+    assert len(app.chat_message) == 2 and not app.chat_input[0].disabled
+    assert not any(x.label == "Sim, autorizar" for x in app.button)
     assert store.proposals(context, "C07")[0]["id"] == proposal
+    attach(app, "C08")
+    assert not app.chat_input[0].disabled and not any(x.label == "Sim, autorizar" for x in app.button)
+    attach(app, "C07")
+    assert app.chat_input[0].disabled and len(app.chat_message) == 2
     assert store.state(context) == before and provider.calls == 1
     button(app, "Sim, autorizar").click().run()
     assert len(store.state(context)["receipts"]) == 1
 
 
-def test_case_list_row_selection_matches_details_and_dropdown_can_override(ui):
+def test_conversation_keeps_old_attachment_labels_after_detach(ui):
     store, service, _ = ui
     app = AppTest.from_file(str(APP), default_timeout=15).run()
+    attach(app, "C01")
+    button(app, "Analisar chamado").click().run()
+    button(app, "Remover anexo").click().run()
+    app.chat_input[0].set_value("O que é um documento de material?").run()
+    assert not app.exception and len(app.chat_message) == 4
+    captions = [x.value for x in app.caption]
+    assert any("Chamado anexado · SIM-C01" in value for value in captions)
+    assert "Sem chamado anexado" in captions
     context = app.session_state["context"]
-    before = store.state(context)
-    button(app, "Lista completa").click().run()
-    table_key = "case_table_" + "_".join(before["tickets"])
-    # AppTest não oferece clique em linha; injeta o estado de seleção nativo documentado.
-    app.session_state[table_key] = {"selection": {"rows": [3], "columns": [], "cells": []}}
-    app.run()
-    assert not app.exception and app.selectbox(key="list_case").value == "C04"
-    assert app.session_state["selected_ticket"] == "C01"
-    app.selectbox(key="list_case").set_value("C06").run()
-    assert not app.exception and app.selectbox(key="list_case").value == "C06"
-    assert not app.session_state[table_key]["selection"]["rows"]
-    button(app, "Abrir no chat").click().run()
-    assert app.session_state["selected_ticket"] == "C06"
-    assert store.state(context) == before and service.provider.calls == 0
+    assert len(store.messages(context)) == 4
+    assert store.messages(context)[0]["details"]["attachment"]["id"] == "C01"
+    assert store.messages(context)[-1]["details"]["attachment"] is None
+    assert service.provider.calls == 2
 
 
-def test_empty_case_list_can_return_without_losing_active_case(ui):
-    store, service, _ = ui
-    app = AppTest.from_file(str(APP), default_timeout=15).run()
-    app.sidebar.radio[0].set_value("C03").run()
-    context = app.session_state["context"]
-    before = store.state(context)
-    button(app, "Lista completa").click().run()
-    app.text_input(key="list_search").set_value("nenhum-caso-com-esse-numero").run()
-    assert not app.exception and not app.dataframe
-    assert any("Nenhum chamado" in x.value for x in app.info)
-    button(app, "Voltar ao chat").click().run()
-    assert app.session_state["selected_ticket"] == "C03" and app.chat_input
-    assert store.state(context) == before and service.provider.calls == 0
-
-
-def test_legacy_workspace_can_use_new_views_without_retroactive_updates(ui):
+def test_legacy_workspace_and_history_remain_readable_without_migration(ui):
     from copy import deepcopy
 
     store, service, _ = ui
     context = store.create_workspace()
+    service.analyze(context, "C01", "Explique o saldo do pedido.")
     with store.transaction() as db:
         workspace = store.authorize(db, context, lock=True)
         data = deepcopy(workspace.data)
@@ -313,12 +325,10 @@ def test_legacy_workspace_can_use_new_views_without_retroactive_updates(ui):
     app = AppTest.from_file(str(APP), default_timeout=15)
     app.session_state["context"] = context
     app.run()
-    assert not app.exception and not app.error
-    assert any(x.value == "Sistema: Não informado" for x in app.markdown)
+    assert not app.exception and len(app.chat_message) == 2
+    assert app.session_state["attached_case"] is None
     button(app, "Chamados").click().run()
-    app.selectbox(key="dialog_case").set_value("C08").run()
-    button(app, "Abrir no chat").click().run()
-    button(app, "Lista completa").click().run()
-    assert len(app.dataframe[0].value) == 8 and not app.exception and not app.error
-    assert set(app.dataframe[0].value["Prioridade"]) == {"Não informado"}
-    assert store.state(context) == before and service.provider.calls == 0
+    button(app, "Ver detalhes").click().run()
+    assert len(app.dataframe[0].value) == 8
+    assert any(x.value == "Sistema: Não informado" for x in app.markdown)
+    assert store.state(context) == before and service.provider.calls == 1

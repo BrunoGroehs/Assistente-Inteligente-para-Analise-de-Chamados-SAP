@@ -23,7 +23,7 @@ Não solicitar segredos no chat. O usuário configurou `.env` localmente e ativo
 1. **Núcleo e dados:** materializar oito fixtures, contratos e simulador; garantir consultas e regras de negócio independentes da UI. Saída: testes determinísticos do domínio.
 2. **Conhecimento e RAG:** curar guias, registrar metadados, validar embeddings e criar busca híbrida. Saída: evidências relevantes para os casos, sem gabarito no índice.
 3. **HITL:** gateway, propostas, validade, transações, idempotência e isolamento. Saída: escrita impossível sem autorização e testes de exceção aprovados.
-4. **Interface:** lista, chat, detalhes e cartões, seguindo a [direção visual](06-interface.md). Saída: atendimento integrado e validação manual desktop/tela estreita.
+4. **Interface:** chat único, seletor em diálogo, anexo opcional e cartões de aprovação, seguindo a [direção visual](06-interface.md). Saída: atendimento integrado e validação manual desktop/tela estreita.
 5. **Validação e publicação:** executar matriz relevante, registrar falhas e resultados, preparar secrets e acesso restrito. Publicar somente na etapa correspondente, sem alegar funcionamento antes do teste hospedado.
 6. **Entrega:** README, diagrama, base, chamados, decisões, testes, limitações e ensaio da demonstração.
 
@@ -59,7 +59,7 @@ Para futura integração real, adotar adaptador com APIs autorizadas, identidade
 | --- | --- |
 | 0 a 2 min | Trabalho manual transformado, recorte SAP MM e adequação da GenAI. |
 | 2 a 5 min | Arquitetura, documentos, RAG, prompts e distinção entre dados simulados e fontes oficiais. |
-| 5 a 8 min | C01: orientação fundamentada, fontes e confiança. |
+| 5 a 8 min | Pergunta geral sem anexo; botão Chamados, detalhes, anexar C01 e orientação fundamentada com fontes/confiança; remover anexo preservando a conversa. |
 | 8 a 11 min | C05/C06: esclarecimento, falta de evidência e validação humana. |
 | 11 a 15 min | C07/C08: proposta, Sim/Não, estado antes/depois e limite de autonomia. |
 | 15 a 18 min | Evidências reais, métricas, limitações, acesso futuro ao SAP e próximos passos. |
