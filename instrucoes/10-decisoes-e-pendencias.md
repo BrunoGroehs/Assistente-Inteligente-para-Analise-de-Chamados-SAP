@@ -35,6 +35,7 @@
 | D27 | Selecionar chamados junto ao chat e pela lista completa — refinada por D29 | Histórico: a seleção abria a conversa do caso e mantinha a lateral. Usuário esclareceu que deseja anexar/remover o chamado na mesma conversa. |
 | D28 | Aproximar o formato dos chamados do SAP for Me | Pedido do usuário: conferir uso SAP de “ticket”. Fontes oficiais usam case; perfis fictícios incluem contexto, componente sugerido, prioridade, impacto e reprodução. IDs/situações permanecem locais, sem envio à SAP nem migração de sessões antigas; [processo](02-processo-sap.md). |
 | D29 | Chat único, sem painel lateral, com chamado como anexo opcional | Esclarecimento explícito do usuário: botão lista chamados, detalhes e Anexar ao chat; cartão removível como arquivo do GPT; perguntas gerais sem anexo. Histórico preservado com contexto por mensagem; sem anexo não há consulta transacional ou proposta de negócio. Substitui D08 e o fluxo de navegação de D27; [interface](06-interface.md). |
+| D30 | Reduzir consultas repetidas nos cliques — recomendação técnica implementada | Usuário relatou lag e apontou Streamlit. Medição: cinco SELECTs e cerca de 2,7 s por interação simples. Snapshot exclusivo da sessão, leitura em lote e invalidação após análise/decisão/Atualizar; autorização sempre revalidada no banco. Manter o Streamlit nesta correção, sem decidir uma migração de interface não solicitada. [Arquitetura](03-arquitetura.md). |
 
 ## Pendências e tratamento
 
@@ -49,7 +50,7 @@
 | P05 | Modelos atuais verificados | Chat Qwen3.6 Plus e embeddings 8B/4.096 dimensões testados; saídas e referências validadas pelo servidor. Revalidar se o provedor mudar. |
 | P06 | Parâmetros iniciais implementados; calibração ampla pendente | Quatro sínteses mais duas políticas, busca textual/cosseno, RRF 60 e checagem de cobertura; avaliar relevância, falsos bloqueios e sustentação com rótulos fora do índice. |
 | P07 | Fixtures executáveis concluídas | Oito chamados com datas explícitas em C07/C08, perfis de suporte fictícios para novas sessões e gabaritos fora da base; C05 preserva lacunas. |
-| P08 | Código e validação funcional; revisão estética pendente | 140 testes locais e seis verificações reais do chat com anexo opcional. Rodadas anteriores de RAG/HITL e seleção mantidas como histórico. Sem painel lateral; anexar/remover preserva a conversa e o contexto de cada pergunta. Navegador indisponível nesta sessão; revisão visual/teclado precisa ocorrer na interface em execução. |
+| P08 | Código e validação funcional; revisão estética pendente | 147 testes locais; seis verificações reais de anexos e três de HITL com cache visual. Navegação sem SQL: anexar/remover perto de 0,03 s na amostra AppTest; análise real perto de 25 s, com etapas visíveis. Rodadas anteriores mantidas como histórico. Revisão visual/teclado ainda pendente. |
 | P09 | Publicação, acesso da banca e limites de consumo | Configurar na etapa de publicação, validar hospedado e ensaiar apresentação. |
 
 ## Como incorporar novos pedidos

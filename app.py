@@ -11,6 +11,7 @@ from sap_assistant.cases import (
     occurrence_label, order_summary, priority_label,
 )
 from sap_assistant.database import AccessDenied, DatabaseSetupError, new_id
+from sap_assistant.presentation import visible_proposals
 from sap_assistant import runtime
 
 st.set_page_config(page_title="Assistente SAP", page_icon="◦", layout="wide")
@@ -39,6 +40,18 @@ def configuration_screen(message):
     st.write("Configure o arquivo `.env` local ou os secrets do Streamlit Cloud conforme o README.")
     st.write("O aplicativo usa PostgreSQL no Supabase e os modelos Qwen pelo OpenRouter.")
     st.stop()
+
+
+def invalidate_view():
+    st.session_state.pop("ui_view", None)
+
+
+def get_view(store, context):
+    cached = st.session_state.get("ui_view")
+    if cached is None or cached["context"] != context:
+        cached = {"context": context, "snapshot": store.snapshot(context)}
+        st.session_state.ui_view = cached
+    return cached["snapshot"]
 
 
 def close_case_selector():
@@ -223,7 +236,10 @@ def approval_card(proposal, gateway, context, attached_case, tickets):
             if no.button("Não, recusar", key=f"no_{proposal['id']}"):
                 decision = False
             if decision is not None:
-                gateway.decide(context, proposal["id"], decision)
+                try:
+                    gateway.decide(context, proposal["id"], decision)
+                finally:
+                    invalidate_view()
                 st.rerun()
         else:
             st.write(proposal["result"].get("message", "Nenhuma autorização ativa para esta proposta."))
@@ -259,7 +275,8 @@ def main():
         if "context" not in st.session_state:
             st.session_state.context = store.create_workspace()
         context = st.session_state.context
-        state = store.state(context)
+        view = get_view(store, context)
+        state = view["state"]
     except AccessDenied:
         st.error("Esta sessão não pode ser retomada. Reabra a página para iniciar um novo ambiente.")
         st.stop()
@@ -274,8 +291,8 @@ def main():
         selected = None
         st.session_state.attached_case = None
     ticket = state["tickets"].get(selected)
-    messages = store.messages(context)
-    proposals = store.proposals(context)
+    messages = view["messages"]
+    proposals = visible_proposals(view["proposals"])
     proposals_by_id = {item["id"]: item for item in proposals}
     pending = any(x["state"] == "pendente" and x["ticket"] == selected for x in proposals)
     st.title("Assistente SAP")
@@ -325,6 +342,8 @@ def main():
         with st.container(horizontal=True, vertical_alignment="center"):
             st.button("Chamados", icon=":material/confirmation_number:", help="Consultar e anexar um chamado",
                       key="open_case_selector", on_click=open_case_selector, args=(selected,))
+            st.button("Atualizar", icon=":material/refresh:", key="refresh_view", type="tertiary",
+                      help="Recarregar os dados da conversa", on_click=invalidate_view)
             if ticket and not any(x["ticket"] == selected for x in messages):
                 if st.button("Analisar chamado", type="primary", disabled=not settings.api_key or pending):
                     request = ticket["description"]
@@ -339,13 +358,15 @@ def main():
     if request:
         try:
             with st.status("Consultando dados e fontes…", expanded=False) as status:
-                assistant.analyze(context, selected, request, new_id())
+                assistant.analyze(context, selected, request, new_id(), on_progress=lambda label: status.update(label=label))
                 status.update(label="Atendimento atualizado", state="complete")
             st.rerun()
         except ValueError as exc:
             st.error(str(exc))
         except Exception:
             st.error("Não foi possível concluir o atendimento. Nenhuma ação de negócio foi autorizada por esta mensagem.")
+        finally:
+            invalidate_view()
 
 
 try:

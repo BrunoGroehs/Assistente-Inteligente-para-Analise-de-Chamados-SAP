@@ -25,6 +25,7 @@ def synchronize_knowledge(store, directory=None):
     directory = directory or ROOT / "conhecimento"
     catalog = json.loads((directory / "catalogo.json").read_text(encoding="utf-8"))
     with store.transaction() as db:
+        existing = {row.id: row for row in db.scalars(select(Chunk))}
         ids = []
         for entry in catalog:
             path = (directory / entry["file"]).resolve()
@@ -32,7 +33,7 @@ def synchronize_knowledge(store, directory=None):
                 raise ValueError("Caminho de conhecimento inválido.")
             content = path.read_text(encoding="utf-8")
             content_hash = hashlib.sha256((content + json.dumps(entry, sort_keys=True)).encode()).hexdigest()
-            row = db.get(Chunk, entry["id"])
+            row = existing.get(entry["id"])
             if row is None:
                 row = Chunk(id=entry["id"], title=entry["title"], content=content,
                             attributes=entry, content_hash=content_hash)
@@ -41,8 +42,9 @@ def synchronize_knowledge(store, directory=None):
                 row.title, row.content, row.attributes = entry["title"], content, entry
                 row.content_hash, row.embedding, row.embedding_model = content_hash, None, None
             ids.append(entry["id"])
-        for row in db.scalars(select(Chunk).where(Chunk.id.not_in(ids))):
-            db.delete(row)
+        for key, row in existing.items():
+            if key not in ids:
+                db.delete(row)
     return len(catalog)
 
 

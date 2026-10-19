@@ -191,3 +191,12 @@ def test_all_fixtures_can_pass_through_pipeline_with_controlled_provider(service
     result = service.analyze(context, case, before["tickets"][case]["description"])
     assert result["state"] == "completed"
     assert store.state(context) == before
+
+
+def test_progress_reports_real_stages_without_exposing_unvalidated_model_text(service, context):
+    progress = []
+    result = service.analyze(context, None, "Explique recebimento.", on_progress=progress.append)
+    assert result["state"] == "completed"
+    assert progress == ["Consultando o contexto…", "Buscando fontes no RAG…",
+                        "Verificando se as fontes sustentam a pergunta…",
+                        "Preparando a resposta com as fontes verificadas…", "Salvando o atendimento…"]

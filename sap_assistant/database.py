@@ -192,6 +192,28 @@ class Store:
         with Session(self.engine) as db:
             return deepcopy(self.authorize(db, context).data)
 
+    def snapshot(self, context):
+        """Leitura de apresentação em uma conexão, sem decidir ou bloquear propostas."""
+        with Session(self.engine) as db:
+            workspace = self.authorize(db, context)
+            messages = db.scalars(select(Message).where(Message.workspace_id == context.workspace_id)
+                                  .order_by(Message.created_at, Message.id)).all()
+            proposals = db.scalars(select(Proposal).where(Proposal.workspace_id == context.workspace_id)
+                                   .order_by(Proposal.created_at)).all()
+            return {"state": deepcopy(workspace.data),
+                    "messages": [self._message_view(row) for row in messages],
+                    "proposals": [self._proposal_view(row) for row in proposals]}
+
+    @staticmethod
+    def _message_view(row):
+        return {"id": row.id, "ticket": row.ticket, "role": row.role, "content": row.content,
+                "details": deepcopy(row.details), "created_at": row.created_at}
+
+    @staticmethod
+    def _proposal_view(row):
+        return {"id": row.id, "ticket": row.ticket, "payload": deepcopy(row.payload), "state": row.state,
+                "expires_at": row.expires_at, "result": deepcopy(row.result)}
+
     def messages(self, context, ticket=None):
         with Session(self.engine) as db:
             self.authorize(db, context)
@@ -199,8 +221,7 @@ class Store:
             if ticket is not None:
                 query = query.where(Message.ticket == ticket)
             rows = db.scalars(query.order_by(Message.created_at, Message.id)).all()
-            return [{"id": x.id, "ticket": x.ticket, "role": x.role, "content": x.content, "details": deepcopy(x.details),
-                     "created_at": x.created_at} for x in rows]
+            return [self._message_view(row) for row in rows]
 
     def proposals(self, context, ticket=None, now=None):
         with self.transaction() as db:
@@ -215,8 +236,7 @@ class Store:
                     row.state = "expirada"
                     db.add(Audit(workspace_id=context.workspace_id, event="proposta_expirada",
                                  details={"proposal_id": row.id}))
-                result.append({"id": row.id, "ticket": row.ticket, "payload": deepcopy(row.payload), "state": row.state,
-                               "expires_at": row.expires_at, "result": deepcopy(row.result)})
+                result.append(self._proposal_view(row))
             return result
 
     def audit(self, context):

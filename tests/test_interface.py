@@ -332,3 +332,87 @@ def test_legacy_workspace_and_history_remain_readable_without_migration(ui):
     assert len(app.dataframe[0].value) == 8
     assert any(x.value == "Sistema: Não informado" for x in app.markdown)
     assert store.state(context) == before and service.provider.calls == 1
+
+
+def test_navigation_uses_no_database_roundtrips_and_refresh_reads_once(ui):
+    from sqlalchemy import event
+
+    store, _, _ = ui
+    app = AppTest.from_file(str(APP), default_timeout=15).run()
+    statements = []
+
+    def count(*args):
+        statements.append(1)
+
+    event.listen(store.engine, "before_cursor_execute", count)
+    try:
+        app.run()
+        button(app, "Chamados").click().run()
+        app.selectbox(key="dialog_case").set_value("C07").run()
+        button(app, "Ver detalhes").click().run()
+        button(app, "Anexar ao chat").click().run()
+        button(app, "Remover anexo").click().run()
+        assert not app.exception and not statements
+        button(app, "Atualizar").click().run()
+        assert not app.exception and len(statements) == 3
+    finally:
+        event.remove(store.engine, "before_cursor_execute", count)
+
+
+def test_manual_refresh_updates_external_changes_without_shared_cache(ui):
+    store, service, _ = ui
+    app = AppTest.from_file(str(APP), default_timeout=15).run()
+    context = app.session_state["context"]
+    service.analyze(context, None, "Explique recebimento.")
+    app.run()
+    assert not app.chat_message  # Snapshot de apresentação não é a fonte de verdade.
+    button(app, "Atualizar").click().run()
+    assert len(app.chat_message) == 2
+    other = store.create_workspace()
+    app.session_state["context"] = other
+    app.run()
+    assert not app.exception and not app.chat_message
+    assert app.session_state["ui_view"]["context"] == other
+
+
+def test_cached_approval_still_validates_current_business_data_on_server(ui):
+    from copy import deepcopy
+
+    store, service, _ = ui
+    provider = ReceiptProvider()
+    service.provider, service.retriever = provider, Retriever(store, provider)
+    app = AppTest.from_file(str(APP), default_timeout=15).run()
+    attach(app, "C07")
+    button(app, "Analisar chamado").click().run()
+    context = app.session_state["context"]
+    with store.transaction() as db:
+        workspace = store.authorize(db, context, lock=True)
+        data = deepcopy(workspace.data)
+        data["orders"]["4500001007/10"]["received"] = "21"
+        workspace.data = data
+    button(app, "Sim, autorizar").click().run()
+    assert not app.exception
+    assert not store.state(context)["receipts"]
+    assert store.proposals(context, "C07")[0]["state"] == "invalidada"
+    assert app.session_state["ui_view"]["snapshot"]["state"]["orders"]["4500001007/10"]["received"] == "21"
+    assert not any(x.label == "Sim, autorizar" for x in app.button)
+
+
+def test_cached_proposal_expires_visually_without_database_query(ui, monkeypatch):
+    from datetime import datetime
+    from sap_assistant import presentation
+
+    store, service, _ = ui
+    provider = ReceiptProvider()
+    service.provider, service.retriever = provider, Retriever(store, provider)
+    app = AppTest.from_file(str(APP), default_timeout=15).run()
+    attach(app, "C07")
+    button(app, "Analisar chamado").click().run()
+    cached = app.session_state["ui_view"]["snapshot"]
+    expiry = datetime.fromisoformat(cached["proposals"][0]["expires_at"])
+    monkeypatch.setattr(presentation, "utcnow", lambda: expiry)
+    app.run()
+    assert not app.exception and not app.chat_input[0].disabled
+    assert not any(x.label == "Sim, autorizar" for x in app.button)
+    assert any(x.value == "**Expirada**" for x in app.markdown)
+    assert cached["proposals"][0]["state"] == "pendente"  # Derivação não altera snapshot/persistência.

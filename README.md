@@ -66,6 +66,8 @@ O LLM devolve uma proposta tipada, sem URL/SQL arbitrário. O gateway valida ope
 
 Sem chamado anexado, não há proposta de alteração nem consulta aos pedidos simulados. Remover o anexo preserva a proposta anterior e permite perguntas gerais; para decidir, reanexe o chamado original pelo cartão. A decisão continua vinculada à proposta exata, com a mesma validade.
 
+A navegação reutiliza uma cópia visual exclusiva da sessão para evitar consultas ao banco em cada clique. Ela é recarregada após análise/decisão ou pelo botão **Atualizar**, usado também para mudanças externas. Essa cópia nunca autoriza operações: o gateway sempre verifica o Supabase atual antes de executar. Durante a análise, o status informa a etapa em andamento. [Medições de desempenho](evidencias/README.md).
+
 O “passo a passo” mostra operações observáveis, evidências e justificativas resumidas. Raciocínio interno bruto não é exibido ou usado como auditoria.
 
 As respostas indicam as fontes do RAG por números e links que abrem diretamente a documentação oficial. URLs repetidas são agrupadas; fontes citadas, referências apenas consultadas e dados simulados têm áreas próprias. Não há exibição de `content`, trechos ou popup. Textos e metadados permanecem salvos internamente para recuperação e auditoria.

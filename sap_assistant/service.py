@@ -58,7 +58,7 @@ class AssistantService:
         self.max_analyses = max_analyses
         self.gateway = ApprovalGateway(store)
 
-    def analyze(self, context, ticket_id, message, submission_id=None):
+    def analyze(self, context, ticket_id, message, submission_id=None, on_progress=None):
         if not message.strip() or len(message) > 6000:
             raise ValueError("Envie uma mensagem de até 6.000 caracteres.")
         message = message.strip()
@@ -88,7 +88,9 @@ class AssistantService:
         started = time.perf_counter()
         steps = []
         evidence, metadata = [], {}
+        progress = on_progress or (lambda _: None)
         try:
+            progress("Consultando o contexto…")
             steps.append({"step": "Solicitação recebida", "elapsed_ms": 0})
             history = self.store.messages(context, channel)[-10:]
             user_text = "\n".join(dict.fromkeys([*([ticket["description"]] if ticket else []), *[
@@ -104,6 +106,7 @@ class AssistantService:
                     content=json.dumps(facts, ensure_ascii=False), kind="consulta_simulada", version=str(order["version"])))
                 steps.append({"step": "Pedido e histórico simulados consultados", "elapsed_ms": round((time.perf_counter()-started)*1000)})
             query = message + ("\n" + ticket["title"] + "\n" + ticket["description"] if ticket else "")
+            progress("Buscando fontes no RAG…")
             recovered, retrieval_meta = self.retriever.search(query)
             evidence.extend(recovered)
             metadata["retrieval"] = retrieval_meta
@@ -114,6 +117,7 @@ class AssistantService:
                 assessment = insufficient_assessment("Base vazia ou código customizado sem documentação.")
                 check_meta = {"method": "server_policy"}
             else:
+                progress("Verificando se as fontes sustentam a pergunta…")
                 assessment, check_meta = self.provider.assess_knowledge({
                     "ticket": ticket, "case_attached": ticket is not None, "message": message,
                     "environment": "SAP MM simulado; dados fictícios",
@@ -127,7 +131,8 @@ class AssistantService:
                 assessment = insufficient_assessment("Prova de cobertura inválida; resposta técnica bloqueada.")
                 approved_ids = []
             knowledge_check = {**assessment.model_dump(), "provider": check_meta}
-            steps.append({"step": "Cobertura do conhecimento verificada para a pergunta atual"})
+            steps.append({"step": "Cobertura do conhecimento verificada para a pergunta atual",
+                          "elapsed_ms": round((time.perf_counter()-started)*1000)})
             provider_meta = {"server_policy": "insufficient_knowledge"}
             if assessment.scope == "fora_do_escopo":
                 analysis = out_of_scope_analysis()
@@ -137,6 +142,7 @@ class AssistantService:
             else:
                 generation_evidence = [x for x in evidence if x.kind in {"consulta_simulada", "relato_usuario"}
                                        or x.id in approved_ids]
+                progress("Preparando a resposta com as fontes verificadas…")
                 analysis, provider_meta = self.provider.analyze(
                     {"ticket": ticket, "case_attached": ticket is not None, "message": message,
                      "evidence": [x.model_dump() for x in generation_evidence],
@@ -160,6 +166,7 @@ class AssistantService:
             metadata = {"attachment": attachment, "retrieval": retrieval_meta, "provider": provider_meta, "knowledge_check": knowledge_check,
                         "analysis": analysis.model_dump(mode="json")}
             content = render_analysis(analysis, evidence)
+            progress("Salvando o atendimento…")
             with self.store.transaction() as db:
                 workspace = self.store.authorize(db, context, lock=True)
                 if analysis.action:

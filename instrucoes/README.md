@@ -38,6 +38,8 @@ O rótulo de uma seção vale para seus itens, salvo indicação diferente. Link
 
 **Atualização confirmada:** botão Chamados no compositor lista os casos, permite ver detalhes e anexar ao chat. O cartão do chamado pode ser removido ou substituído; perguntas sem anexo usam o RAG geral, sem dados/histórico do caso anterior nem propostas de alteração. Uma única linha do tempo preserva o contexto de cada mensagem. Isso substitui a lista lateral e a tela separada de listagem. Perfis de suporte seguem inspirados no SAP for Me; [processo](02-processo-sap.md) e [interface](06-interface.md).
 
+**Otimização implementada:** navegação reutiliza a cópia visual exclusiva da sessão; análise/decisão/Atualizar recarregam o estado. Não autorizar operações pelo cache. Medições, validação de HITL com cartão antigo e limites da amostra estão nas [evidências](../evidencias/README.md).
+
 **Pendências principais:** revisão visual em navegador e teclado, calibração com corpus maior, discussão dos prompts e publicação quando solicitada. A avaliação funcional integrada está registrada nas [evidências](../evidencias/README.md), com [cobertura dos requisitos](../evidencias/verificacao-requisitos.md). Configuração real e resultados de testes devem ser consultados nesses relatórios, sem confundir histórico documental com estado atual.
 
 Novas solicitações devem atualizar seu documento responsável e, se alterarem uma escolha, o [histórico](10-decisoes-e-pendencias.md).

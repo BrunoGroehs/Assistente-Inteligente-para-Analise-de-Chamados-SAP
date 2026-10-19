@@ -26,6 +26,8 @@ Uma proposta pendente continua junto à resposta original. Com outro anexo ou se
 
 Em telas estreitas, preservar leitura, detalhes e botões, sem depender de uma barra lateral ou de rolagem horizontal para informações essenciais. Usar componentes nativos; a tabela é uma visão resumida, com detalhes em texto acessível. Ver [formato inspirado no SAP for Me](02-processo-sap.md) e [aprovações](07-aprovacoes-humanas.md).
 
+**Recomendação técnica implementada para reduzir lag:** manter a cópia de apresentação na sessão; cliques simples não recarregam o Supabase. **Atualizar**, com ícone discreto junto ao compositor, recarrega a conversa explicitamente. A cópia também é renovada após análise/decisão. Mudanças externas precisam desse botão; cartões antigos nunca dispensam a validação atual do gateway. Durante análise, o status distingue consulta de contexto, busca no RAG, verificação de suporte, preparação da resposta e salvamento. Não apresentar raciocínio interno nem resposta parcial ainda não validada.
+
 ## Fontes e etapas observáveis
 
 **Decisão confirmada e implementada, substituindo o popup:** os números nos fatos e os links em **Fontes citadas** abrem diretamente o site oficial. Agrupar a mesma URL em um único item com os números correspondentes. Exibir título e origem de modo compacto; não mostrar o conteúdo dos documentos, parágrafos ou diálogo de fonte. Metadados e textos continuam no histórico interno.
