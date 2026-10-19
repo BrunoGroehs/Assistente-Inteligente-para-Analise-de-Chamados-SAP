@@ -1,0 +1,1143 @@
+{
+  "date": "2026-10-19T03:29:17.807723+00:00",
+  "mode": "Edge headless com serviços reais e cliques automatizados",
+  "runs": {
+    "inicial": {
+      "scenarios": 15,
+      "questions": 20,
+      "passed": true
+    },
+    "reteste": {
+      "scenarios": 10,
+      "questions": 16,
+      "passed": false
+    },
+    "reteste-verificacao": {
+      "scenarios": 1,
+      "questions": 1,
+      "passed": true
+    },
+    "reteste-cautela": {
+      "scenarios": 1,
+      "questions": 1,
+      "passed": true
+    }
+  },
+  "unique_scenarios": 15,
+  "questions_total": 38,
+  "scenario_executions": 27,
+  "last_evidence_all_passed": true,
+  "code_hash_normalization": "Texto UTF-8 com finais de linha LF",
+  "code_files_sha256": {
+    "prompts/system.txt": "a961a7a5bf3a63a1a19555c0b66b6921b9ee0c2ad156201923227328858d2eb5",
+    "prompts/knowledge.txt": "f132065390d15f5de80e82805416c967ddd0a252762e39d06a07bcbf302d8a52",
+    "sap_assistant/application_context.py": "205bee01fc6739131cf88bcb59bda44945574de59fa9542e3b09fa9a2d3f6907",
+    "sap_assistant/contracts.py": "71e9460ff12199aae41f87b7eb1516f03484f46fe0dad2d09603861ae4f61246",
+    "sap_assistant/service.py": "28e95698f44e75342d964c750062469816bd61c9c8adc02652bdd18956839aa1",
+    "frontend/e2e/jornadas-reais.spec.ts": "2223c46d05c833fa76b6638a4c43857a755b332f6b040ab54c7d3bca5dbad199"
+  },
+  "latest_per_scenario": [
+    {
+      "id": "U01",
+      "file": "evidencias/jornadas-usuario/reteste/U01.json",
+      "status": "passed"
+    },
+    {
+      "id": "U02",
+      "file": "evidencias/jornadas-usuario/reteste/U02.json",
+      "status": "passed"
+    },
+    {
+      "id": "U03",
+      "file": "evidencias/jornadas-usuario/reteste/U03.json",
+      "status": "passed"
+    },
+    {
+      "id": "U04",
+      "file": "evidencias/jornadas-usuario/reteste/U04.json",
+      "status": "passed"
+    },
+    {
+      "id": "U05",
+      "file": "evidencias/jornadas-usuario/reteste-cautela/U05.json",
+      "status": "passed"
+    },
+    {
+      "id": "U06",
+      "file": "evidencias/jornadas-usuario/reteste/U06.json",
+      "status": "passed"
+    },
+    {
+      "id": "U07",
+      "file": "evidencias/jornadas-usuario/inicial/U07.json",
+      "status": "passed"
+    },
+    {
+      "id": "U08",
+      "file": "evidencias/jornadas-usuario/reteste/U08.json",
+      "status": "passed"
+    },
+    {
+      "id": "U09",
+      "file": "evidencias/jornadas-usuario/reteste/U09.json",
+      "status": "passed"
+    },
+    {
+      "id": "U10",
+      "file": "evidencias/jornadas-usuario/reteste/U10.json",
+      "status": "passed"
+    },
+    {
+      "id": "U11",
+      "file": "evidencias/jornadas-usuario/reteste/U11.json",
+      "status": "passed"
+    },
+    {
+      "id": "U12",
+      "file": "evidencias/jornadas-usuario/inicial/U12.json",
+      "status": "passed"
+    },
+    {
+      "id": "U13",
+      "file": "evidencias/jornadas-usuario/inicial/U13.json",
+      "status": "passed"
+    },
+    {
+      "id": "U14",
+      "file": "evidencias/jornadas-usuario/inicial/U14.json",
+      "status": "passed"
+    },
+    {
+      "id": "U15",
+      "file": "evidencias/jornadas-usuario/inicial/U15.json",
+      "status": "passed"
+    }
+  ],
+  "observed_harness_ms": {
+    "min": 10507,
+    "median": 32761,
+    "max": 44763
+  },
+  "models_reported": [
+    "qwen/qwen3.6-plus"
+  ],
+  "usage_reported_chat_only": {
+    "prompt_tokens": 246372,
+    "completion_tokens": 22491,
+    "total_tokens": 268863
+  },
+  "chat_requests_with_reported_metadata": 68,
+  "provenance": [
+    {
+      "message_id": "049e9875-e182-4c74-992c-72600b317206",
+      "prompt_version": "Versão: 2026-10-18.10 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K11",
+        "K01",
+        "K09",
+        "K07",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "RELATO",
+        "DATA",
+        "K05"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K05",
+          "span_id": "K05:1"
+        },
+        {
+          "evidence_id": "K01",
+          "span_id": "K01:1"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "0682d9d6-3db1-4261-b9ad-9639fb4e33a4",
+      "prompt_version": "Versão: 2026-10-19.11 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K01",
+        "K08",
+        "K09",
+        "K12",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "RELATO",
+        "K01",
+        "K08"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K01",
+          "span_id": "K01:2"
+        },
+        {
+          "evidence_id": "K08",
+          "span_id": "K08:1"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "0c6ead0e-6a30-4b62-8e55-24886ed87382",
+      "prompt_version": "Versão: 2026-10-19.11 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K11",
+        "K08",
+        "K12",
+        "K07",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "RELATO",
+        "DATA",
+        "K05"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K05",
+          "span_id": "K05:1"
+        },
+        {
+          "evidence_id": "K05",
+          "span_id": "K05:2"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "0d720866-6774-4143-8ba0-4dd0c822d1b7",
+      "prompt_version": null,
+      "application_context": false,
+      "retrieved_ids": [
+        "K02",
+        "K09",
+        "K08",
+        "K12",
+        "K04",
+        "K05"
+      ],
+      "references": [],
+      "coverage_supports": [],
+      "chat_requests_with_reported_metadata": 1
+    },
+    {
+      "message_id": "2912d3c4-864c-4608-ae16-aee9eb83a231",
+      "prompt_version": "Versão: 2026-10-18.10 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K08",
+        "K11",
+        "K02",
+        "K01",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "RELATO",
+        "DATA",
+        "K05"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K05",
+          "span_id": "K05:1"
+        },
+        {
+          "evidence_id": "K02",
+          "span_id": "K02:1"
+        },
+        {
+          "evidence_id": "K01",
+          "span_id": "K01:1"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "2e01caa9-e932-4bb1-8bd1-9eb6adac92e5",
+      "prompt_version": "Versão: 2026-10-18.10 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K02",
+        "K06",
+        "K01",
+        "K09",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "DATA",
+        "RELATO",
+        "K02"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K02",
+          "span_id": "K02:1"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "313b4fa5-4d51-4660-9469-b92c54b31719",
+      "prompt_version": "Versão: 2026-10-18.10 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K02",
+        "K06",
+        "K01",
+        "K11",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "DATA",
+        "RELATO",
+        "K05"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K01",
+          "span_id": "K01:1"
+        },
+        {
+          "evidence_id": "K05",
+          "span_id": "K05:1"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "314abdad-b3e7-491e-b683-376d0c4bd344",
+      "prompt_version": "Versão: 2026-10-19.11 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K11",
+        "K06",
+        "K02",
+        "K01",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "RELATO",
+        "DATA",
+        "K05"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K05",
+          "span_id": "K05:1"
+        },
+        {
+          "evidence_id": "K02",
+          "span_id": "K02:1"
+        },
+        {
+          "evidence_id": "K01",
+          "span_id": "K01:1"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "363d9452-469a-4ec6-82eb-c39d41252801",
+      "prompt_version": "Versão: 2026-10-18.10 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K01",
+        "K08",
+        "K09",
+        "K12",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "RELATO",
+        "K01",
+        "K08"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K01",
+          "span_id": "K01:2"
+        },
+        {
+          "evidence_id": "K08",
+          "span_id": "K08:1"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "42ca7ba9-6d4b-4fea-8022-b347833f7a1f",
+      "prompt_version": "Versão: 2026-10-19.11 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K11",
+        "K01",
+        "K09",
+        "K07",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "RELATO",
+        "DATA",
+        "K05"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K05",
+          "span_id": "K05:1"
+        },
+        {
+          "evidence_id": "K01",
+          "span_id": "K01:1"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "45c68cab-c301-4ec8-a24b-1719b8daeb0f",
+      "prompt_version": "Versão: 2026-10-19.11 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K02",
+        "K06",
+        "K01",
+        "K09",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "RELATO",
+        "DATA",
+        "K02"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K02",
+          "span_id": "K02:1"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "4c5b3deb-37e8-4600-8f4f-4378c1d15664",
+      "prompt_version": "Versão: 2026-10-19.11 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K03",
+        "K09",
+        "K07",
+        "K01",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "DATA",
+        "K03",
+        "RELATO"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K03",
+          "span_id": "K03:1"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "4d286052-490f-4bb8-b8c0-6dc4a1ea7a67",
+      "prompt_version": "Versão: 2026-10-19.11 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K01",
+        "K02",
+        "K03",
+        "K12",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "K01",
+        "K02"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K01",
+          "span_id": "K01:1"
+        },
+        {
+          "evidence_id": "K02",
+          "span_id": "K02:1"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "52c361b0-4864-47e8-aae9-06467989c741",
+      "prompt_version": "Versão: 2026-10-19.11 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K08",
+        "K11",
+        "K02",
+        "K01",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "RELATO",
+        "DATA",
+        "K05"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K05",
+          "span_id": "K05:1"
+        },
+        {
+          "evidence_id": "K02",
+          "span_id": "K02:1"
+        },
+        {
+          "evidence_id": "K01",
+          "span_id": "K01:1"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "5bb95648-06f4-4686-9708-d4bbc0ac6b2c",
+      "prompt_version": null,
+      "application_context": false,
+      "retrieved_ids": [
+        "K02",
+        "K03",
+        "K01",
+        "K08",
+        "K04",
+        "K05"
+      ],
+      "references": [],
+      "coverage_supports": [],
+      "chat_requests_with_reported_metadata": 1
+    },
+    {
+      "message_id": "5bfe2fff-0558-4173-b35b-1e8c6769e848",
+      "prompt_version": "Versão: 2026-10-19.11 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K06",
+        "K02",
+        "K01",
+        "K11",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "DATA",
+        "K05"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K01",
+          "span_id": "K01:1"
+        },
+        {
+          "evidence_id": "K02",
+          "span_id": "K02:1"
+        },
+        {
+          "evidence_id": "K05",
+          "span_id": "K05:1"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "6262eef6-dc58-4430-aa18-d3d95ffdba76",
+      "prompt_version": "Versão: 2026-10-18.10 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K06",
+        "K02",
+        "K01",
+        "K09",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "DATA",
+        "RELATO",
+        "K05",
+        "K02"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K05",
+          "span_id": "K05:1"
+        },
+        {
+          "evidence_id": "K02",
+          "span_id": "K02:1"
+        },
+        {
+          "evidence_id": "K02",
+          "span_id": "K02:2"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "629d2a2e-9adf-4452-a029-a2eb0a7a181a",
+      "prompt_version": "Versão: 2026-10-18.10 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K02",
+        "K01",
+        "K06",
+        "K12",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "DATA",
+        "K05",
+        "K06"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K05",
+          "span_id": "K05:1"
+        },
+        {
+          "evidence_id": "K02",
+          "span_id": "K02:2"
+        },
+        {
+          "evidence_id": "K06",
+          "span_id": "K06:3"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "7b79405c-6ecc-4078-9fae-52742171cfde",
+      "prompt_version": "Versão: 2026-10-19.11 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K02",
+        "K06",
+        "K09",
+        "K01",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "DATA",
+        "K02"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K02",
+          "span_id": "K02:1"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "84f2b60e-67e9-45a2-8d83-07ea912f5327",
+      "prompt_version": null,
+      "application_context": false,
+      "retrieved_ids": [
+        "K09",
+        "K11",
+        "K02",
+        "K12",
+        "K04",
+        "K05"
+      ],
+      "references": [],
+      "coverage_supports": [],
+      "chat_requests_with_reported_metadata": 1
+    },
+    {
+      "message_id": "8644edfc-8f28-4f64-90b2-066fd1636987",
+      "prompt_version": "Versão: 2026-10-18.10 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K01",
+        "K12",
+        "K02",
+        "K07",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "K01",
+        "RELATO"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K01",
+          "span_id": "K01:1"
+        },
+        {
+          "evidence_id": "K01",
+          "span_id": "K01:2"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "873d2463-dad6-4b77-b9fc-7957d07f48ef",
+      "prompt_version": "Versão: 2026-10-18.10 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K12",
+        "K09",
+        "K03",
+        "K07",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "RELATO",
+        "K12"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K12",
+          "span_id": "K12:1"
+        },
+        {
+          "evidence_id": "K12",
+          "span_id": "K12:2"
+        },
+        {
+          "evidence_id": "K12",
+          "span_id": "K12:3"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "8cb28eec-a547-4fb3-b4ab-7040bbc00a36",
+      "prompt_version": "Versão: 2026-10-18.10 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K11",
+        "K01",
+        "K03",
+        "K02",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "K11",
+        "RELATO"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K11",
+          "span_id": "K11:1"
+        },
+        {
+          "evidence_id": "K11",
+          "span_id": "K11:2"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "91461c30-3711-4132-b530-cbffac4d2074",
+      "prompt_version": null,
+      "application_context": false,
+      "retrieved_ids": [
+        "K11",
+        "K12",
+        "K06",
+        "K01",
+        "K04",
+        "K05"
+      ],
+      "references": [],
+      "coverage_supports": [],
+      "chat_requests_with_reported_metadata": 0
+    },
+    {
+      "message_id": "a722b75b-5e25-472b-b9e1-ed4ad331c6f2",
+      "prompt_version": null,
+      "application_context": false,
+      "retrieved_ids": [
+        "K02",
+        "K03",
+        "K08",
+        "K12",
+        "K04",
+        "K05"
+      ],
+      "references": [],
+      "coverage_supports": [],
+      "chat_requests_with_reported_metadata": 1
+    },
+    {
+      "message_id": "a81caffd-5f76-4317-9c20-67871c57d37b",
+      "prompt_version": "Versão: 2026-10-18.10 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K11",
+        "K08",
+        "K12",
+        "K07",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "RELATO",
+        "DATA",
+        "K05"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K05",
+          "span_id": "K05:1"
+        },
+        {
+          "evidence_id": "K05",
+          "span_id": "K05:2"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "b515ee77-6894-42d6-aab1-26ee49494181",
+      "prompt_version": null,
+      "application_context": true,
+      "retrieved_ids": [],
+      "references": [],
+      "coverage_supports": [],
+      "chat_requests_with_reported_metadata": 0
+    },
+    {
+      "message_id": "b9e467f8-6d7f-41cf-b831-0136dee2b13b",
+      "prompt_version": "Versão: 2026-10-19.11 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K02",
+        "K01",
+        "K06",
+        "K12",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "DATA",
+        "K05",
+        "RELATO"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K05",
+          "span_id": "K05:1"
+        },
+        {
+          "evidence_id": "K02",
+          "span_id": "K02:2"
+        },
+        {
+          "evidence_id": "K06",
+          "span_id": "K06:3"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "ba10ae3e-9d26-470c-bc0b-bf8169af35f7",
+      "prompt_version": "Versão: 2026-10-18.10 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K10",
+        "K01",
+        "K03",
+        "K09",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "RELATO",
+        "K10"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K10",
+          "span_id": "K10:2"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "d1662a2f-f6ce-4929-adcc-8c825140425b",
+      "prompt_version": "Versão: 2026-10-18.10 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K11",
+        "K06",
+        "K02",
+        "K01",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "RELATO",
+        "DATA",
+        "K05"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K05",
+          "span_id": "K05:1"
+        },
+        {
+          "evidence_id": "K02",
+          "span_id": "K02:1"
+        },
+        {
+          "evidence_id": "K01",
+          "span_id": "K01:1"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "dc0d217f-88a1-4490-b389-fce701b39869",
+      "prompt_version": "Versão: 2026-10-18.10 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K02",
+        "K06",
+        "K09",
+        "K01",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "DATA",
+        "K02"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K02",
+          "span_id": "K02:1"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "e1c59cad-5971-40ac-ba40-c0668d8f30ec",
+      "prompt_version": "Versão: 2026-10-19.11 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K03",
+        "K09",
+        "K07",
+        "K01",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "RELATO",
+        "DATA",
+        "K03"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K03",
+          "span_id": "K03:1"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "e4b3c658-112a-4bdd-9abc-0e5811a02f17",
+      "prompt_version": "Versão: 2026-10-18.10 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K01",
+        "K02",
+        "K03",
+        "K12",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "RELATO",
+        "K01",
+        "K02"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K01",
+          "span_id": "K01:1"
+        },
+        {
+          "evidence_id": "K02",
+          "span_id": "K02:1"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "e60cff84-d497-41a5-b7ea-6b688457c23a",
+      "prompt_version": "Versão: 2026-10-19.11 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K06",
+        "K02",
+        "K01",
+        "K09",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "DATA",
+        "K05",
+        "RELATO"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K05",
+          "span_id": "K05:1"
+        },
+        {
+          "evidence_id": "K02",
+          "span_id": "K02:1"
+        },
+        {
+          "evidence_id": "K02",
+          "span_id": "K02:2"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "ecec19b0-c1d9-4e1e-afc6-57291c27fd33",
+      "prompt_version": "Versão: 2026-10-19.11 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K01",
+        "K12",
+        "K02",
+        "K07",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "K01",
+        "RELATO"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K01",
+          "span_id": "K01:1"
+        },
+        {
+          "evidence_id": "K01",
+          "span_id": "K01:2"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "f1a9e1f9-b716-4c4c-87ee-0ea91b105917",
+      "prompt_version": "Versão: 2026-10-18.10 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K03",
+        "K09",
+        "K07",
+        "K01",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "RELATO",
+        "DATA",
+        "K03"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K03",
+          "span_id": "K03:1"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 2
+    },
+    {
+      "message_id": "f4ab8a4e-20bf-44a1-88a6-0b008394627a",
+      "prompt_version": "Versão: 2026-10-19.11 (rascunho implementado para avaliação)",
+      "application_context": false,
+      "retrieved_ids": [
+        "K03",
+        "K09",
+        "K07",
+        "K01",
+        "K04",
+        "K05"
+      ],
+      "references": [
+        "RELATO",
+        "DATA",
+        "K03"
+      ],
+      "coverage_supports": [
+        {
+          "evidence_id": "K03",
+          "span_id": "K03:1"
+        }
+      ],
+      "chat_requests_with_reported_metadata": 3
+    },
+    {
+      "message_id": "face595d-c3d7-406b-bc89-6f30975781dc",
+      "prompt_version": null,
+      "application_context": false,
+      "retrieved_ids": [
+        "K09",
+        "K11",
+        "K02",
+        "K12",
+        "K04",
+        "K05"
+      ],
+      "references": [],
+      "coverage_supports": [],
+      "chat_requests_with_reported_metadata": 1
+    }
+  ],
+  "external_catalog": {
+    "before": "75b485015c8c815e3e3ff754f2d1990fafc04bbf48f9d866b699623efbb84043",
+    "after": "75b485015c8c815e3e3ff754f2d1990fafc04bbf48f9d866b699623efbb84043",
+    "unchanged": true
+  },
+  "limits": [
+    "Asserções automatizadas não certificam toda a qualidade semântica; consultar revisão escrita.",
+    "Tempos incluem automação e uma leitura de verificação adicional; não são SLA ou ganho de produtividade.",
+    "Tokens são os campos informados pelas chamadas de chat destas respostas; não incluem embeddings ou custos.",
+    "Comparação do catálogo externo não verifica conteúdo de todas as tabelas externas."
+  ]
+}

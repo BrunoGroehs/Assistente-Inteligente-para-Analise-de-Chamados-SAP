@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-19",
+  "method": "Abertura e leitura das páginas oficiais pela ferramenta web; sem inferir status HTTP não observado. Destinos DOM conferidos adicionalmente no Edge.",
+  "sources": [
+    {
+      "id": "S01",
+      "title": "Posting a Goods Receipt",
+      "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+      "content_accessible": true
+    },
+    {
+      "id": "S02",
+      "title": "Posting a Goods Receipt with Reference",
+      "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-a-goods-receipt-with-reference",
+      "content_accessible": true
+    },
+    {
+      "id": "S03",
+      "title": "Using the Advanced Transaction for Goods Receipt",
+      "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/using-the-advanced-transaction-for-goods-receipt",
+      "content_accessible": true
+    },
+    {
+      "id": "S04",
+      "title": "Applying Tolerances and the Delivery Complete Indicator",
+      "url": "https://learning.sap.com/courses/inventory-management-in-sap-cloud-erp/applying-tolerances-and-the-delivery-complete-indicator-1",
+      "content_accessible": true
+    },
+    {
+      "id": "S05",
+      "title": "Processing a Goods Receipt for a Purchase Order",
+      "url": "https://learning.sap.com/courses/executing-basic-erp-processes-with-sap-s-4hana/processing-a-goods-receipt-for-a-purchase-order",
+      "content_accessible": true
+    },
+    {
+      "id": "S06",
+      "title": "Working with Invoice Management",
+      "url": "https://learning.sap.com/courses/sap-s-4hana-sourcing-procurement-innovations/working-with-invoice-management_b94460d9-dd35-48cc-9c58-8a13ca751cd4",
+      "content_accessible": true
+    },
+    {
+      "id": "S07",
+      "title": "Working with Serial Numbers",
+      "url": "https://learning.sap.com/courses/managing-technical-objects-in-sap-s-4hana-asset-management/working-with-serial-numbers_d13369ff-6846-4d1b-874f-c7eb6f127679",
+      "content_accessible": true
+    },
+    {
+      "id": "S08",
+      "title": "Using Date Checks in Goods Receipt Processing",
+      "url": "https://learning.sap.com/courses/inventory-management-in-sap-cloud-erp/using-date-checks-in-goods-receipt-processing-1",
+      "content_accessible": true
+    },
+    {
+      "id": "S09",
+      "title": "Posting Cancellations, Return Deliveries, and Returns",
+      "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-cancellations-return-deliveries-and-returns",
+      "content_accessible": true
+    }
+  ],
+  "limits": "Acesso nesta data não garante disponibilidade futura, edição/release aplicável ou sustentação de qualquer frase gerada. A revisão semântica das respostas é separada."
+}

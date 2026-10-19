@@ -1,0 +1,234 @@
+{
+  "id": "U04",
+  "scenario": "U04: C03 correção guiada e links de política sem trocar para status",
+  "date": "2026-10-19T03:18:58.781Z",
+  "status": "passed",
+  "method": "Microsoft Edge headless, interface React e API/Supabase/OpenRouter reais; cliques automatizados",
+  "questions": [
+    {
+      "question": "como resolvo isso?",
+      "answer": {
+        "id": "e60cff84-d497-41a5-b7ea-6b688457c23a",
+        "role": "assistant",
+        "content": "O saldo disponível para o pedido 4500001003, item 10, é de 20 UN, inferior às 35 UN solicitadas. As regras do simulador impedem o recebimento acima do saldo. Para prosseguir, informe a quantidade correta (máximo 20 UN) e a data de lançamento desejada. [1]\n\nQuantidade exata a ser registrada (deve ser <= 20 UN) Data de lançamento para o recebimento",
+        "attachment": {
+          "id": "C03",
+          "title": "Quantidade acima do saldo",
+          "reference": "SIM-C03"
+        },
+        "error": false,
+        "proposal_id": null,
+        "correction": {
+          "operation": "registrar_recebimento_simulado",
+          "ticket": "C03",
+          "expires_at": "2026-10-19T03:33:00.962937+00:00",
+          "purchase_order": "4500001003",
+          "item": "10",
+          "material": "MAT-003",
+          "unit": "UN",
+          "max_quantity": "20"
+        },
+        "details": {
+          "confidence": "alta",
+          "confidence_reason": "Os dados do simulador (DATA) e as regras de negócio (K05) explicam claramente o impedimento e os requisitos para a correção.",
+          "facts": [
+            {
+              "text": "A consulta ao SAP simulado indica que o saldo restante para o pedido 4500001003, item 10, é de 20 UN.",
+              "numbers": []
+            },
+            {
+              "text": "As regras do recebimento simulado permitem registrar apenas até o saldo disponível e exigem que a data de lançamento seja informada explicitamente.",
+              "numbers": [
+                1
+              ]
+            },
+            {
+              "text": "O usuário relatou a tentativa de registrar 35 UN, quantidade superior ao saldo identificado.",
+              "numbers": []
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [
+            "Quantidade exata a ser registrada (deve ser <= 20 UN)",
+            "Data de lançamento para o recebimento"
+          ],
+          "next_steps": [
+            "Informe a quantidade válida e a data de lançamento para que eu possa propor o registro."
+          ],
+          "sources": [],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-in-sap-cloud-erp/applying-tolerances-and-the-delivery-complete-indicator-1",
+              "title": "Tolerâncias e entrega concluída",
+              "numbers": [],
+              "ids": [
+                "K06"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+              "title": "Conferência de quantidade e histórico",
+              "numbers": [],
+              "ids": [
+                "K02",
+                "K01"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/sap-s-4hana-sourcing-procurement-innovations/working-with-invoice-management_b94460d9-dd35-48cc-9c58-8a13ca751cd4",
+              "title": "Recebimento e verificação de fatura",
+              "numbers": [],
+              "ids": [
+                "K09"
+              ]
+            }
+          ],
+          "policies": [
+            {
+              "number": 1,
+              "title": "Regras do recebimento simulado"
+            }
+          ],
+          "transactions": [
+            {
+              "purchase_order": "4500001003",
+              "item": "10",
+              "material": "MAT-003",
+              "ordered": "100",
+              "received": "80",
+              "remaining": "20",
+              "unit": "UN",
+              "plant": "BR01",
+              "storage_location": "D001"
+            }
+          ],
+          "steps": [
+            "Solicitação recebida",
+            "Pedido e histórico simulados consultados",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas",
+            "Correção identificada; aguardando dados para revisão humana"
+          ],
+          "latency_ms": 23566
+        }
+      },
+      "elapsed_ms": 30788
+    },
+    {
+      "question": "altere para mim",
+      "answer": {
+        "id": "b9e467f8-6d7f-41cf-b831-0136dee2b13b",
+        "role": "assistant",
+        "content": "O saldo disponível é de 20 UN, inferior às 35 UN solicitadas. As regras do simulador impedem recebimento acima do saldo. Para registrar o recebimento simulado, são necessários a quantidade correta (máximo 20 UN) e a data de lançamento. [1]\n\nQuantidade exata a ser registrada (deve ser <= 20 UN) Data de lançamento para o recebimento",
+        "attachment": {
+          "id": "C03",
+          "title": "Quantidade acima do saldo",
+          "reference": "SIM-C03"
+        },
+        "error": false,
+        "proposal_id": null,
+        "correction": {
+          "operation": "registrar_recebimento_simulado",
+          "ticket": "C03",
+          "expires_at": "2026-10-19T03:33:39.044361+00:00",
+          "purchase_order": "4500001003",
+          "item": "10",
+          "material": "MAT-003",
+          "unit": "UN",
+          "max_quantity": "20"
+        },
+        "details": {
+          "confidence": "alta",
+          "confidence_reason": "Os dados do simulador (DATA) e as regras de negócio (K05) confirmam claramente o impedimento por excesso de quantidade em relação ao saldo.",
+          "facts": [
+            {
+              "text": "O pedido 4500001003, item 10, possui saldo disponível de 20 UN (100 pedidas - 80 recebidas).",
+              "numbers": []
+            },
+            {
+              "text": "As regras do simulador proíbem registrar recebimento acima do saldo disponível.",
+              "numbers": [
+                1
+              ]
+            },
+            {
+              "text": "A quantidade solicitada de 35 UN excede o saldo de 20 UN.",
+              "numbers": []
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [
+            "Quantidade exata a ser registrada (deve ser <= 20 UN)",
+            "Data de lançamento para o recebimento"
+          ],
+          "next_steps": [
+            "Informe a quantidade correta (máximo 20 UN) e a data de lançamento para que eu possa propor o registro."
+          ],
+          "sources": [],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+              "title": "Conferência de quantidade e histórico",
+              "numbers": [],
+              "ids": [
+                "K02",
+                "K01"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-in-sap-cloud-erp/applying-tolerances-and-the-delivery-complete-indicator-1",
+              "title": "Tolerâncias e entrega concluída",
+              "numbers": [],
+              "ids": [
+                "K06"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-cancellations-return-deliveries-and-returns",
+              "title": "Estorno de recebimento e devolução",
+              "numbers": [],
+              "ids": [
+                "K12"
+              ]
+            }
+          ],
+          "policies": [
+            {
+              "number": 1,
+              "title": "Regras do recebimento simulado"
+            }
+          ],
+          "transactions": [
+            {
+              "purchase_order": "4500001003",
+              "item": "10",
+              "material": "MAT-003",
+              "ordered": "100",
+              "received": "80",
+              "remaining": "20",
+              "unit": "UN",
+              "plant": "BR01",
+              "storage_location": "D001"
+            }
+          ],
+          "steps": [
+            "Solicitação recebida",
+            "Pedido e histórico simulados consultados",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas",
+            "Correção identificada; aguardando dados para revisão humana"
+          ],
+          "latency_ms": 30917
+        }
+      },
+      "elapsed_ms": 38768
+    }
+  ],
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "errors": []
+}

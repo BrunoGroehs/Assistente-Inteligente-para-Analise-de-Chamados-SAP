@@ -1,0 +1,100 @@
+{
+  "id": "U07",
+  "scenario": "U07: C06 código sem documentação exige abstinência e nenhuma ação",
+  "date": "2026-10-19T03:11:15.339Z",
+  "status": "passed",
+  "method": "Microsoft Edge headless, interface React e API/Supabase/OpenRouter reais; cliques automatizados",
+  "questions": [
+    {
+      "question": "Qual a causa e a correção da mensagem ZMM_999? Pode corrigir?",
+      "answer": {
+        "id": "91461c30-3711-4132-b530-cbffac4d2074",
+        "role": "assistant",
+        "content": "Não tenho informações suficientes na base de conhecimento para responder a esta solicitação com segurança.\n\nVocê pode informar a mensagem completa, o aplicativo e a versão utilizada?\n\nEste caso precisa de validação humana.",
+        "attachment": {
+          "id": "C06",
+          "title": "Mensagem não documentada",
+          "reference": "SIM-C06"
+        },
+        "error": false,
+        "proposal_id": null,
+        "correction": null,
+        "details": {
+          "confidence": "baixa",
+          "confidence_reason": "O RAG não forneceu suporte suficiente para a pergunta atual.",
+          "facts": [],
+          "hypotheses": [],
+          "missing_information": [
+            "Você pode informar a mensagem completa, o aplicativo e a versão utilizada?"
+          ],
+          "next_steps": [
+            "Compartilhe uma fonte confiável ou documentação do caso para complementar a base."
+          ],
+          "sources": [],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-in-sap-cloud-erp/using-date-checks-in-goods-receipt-processing-1",
+              "title": "Validade mínima e datas de entrega",
+              "numbers": [],
+              "ids": [
+                "K11"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-cancellations-return-deliveries-and-returns",
+              "title": "Estorno de recebimento e devolução",
+              "numbers": [],
+              "ids": [
+                "K12"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-in-sap-cloud-erp/applying-tolerances-and-the-delivery-complete-indicator-1",
+              "title": "Tolerâncias e entrega concluída",
+              "numbers": [],
+              "ids": [
+                "K06"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+              "title": "Recebimento com referência ao pedido",
+              "numbers": [],
+              "ids": [
+                "K01"
+              ]
+            }
+          ],
+          "policies": [],
+          "transactions": [
+            {
+              "purchase_order": "4500001006",
+              "item": "10",
+              "material": "MAT-006",
+              "ordered": "100",
+              "received": "0",
+              "remaining": "100",
+              "unit": "UN",
+              "plant": "BR01",
+              "storage_location": "D001"
+            }
+          ],
+          "steps": [
+            "Solicitação recebida",
+            "Pedido e histórico simulados consultados",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas"
+          ],
+          "latency_ms": 11020
+        }
+      },
+      "elapsed_ms": 18866
+    }
+  ],
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "errors": []
+}

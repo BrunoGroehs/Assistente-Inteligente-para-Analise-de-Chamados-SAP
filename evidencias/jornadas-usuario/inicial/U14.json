@@ -1,0 +1,94 @@
+{
+  "id": "U14",
+  "scenario": "U14: consulta conceitual adicional",
+  "date": "2026-10-19T03:14:16.180Z",
+  "status": "passed",
+  "method": "Microsoft Edge headless, interface React e API/Supabase/OpenRouter reais; cliques automatizados",
+  "questions": [
+    {
+      "question": "O que é verificado sobre validade mínima e datas na entrada de mercadorias? Só explique o conceito.",
+      "answer": {
+        "id": "8cb28eec-a547-4fb3-b4ab-7040bbc00a36",
+        "role": "assistant",
+        "content": "A verificação de validade mínima compara a data de validade informada no recebimento com a validade remanescente exigida para o material, gerando aviso ou erro conforme configuração. Datas de entrega antecipadas ou atrasadas também podem acionar mensagens, dependendo da parametrização do sistema e das datas do pedido. [1](https://learning.sap.com/courses/inventory-management-in-sap-cloud-erp/using-date-checks-in-goods-receipt-processing-1)",
+        "attachment": null,
+        "error": false,
+        "proposal_id": null,
+        "correction": null,
+        "details": {
+          "confidence": "alta",
+          "confidence_reason": "A resposta baseia-se diretamente na síntese da fonte oficial (K11) que explica os conceitos de validade mínima e verificação de datas de entrega.",
+          "facts": [
+            {
+              "text": "A verificação de validade mínima depende de ativação por centro/tipo de movimento e da validade remanescente definida no material ou item do pedido.",
+              "numbers": [
+                1
+              ]
+            },
+            {
+              "text": "O sistema compara a validade informada com a exigência configurada, resultando em mensagem de aviso ou erro.",
+              "numbers": [
+                1
+              ]
+            },
+            {
+              "text": "Entregas antecipadas ou atrasadas podem gerar mensagens conforme a parametrização e as datas do pedido, sem necessariamente impedir o recebimento.",
+              "numbers": [
+                1
+              ]
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [],
+          "sources": [
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-in-sap-cloud-erp/using-date-checks-in-goods-receipt-processing-1",
+              "title": "Validade mínima e datas de entrega",
+              "numbers": [
+                1
+              ],
+              "ids": [
+                "K11"
+              ]
+            }
+          ],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+              "title": "Recebimento com referência ao pedido",
+              "numbers": [],
+              "ids": [
+                "K01",
+                "K02"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-a-goods-receipt-with-reference",
+              "title": "MIGO e aplicativo de recebimento",
+              "numbers": [],
+              "ids": [
+                "K03"
+              ]
+            }
+          ],
+          "policies": [],
+          "transactions": [],
+          "steps": [
+            "Solicitação recebida",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas"
+          ],
+          "latency_ms": 24251
+        }
+      },
+      "elapsed_ms": 32004
+    }
+  ],
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "errors": []
+}

@@ -1,0 +1,178 @@
+{
+  "id": "U06",
+  "scenario": "U06: C05 pergunta por dados e usa complemento sem inventar identificação",
+  "date": "2026-10-19T03:11:35.468Z",
+  "status": "passed",
+  "method": "Microsoft Edge headless, interface React e API/Supabase/OpenRouter reais; cliques automatizados",
+  "questions": [
+    {
+      "question": "Está dando erro ao receber material. Como resolvo?",
+      "answer": {
+        "id": "5bb95648-06f4-4686-9708-d4bbc0ac6b2c",
+        "role": "assistant",
+        "content": "Não tenho informações suficientes na base de conhecimento para responder a esta solicitação com segurança.\n\nVocê pode informar a mensagem completa, o aplicativo e a versão utilizada?\n\nEste caso precisa de validação humana.",
+        "attachment": {
+          "id": "C05",
+          "title": "Preciso de mais informações",
+          "reference": "SIM-C05"
+        },
+        "error": false,
+        "proposal_id": null,
+        "correction": null,
+        "details": {
+          "confidence": "baixa",
+          "confidence_reason": "O RAG não forneceu suporte suficiente para a pergunta atual.",
+          "facts": [],
+          "hypotheses": [],
+          "missing_information": [
+            "Você pode informar a mensagem completa, o aplicativo e a versão utilizada?"
+          ],
+          "next_steps": [
+            "Compartilhe uma fonte confiável ou documentação do caso para complementar a base."
+          ],
+          "sources": [],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+              "title": "Conferência de quantidade e histórico",
+              "numbers": [],
+              "ids": [
+                "K02",
+                "K01"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-a-goods-receipt-with-reference",
+              "title": "MIGO e aplicativo de recebimento",
+              "numbers": [],
+              "ids": [
+                "K03"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/executing-basic-erp-processes-with-sap-s-4hana/processing-a-goods-receipt-for-a-purchase-order",
+              "title": "Documentos gerados no recebimento",
+              "numbers": [],
+              "ids": [
+                "K08"
+              ]
+            }
+          ],
+          "policies": [],
+          "transactions": [],
+          "steps": [
+            "Solicitação recebida",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas"
+          ],
+          "latency_ms": 12867
+        }
+      },
+      "elapsed_ms": 20346
+    },
+    {
+      "question": "É uma dúvida de procedimento, sem mensagem de erro. Chegaram 25 UN do pedido 4500001002, item 10, no centro BR01, depósito D001. Registre no simulador em 2026-10-18.",
+      "answer": {
+        "id": "2912d3c4-864c-4608-ae16-aee9eb83a231",
+        "role": "assistant",
+        "content": "O usuário solicita registrar recebimento de 25 UN para o pedido 4500001002, item 10. A consulta confirma saldo disponível de 80 UN. Como os dados estão completos e dentro das regras do simulador, proponho a operação de recebimento para revisão humana. [1]\n\nRevise a solicitação no cartão de aprovação abaixo.",
+        "attachment": {
+          "id": "C05",
+          "title": "Preciso de mais informações",
+          "reference": "SIM-C05"
+        },
+        "error": false,
+        "proposal_id": "6709b495-38a8-40e0-a83b-14798f6d3bc7",
+        "correction": null,
+        "details": {
+          "confidence": "alta",
+          "confidence_reason": "Os dados necessários para o recebimento foram fornecidos pelo usuário e validados pela consulta DATA, estando dentro dos limites de saldo e das regras K05.",
+          "facts": [
+            {
+              "text": "O usuário informou quantidade de 25 UN, pedido 4500001002, item 10, centro BR01, depósito D001 e data 2026-10-18.",
+              "numbers": []
+            },
+            {
+              "text": "A consulta ao simulador indica que o item 10 do pedido 4500001002 possui saldo disponível de 80 UN na unidade UN.",
+              "numbers": []
+            },
+            {
+              "text": "As regras do simulador permitem recebimento positivo até o saldo disponível, com data informada explicitamente.",
+              "numbers": [
+                1
+              ]
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [
+            "Aguardar decisão do usuário no cartão de confirmação."
+          ],
+          "sources": [],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/executing-basic-erp-processes-with-sap-s-4hana/processing-a-goods-receipt-for-a-purchase-order",
+              "title": "Documentos gerados no recebimento",
+              "numbers": [],
+              "ids": [
+                "K08"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-in-sap-cloud-erp/using-date-checks-in-goods-receipt-processing-1",
+              "title": "Validade mínima e datas de entrega",
+              "numbers": [],
+              "ids": [
+                "K11"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+              "title": "Conferência de quantidade e histórico",
+              "numbers": [],
+              "ids": [
+                "K02",
+                "K01"
+              ]
+            }
+          ],
+          "policies": [
+            {
+              "number": 1,
+              "title": "Regras do recebimento simulado"
+            }
+          ],
+          "transactions": [
+            {
+              "purchase_order": "4500001002",
+              "item": "10",
+              "material": "MAT-002",
+              "ordered": "100",
+              "received": "20",
+              "remaining": "80",
+              "unit": "UN",
+              "plant": "BR01",
+              "storage_location": "D001"
+            }
+          ],
+          "steps": [
+            "Solicitação recebida",
+            "Pedido e histórico simulados consultados",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas",
+            "Proposta validada; aguardando decisão humana"
+          ],
+          "latency_ms": 30329
+        }
+      },
+      "elapsed_ms": 38262
+    }
+  ],
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "errors": []
+}

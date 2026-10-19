@@ -1,0 +1,242 @@
+{
+  "id": "U02",
+  "scenario": "U02: C01 saldo parcial, remoção de anexo e Novo chat",
+  "date": "2026-10-19T03:09:25.907Z",
+  "status": "passed",
+  "method": "Microsoft Edge headless, interface React e API/Supabase/OpenRouter reais; cliques automatizados",
+  "questions": [
+    {
+      "question": "Recebi 60 UN de 100. Por que ainda aparecem 40? Explique sem solicitar alteração.",
+      "answer": {
+        "id": "dc0d217f-88a1-4490-b389-fce701b39869",
+        "role": "assistant",
+        "content": "O saldo de 40 UN no pedido 4500001001, item 10, reflete a diferença entre a quantidade pedida (100 UN) e a recebida (60 UN). Em entregas parciais, o sistema mantém o saldo aberto até o recebimento total ou encerramento do item. Não há erro; é o comportamento padrão para acompanhamento de quantidades pendentes. [1](https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt)",
+        "attachment": {
+          "id": "C01",
+          "title": "Saldo após recebimento parcial",
+          "reference": "SIM-C01"
+        },
+        "error": false,
+        "proposal_id": null,
+        "correction": null,
+        "details": {
+          "confidence": "alta",
+          "confidence_reason": "A resposta baseia-se diretamente nos dados da consulta simulada (DATA) e na explicação conceitual de saldo em entregas parciais (K02), sem lacunas ou conflitos.",
+          "facts": [
+            {
+              "text": "A consulta simulada confirma que o pedido 4500001001, item 10, tem 100 UN pedidas e 60 UN recebidas, resultando em saldo de 40 UN.",
+              "numbers": []
+            },
+            {
+              "text": "O saldo exibido é calculado como quantidade pedida menos quantidade já recebida, sendo normal em casos de entrega parcial.",
+              "numbers": [
+                1
+              ]
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [],
+          "sources": [
+            {
+              "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+              "title": "Conferência de quantidade e histórico",
+              "numbers": [
+                1
+              ],
+              "ids": [
+                "K02"
+              ]
+            }
+          ],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-in-sap-cloud-erp/applying-tolerances-and-the-delivery-complete-indicator-1",
+              "title": "Tolerâncias e entrega concluída",
+              "numbers": [],
+              "ids": [
+                "K06"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/sap-s-4hana-sourcing-procurement-innovations/working-with-invoice-management_b94460d9-dd35-48cc-9c58-8a13ca751cd4",
+              "title": "Recebimento e verificação de fatura",
+              "numbers": [],
+              "ids": [
+                "K09"
+              ]
+            }
+          ],
+          "policies": [],
+          "transactions": [
+            {
+              "purchase_order": "4500001001",
+              "item": "10",
+              "material": "MAT-001",
+              "ordered": "100",
+              "received": "60",
+              "remaining": "40",
+              "unit": "UN",
+              "plant": "BR01",
+              "storage_location": "D001"
+            }
+          ],
+          "steps": [
+            "Solicitação recebida",
+            "Pedido e histórico simulados consultados",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas"
+          ],
+          "latency_ms": 21893
+        }
+      },
+      "elapsed_ms": 29380
+    },
+    {
+      "question": "Sem usar o chamado anterior, o que é recebimento com referência ao pedido?",
+      "answer": {
+        "id": "8644edfc-8f28-4f64-90b2-066fd1636987",
+        "role": "assistant",
+        "content": "Recebimento com referência ao pedido é o registro da entrada de mercadorias vinculando-o a um pedido de compra existente. Esse processo permite conferir itens abertos, material e quantidade entregues. O lançamento atualiza o histórico do pedido, gera documento de material e, se valorizado, pode gerar documento contábil. [1](https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt)",
+        "attachment": null,
+        "error": false,
+        "proposal_id": null,
+        "correction": null,
+        "details": {
+          "confidence": "alta",
+          "confidence_reason": "A definição conceitual está claramente descrita na síntese da fonte oficial K01, que explica o propósito e os efeitos do recebimento com referência ao pedido.",
+          "facts": [
+            {
+              "text": "Registrar a entrada com referência ao pedido permite conferir os itens abertos, incluindo o material efetivamente entregue e a quantidade.",
+              "numbers": [
+                1
+              ]
+            },
+            {
+              "text": "O lançamento atualiza o histórico dos itens do pedido e gera documento de material; recebimentos valorizados podem gerar documento contábil.",
+              "numbers": [
+                1
+              ]
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [],
+          "sources": [
+            {
+              "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+              "title": "Recebimento com referência ao pedido",
+              "numbers": [
+                1
+              ],
+              "ids": [
+                "K01"
+              ]
+            }
+          ],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-cancellations-return-deliveries-and-returns",
+              "title": "Estorno de recebimento e devolução",
+              "numbers": [],
+              "ids": [
+                "K12"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-a-goods-receipt-with-reference",
+              "title": "Recebimento em tipos de estoque",
+              "numbers": [],
+              "ids": [
+                "K07"
+              ]
+            }
+          ],
+          "policies": [],
+          "transactions": [],
+          "steps": [
+            "Solicitação recebida",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas"
+          ],
+          "latency_ms": 16925
+        }
+      },
+      "elapsed_ms": 25120
+    },
+    {
+      "question": "Qual chamado está anexado e qual saldo foi consultado nesta conversa?",
+      "answer": {
+        "id": "0d720866-6774-4143-8ba0-4dd0c822d1b7",
+        "role": "assistant",
+        "content": "Este assistente atende recebimento de mercadorias com referência a pedidos de compra em SAP MM. Sua solicitação está fora desse escopo.\n\nPara analisar um recebimento, informe o pedido, o item e o problema apresentado.",
+        "attachment": null,
+        "error": false,
+        "proposal_id": null,
+        "correction": null,
+        "details": {
+          "confidence": "alta",
+          "confidence_reason": "Aplicação do escopo configurado, sem diagnóstico SAP.",
+          "facts": [],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [
+            "Para analisar um recebimento, informe o pedido, o item e o problema apresentado."
+          ],
+          "sources": [],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+              "title": "Conferência de quantidade e histórico",
+              "numbers": [],
+              "ids": [
+                "K02"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/sap-s-4hana-sourcing-procurement-innovations/working-with-invoice-management_b94460d9-dd35-48cc-9c58-8a13ca751cd4",
+              "title": "Recebimento e verificação de fatura",
+              "numbers": [],
+              "ids": [
+                "K09"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/executing-basic-erp-processes-with-sap-s-4hana/processing-a-goods-receipt-for-a-purchase-order",
+              "title": "Documentos gerados no recebimento",
+              "numbers": [],
+              "ids": [
+                "K08"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-cancellations-return-deliveries-and-returns",
+              "title": "Estorno de recebimento e devolução",
+              "numbers": [],
+              "ids": [
+                "K12"
+              ]
+            }
+          ],
+          "policies": [],
+          "transactions": [],
+          "steps": [
+            "Solicitação recebida",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas"
+          ],
+          "latency_ms": 15561
+        }
+      },
+      "elapsed_ms": 24960
+    }
+  ],
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "errors": []
+}

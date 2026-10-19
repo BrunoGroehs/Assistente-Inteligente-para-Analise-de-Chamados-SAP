@@ -1,0 +1,217 @@
+{
+  "id": "U02",
+  "scenario": "U02: C01 saldo parcial, remoção de anexo e Novo chat",
+  "date": "2026-10-19T03:17:31.905Z",
+  "status": "passed",
+  "method": "Microsoft Edge headless, interface React e API/Supabase/OpenRouter reais; cliques automatizados",
+  "questions": [
+    {
+      "question": "Recebi 60 UN de 100. Por que ainda aparecem 40? Explique sem solicitar alteração.",
+      "answer": {
+        "id": "7b79405c-6ecc-4078-9fae-52742171cfde",
+        "role": "assistant",
+        "content": "O saldo de 40 UN ocorre porque a quantidade pedida era 100 UN e apenas 60 UN foram recebidas, caracterizando uma entrega parcial. O sistema calcula o saldo subtraindo a quantidade recebida da quantidade pedida. Não há erro, pois o indicador de entrega concluída está falso, permitindo recebimentos futuros do restante. [1](https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt)\n\nRealizar o recebimento das 40 UN restantes quando a mercadoria estiver disponível, se desejado.",
+        "attachment": {
+          "id": "C01",
+          "title": "Saldo após recebimento parcial",
+          "reference": "SIM-C01"
+        },
+        "error": false,
+        "proposal_id": null,
+        "correction": null,
+        "details": {
+          "confidence": "alta",
+          "confidence_reason": "Os dados da consulta simulada (DATA) e a explicação conceitual sobre entregas parciais (K02) sustentam diretamente a resposta à dúvida do usuário.",
+          "facts": [
+            {
+              "text": "A consulta simulada confirma que a quantidade pedida é 100 UN e a quantidade recebida é 60 UN, resultando em um saldo de 40 UN.",
+              "numbers": []
+            },
+            {
+              "text": "O indicador de entrega concluída está definido como falso, indicando que o item ainda aceita recebimentos adicionais.",
+              "numbers": []
+            },
+            {
+              "text": "Em entregas parciais, o saldo demonstrado é a diferença entre a quantidade pedida e a quantidade já recebida, não representando um erro.",
+              "numbers": [
+                1
+              ]
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [
+            "Realizar o recebimento das 40 UN restantes quando a mercadoria estiver disponível, se desejado."
+          ],
+          "sources": [
+            {
+              "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+              "title": "Conferência de quantidade e histórico",
+              "numbers": [
+                1
+              ],
+              "ids": [
+                "K02"
+              ]
+            }
+          ],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-in-sap-cloud-erp/applying-tolerances-and-the-delivery-complete-indicator-1",
+              "title": "Tolerâncias e entrega concluída",
+              "numbers": [],
+              "ids": [
+                "K06"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/sap-s-4hana-sourcing-procurement-innovations/working-with-invoice-management_b94460d9-dd35-48cc-9c58-8a13ca751cd4",
+              "title": "Recebimento e verificação de fatura",
+              "numbers": [],
+              "ids": [
+                "K09"
+              ]
+            }
+          ],
+          "policies": [],
+          "transactions": [
+            {
+              "purchase_order": "4500001001",
+              "item": "10",
+              "material": "MAT-001",
+              "ordered": "100",
+              "received": "60",
+              "remaining": "40",
+              "unit": "UN",
+              "plant": "BR01",
+              "storage_location": "D001"
+            }
+          ],
+          "steps": [
+            "Solicitação recebida",
+            "Pedido e histórico simulados consultados",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas"
+          ],
+          "latency_ms": 30866
+        }
+      },
+      "elapsed_ms": 38606
+    },
+    {
+      "question": "Sem usar o chamado anterior, o que é recebimento com referência ao pedido?",
+      "answer": {
+        "id": "ecec19b0-c1d9-4e1e-afc6-57291c27fd33",
+        "role": "assistant",
+        "content": "Recebimento com referência ao pedido é o registro da entrada de mercadorias conferindo itens abertos, material e quantidade. O processo atualiza o histórico do pedido e gera documento de material, podendo gerar documento contábil em casos valorizados. A operação permite verificar validade quando configurada. [1](https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt)",
+        "attachment": null,
+        "error": false,
+        "proposal_id": null,
+        "correction": null,
+        "details": {
+          "confidence": "alta",
+          "confidence_reason": "A definição conceitual está diretamente sustentada pela síntese da fonte oficial K01, que descreve o propósito e os efeitos do recebimento com referência ao pedido.",
+          "facts": [
+            {
+              "text": "Registrar a entrada com referência ao pedido permite conferir os itens abertos, incluindo o material efetivamente entregue e a quantidade.",
+              "numbers": [
+                1
+              ]
+            },
+            {
+              "text": "O lançamento atualiza o histórico dos itens do pedido e gera documento de material.",
+              "numbers": [
+                1
+              ]
+            },
+            {
+              "text": "Recebimentos valorizados podem gerar documento contábil, e há verificações específicas de validade quando configuradas.",
+              "numbers": [
+                1
+              ]
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [],
+          "sources": [
+            {
+              "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+              "title": "Recebimento com referência ao pedido",
+              "numbers": [
+                1
+              ],
+              "ids": [
+                "K01"
+              ]
+            }
+          ],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-cancellations-return-deliveries-and-returns",
+              "title": "Estorno de recebimento e devolução",
+              "numbers": [],
+              "ids": [
+                "K12"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-a-goods-receipt-with-reference",
+              "title": "Recebimento em tipos de estoque",
+              "numbers": [],
+              "ids": [
+                "K07"
+              ]
+            }
+          ],
+          "policies": [],
+          "transactions": [],
+          "steps": [
+            "Solicitação recebida",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas"
+          ],
+          "latency_ms": 27653
+        }
+      },
+      "elapsed_ms": 35173
+    },
+    {
+      "question": "Qual chamado está anexado e qual saldo foi consultado nesta conversa?",
+      "answer": {
+        "id": "b515ee77-6894-42d6-aab1-26ee49494181",
+        "role": "assistant",
+        "content": "Nenhum chamado está anexado nesta conversa. Não consultei um pedido para esta pergunta. Use Chamados para anexar um caso.",
+        "attachment": null,
+        "error": false,
+        "proposal_id": null,
+        "correction": null,
+        "details": {
+          "confidence": null,
+          "confidence_reason": null,
+          "facts": [],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [],
+          "sources": [],
+          "consulted_sources": [],
+          "policies": [],
+          "transactions": [],
+          "steps": [
+            "Solicitação recebida",
+            "Estado do anexo informado pelo servidor, sem diagnóstico SAP"
+          ],
+          "latency_ms": 1565
+        }
+      },
+      "elapsed_ms": 10507
+    }
+  ],
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "errors": []
+}

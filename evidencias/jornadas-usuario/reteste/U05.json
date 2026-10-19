@@ -1,0 +1,112 @@
+{
+  "id": "U05",
+  "scenario": "U05: C04 diferencia aplicativo Fiori de bloqueio universal na MIGO",
+  "date": "2026-10-19T03:18:50.593Z",
+  "status": "failed",
+  "method": "Microsoft Edge headless, interface React e API/Supabase/OpenRouter reais; cliques automatizados",
+  "questions": [
+    {
+      "question": "Por que o item não aparece no Post Goods Receipt for Purchasing Document? Isso bloqueia todos os recebimentos na MIGO?",
+      "answer": {
+        "id": "e1c59cad-5971-40ac-ba40-c0668d8f30ec",
+        "role": "assistant",
+        "content": "O item 10 do pedido 4500001004 não aparece no aplicativo 'Post Goods Receipt for Purchasing Document' porque possui o indicador de entrega concluída ativado. Essa configuração impede a seleção do item especificamente neste aplicativo, mas não bloqueia universalmente os recebimentos na transação MIGO. A limitação é restrita à ferramenta utilizada. [1](https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-a-goods-receipt-with-reference)\n\nVerifique manualmente se o recebimento é permitido via MIGO ou se a entrega deve ser considerada finalizada, dada a marcação de conclusão.",
+        "attachment": {
+          "id": "C04",
+          "title": "Item não aparece no aplicativo",
+          "reference": "SIM-C04"
+        },
+        "error": false,
+        "proposal_id": null,
+        "correction": null,
+        "details": {
+          "confidence": "alta",
+          "confidence_reason": "As evidências DATA e K03 explicam diretamente a causa da não exibição do item (indicador de entrega concluída) e esclarecem o impacto limitado dessa restrição ao aplicativo específico, sem afetar necessariamente outras transações como a MIGO.",
+          "facts": [
+            {
+              "text": "A consulta simulada confirma que o item 10 do pedido 4500001004 está com o indicador de entrega concluída (delivery_completed) marcado como verdadeiro.",
+              "numbers": []
+            },
+            {
+              "text": "No aplicativo 'Post Goods Receipt for Purchasing Document', itens com indicador de entrega concluída não são copiados para processamento, explicando a ausência do item na lista.",
+              "numbers": [
+                1
+              ]
+            },
+            {
+              "text": "A limitação de não exibir itens concluídos neste aplicativo específico não implica bloqueio automático de todos os recebimentos na transação MIGO, sendo necessário verificar a aplicabilidade em cada contexto.",
+              "numbers": [
+                1
+              ]
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [
+            "Verifique manualmente se o recebimento é permitido via MIGO ou se a entrega deve ser considerada finalizada, dada a marcação de conclusão."
+          ],
+          "sources": [
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-a-goods-receipt-with-reference",
+              "title": "MIGO e aplicativo de recebimento",
+              "numbers": [
+                1
+              ],
+              "ids": [
+                "K03"
+              ]
+            }
+          ],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/sap-s-4hana-sourcing-procurement-innovations/working-with-invoice-management_b94460d9-dd35-48cc-9c58-8a13ca751cd4",
+              "title": "Recebimento e verificação de fatura",
+              "numbers": [],
+              "ids": [
+                "K09"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+              "title": "Recebimento com referência ao pedido",
+              "numbers": [],
+              "ids": [
+                "K01"
+              ]
+            }
+          ],
+          "policies": [],
+          "transactions": [
+            {
+              "purchase_order": "4500001004",
+              "item": "10",
+              "material": "MAT-004",
+              "ordered": "100",
+              "received": "60",
+              "remaining": "40",
+              "unit": "UN",
+              "plant": "BR01",
+              "storage_location": "D001"
+            }
+          ],
+          "steps": [
+            "Solicitação recebida",
+            "Pedido e histórico simulados consultados",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas"
+          ],
+          "latency_ms": 25931
+        }
+      },
+      "elapsed_ms": 33518
+    }
+  ],
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "errors": [
+    "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/confirm|verific|valid|revis|não garante|não comprova/i\u001b[39m\nReceived string:  \u001b[31m\"O item 10 do pedido 4500001004 não aparece no aplicativo 'Post Goods Receipt for Purchasing Document' porque possui o indicador de entrega concluída ativado. Essa configuração impede a seleção do item especificamente neste aplicativo, mas não bloqueia universalmente os recebimentos na transação MIGO. A limitação é restrita à ferramenta utilizada. [1](https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-a-goods-receipt-with-reference)·\u001b[39m\n\u001b[31mVerifique manualmente se o recebimento é permitido via MIGO ou se a entrega deve ser considerada finalizada, dada a marcação de conclusão.\"\u001b[39m"
+  ]
+}

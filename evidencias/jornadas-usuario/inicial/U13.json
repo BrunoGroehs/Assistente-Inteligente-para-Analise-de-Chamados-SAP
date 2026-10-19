@@ -1,0 +1,96 @@
+{
+  "id": "U13",
+  "scenario": "U13: consulta conceitual adicional",
+  "date": "2026-10-19T03:13:49.783Z",
+  "status": "passed",
+  "method": "Microsoft Edge headless, interface React e API/Supabase/OpenRouter reais; cliques automatizados",
+  "questions": [
+    {
+      "question": "Qual a diferença entre estorno de recebimento e devolução? Você consegue executar um estorno aqui?",
+      "answer": {
+        "id": "873d2463-dad6-4b77-b9fc-7957d07f48ef",
+        "role": "assistant",
+        "content": "O estorno de recebimento (ex: movimento 102) reverte um registro de entrada, referenciando o documento original. A devolução ao fornecedor é um fluxo distinto que pode referenciar o recebimento ou o pedido. Este simulador não executa estornos nem devoluções; apenas as operações de recebimento simulado e atualização de status são permitidas. [1](https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-cancellations-return-deliveries-and-returns)\n\nPara dúvidas conceituais adicionais, consulte a documentação oficial ou abra um chamado específico se houver uma transação para analisar.",
+        "attachment": null,
+        "error": false,
+        "proposal_id": null,
+        "correction": null,
+        "details": {
+          "confidence": "alta",
+          "confidence_reason": "As definições de estorno e devolução, bem como a limitação do simulador, estão explicitamente documentadas na evidência K12.",
+          "facts": [
+            {
+              "text": "O estorno de recebimento reverte um movimento de mercadoria, sendo determinado pelo sistema com referência ao documento original (ex: estorno do 101 é o 102).",
+              "numbers": [
+                1
+              ]
+            },
+            {
+              "text": "A devolução ao fornecedor é um fluxo distinto do estorno e pode referenciar o documento de recebimento ou o pedido de compra.",
+              "numbers": [
+                1
+              ]
+            },
+            {
+              "text": "O protótipo não executa estornos ou devoluções; somente as operações enumeradas nas regras do sistema são executáveis.",
+              "numbers": [
+                1
+              ]
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [
+            "Para dúvidas conceituais adicionais, consulte a documentação oficial ou abra um chamado específico se houver uma transação para analisar."
+          ],
+          "sources": [
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-cancellations-return-deliveries-and-returns",
+              "title": "Estorno de recebimento e devolução",
+              "numbers": [
+                1
+              ],
+              "ids": [
+                "K12"
+              ]
+            }
+          ],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/sap-s-4hana-sourcing-procurement-innovations/working-with-invoice-management_b94460d9-dd35-48cc-9c58-8a13ca751cd4",
+              "title": "Recebimento e verificação de fatura",
+              "numbers": [],
+              "ids": [
+                "K09"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-a-goods-receipt-with-reference",
+              "title": "MIGO e aplicativo de recebimento",
+              "numbers": [],
+              "ids": [
+                "K03",
+                "K07"
+              ]
+            }
+          ],
+          "policies": [],
+          "transactions": [],
+          "steps": [
+            "Solicitação recebida",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas"
+          ],
+          "latency_ms": 29187
+        }
+      },
+      "elapsed_ms": 37170
+    }
+  ],
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "errors": []
+}

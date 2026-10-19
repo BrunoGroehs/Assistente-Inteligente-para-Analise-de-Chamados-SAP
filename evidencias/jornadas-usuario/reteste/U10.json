@@ -1,0 +1,156 @@
+{
+  "id": "U10",
+  "scenario": "U10: fora do escopo e retorno ao SAP em outro chat",
+  "date": "2026-10-19T03:21:03.082Z",
+  "status": "passed",
+  "method": "Microsoft Edge headless, interface React e API/Supabase/OpenRouter reais; cliques automatizados",
+  "questions": [
+    {
+      "question": "Calcule minha folha de pagamento e minhas férias.",
+      "answer": {
+        "id": "face595d-c3d7-406b-bc89-6f30975781dc",
+        "role": "assistant",
+        "content": "Este assistente atende recebimento de mercadorias com referência a pedidos de compra em SAP MM. Sua solicitação está fora desse escopo.\n\nPara analisar um recebimento, informe o pedido, o item e o problema apresentado.",
+        "attachment": null,
+        "error": false,
+        "proposal_id": null,
+        "correction": null,
+        "details": {
+          "confidence": "alta",
+          "confidence_reason": "Aplicação do escopo configurado, sem diagnóstico SAP.",
+          "facts": [],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [
+            "Para analisar um recebimento, informe o pedido, o item e o problema apresentado."
+          ],
+          "sources": [],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/sap-s-4hana-sourcing-procurement-innovations/working-with-invoice-management_b94460d9-dd35-48cc-9c58-8a13ca751cd4",
+              "title": "Recebimento e verificação de fatura",
+              "numbers": [],
+              "ids": [
+                "K09"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-in-sap-cloud-erp/using-date-checks-in-goods-receipt-processing-1",
+              "title": "Validade mínima e datas de entrega",
+              "numbers": [],
+              "ids": [
+                "K11"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+              "title": "Conferência de quantidade e histórico",
+              "numbers": [],
+              "ids": [
+                "K02"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-cancellations-return-deliveries-and-returns",
+              "title": "Estorno de recebimento e devolução",
+              "numbers": [],
+              "ids": [
+                "K12"
+              ]
+            }
+          ],
+          "policies": [],
+          "transactions": [],
+          "steps": [
+            "Solicitação recebida",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas"
+          ],
+          "latency_ms": 14344
+        }
+      },
+      "elapsed_ms": 21741
+    },
+    {
+      "question": "Como o histórico do pedido ajuda na conferência do recebimento de mercadorias?",
+      "answer": {
+        "id": "4d286052-490f-4bb8-b8c0-6dc4a1ea7a67",
+        "role": "assistant",
+        "content": "O histórico do pedido auxilia na conferência ao permitir comparar a quantidade pedida com a já recebida, calculando o saldo disponível para entrega. Ele atualiza-se a cada lançamento, facilitando o controle de recebimentos parciais e a identificação de divergências entre o esperado e o entregue, sem confundir o total acumulado com a quantidade da entrega atual. [1](https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt) [2](https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt)",
+        "attachment": null,
+        "error": false,
+        "proposal_id": null,
+        "correction": null,
+        "details": {
+          "confidence": "alta",
+          "confidence_reason": "As evidências K01 e K02 explicam diretamente a função do histórico na conferência de quantidades e atualização do status do pedido.",
+          "facts": [
+            {
+              "text": "O histórico dos itens do pedido é atualizado ao registrar a entrada, permitindo conferir itens abertos, material e quantidade efetivamente entregue.",
+              "numbers": [
+                1
+              ]
+            },
+            {
+              "text": "A conferência utiliza dados como quantidade pedida, já recebida e saldo (pedida menos recebida) para acompanhar recebimentos e evitar confusão entre total recebido e entrega atual.",
+              "numbers": [
+                2
+              ]
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [],
+          "sources": [
+            {
+              "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+              "title": "Recebimento com referência ao pedido",
+              "numbers": [
+                1,
+                2
+              ],
+              "ids": [
+                "K01",
+                "K02"
+              ]
+            }
+          ],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-a-goods-receipt-with-reference",
+              "title": "MIGO e aplicativo de recebimento",
+              "numbers": [],
+              "ids": [
+                "K03"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-cancellations-return-deliveries-and-returns",
+              "title": "Estorno de recebimento e devolução",
+              "numbers": [],
+              "ids": [
+                "K12"
+              ]
+            }
+          ],
+          "policies": [],
+          "transactions": [],
+          "steps": [
+            "Solicitação recebida",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas"
+          ],
+          "latency_ms": 22795
+        }
+      },
+      "elapsed_ms": 30504
+    }
+  ],
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "errors": []
+}

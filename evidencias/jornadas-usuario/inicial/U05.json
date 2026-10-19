@@ -1,0 +1,110 @@
+{
+  "id": "U05",
+  "scenario": "U05: C04 diferencia aplicativo Fiori de bloqueio universal na MIGO",
+  "date": "2026-10-19T03:10:26.408Z",
+  "status": "passed",
+  "method": "Microsoft Edge headless, interface React e API/Supabase/OpenRouter reais; cliques automatizados",
+  "questions": [
+    {
+      "question": "Por que o item não aparece no Post Goods Receipt for Purchasing Document? Isso bloqueia todos os recebimentos na MIGO?",
+      "answer": {
+        "id": "f1a9e1f9-b716-4c4c-87ee-0ea91b105917",
+        "role": "assistant",
+        "content": "O item 10 do pedido 4500001004 não aparece no aplicativo 'Post Goods Receipt for Purchasing Document' porque o indicador de entrega concluída está ativo, conforme a consulta simulada. Essa limitação é específica deste aplicativo e não bloqueia o recebimento via transação MIGO, que permite processar o saldo restante. [1](https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-a-goods-receipt-with-reference)\n\nUtilizar a transação MIGO para registrar o recebimento do saldo restante, se necessário.",
+        "attachment": {
+          "id": "C04",
+          "title": "Item não aparece no aplicativo",
+          "reference": "SIM-C04"
+        },
+        "error": false,
+        "proposal_id": null,
+        "correction": null,
+        "details": {
+          "confidence": "alta",
+          "confidence_reason": "A evidência DATA confirma o status do item e a fonte K03 explica o comportamento do aplicativo e a alternativa via MIGO.",
+          "facts": [
+            {
+              "text": "A consulta ao SAP simulado indica que o item 10 do pedido 4500001004 possui o indicador de entrega concluída (delivery_completed) como verdadeiro.",
+              "numbers": []
+            },
+            {
+              "text": "No aplicativo 'Post Goods Receipt for Purchasing Document', itens com indicador de entrega concluída não são exibidos para recebimento.",
+              "numbers": [
+                1
+              ]
+            },
+            {
+              "text": "A limitação de exibição neste aplicativo específico não implica bloqueio geral de recebimentos; a transação MIGO pode ser utilizada para registrar o saldo pendente.",
+              "numbers": [
+                1
+              ]
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [
+            "Utilizar a transação MIGO para registrar o recebimento do saldo restante, se necessário."
+          ],
+          "sources": [
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-a-goods-receipt-with-reference",
+              "title": "MIGO e aplicativo de recebimento",
+              "numbers": [
+                1
+              ],
+              "ids": [
+                "K03"
+              ]
+            }
+          ],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/sap-s-4hana-sourcing-procurement-innovations/working-with-invoice-management_b94460d9-dd35-48cc-9c58-8a13ca751cd4",
+              "title": "Recebimento e verificação de fatura",
+              "numbers": [],
+              "ids": [
+                "K09"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+              "title": "Recebimento com referência ao pedido",
+              "numbers": [],
+              "ids": [
+                "K01"
+              ]
+            }
+          ],
+          "policies": [],
+          "transactions": [
+            {
+              "purchase_order": "4500001004",
+              "item": "10",
+              "material": "MAT-004",
+              "ordered": "100",
+              "received": "60",
+              "remaining": "40",
+              "unit": "UN",
+              "plant": "BR01",
+              "storage_location": "D001"
+            }
+          ],
+          "steps": [
+            "Solicitação recebida",
+            "Pedido e histórico simulados consultados",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas"
+          ],
+          "latency_ms": 21595
+        }
+      },
+      "elapsed_ms": 29029
+    }
+  ],
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "errors": []
+}

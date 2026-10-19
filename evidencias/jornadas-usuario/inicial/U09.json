@@ -1,0 +1,119 @@
+{
+  "id": "U09",
+  "scenario": "U09: C08 recusa mantém quantidade original e não deixa autorização ativa",
+  "date": "2026-10-19T03:12:23.944Z",
+  "status": "passed",
+  "method": "Microsoft Edge headless, interface React e API/Supabase/OpenRouter reais; cliques automatizados",
+  "questions": [
+    {
+      "question": "Prepare o recebimento de 5 UN do pedido 4500001008, item 10, em 2026-10-18.",
+      "answer": {
+        "id": "049e9875-e182-4c74-992c-72600b317206",
+        "role": "assistant",
+        "content": "O chamado solicita o registro de recebimento simulado de 5 UN para o pedido 4500001008, item 10, com data de lançamento em 2026-10-18. A consulta ao sistema confirma que o item existe, possui saldo disponível de 20 UN e está elegível para recebimento. Todos os parâmetros necessários (material, centro, local de armazenamento e unidade) foram identificados. A operação é executável dentro das regras do simulador, aguardando confirmação humana. [1]\n\nRevise a solicitação no cartão de aprovação abaixo.",
+        "attachment": {
+          "id": "C08",
+          "title": "Revisar antes de autorizar",
+          "reference": "SIM-C08"
+        },
+        "error": false,
+        "proposal_id": "84421ee4-2656-4409-93eb-fb74f7914653",
+        "correction": null,
+        "details": {
+          "confidence": "alta",
+          "confidence_reason": "Todos os dados necessários para a operação estão presentes e validados pela consulta simulada. A solicitação está dentro do escopo permitido e não há códigos não documentados ou lacunas de informação.",
+          "facts": [
+            {
+              "text": "O usuário solicitou o recebimento de 5 UN do pedido 4500001008, item 10, com data de lançamento em 2026-10-18.",
+              "numbers": []
+            },
+            {
+              "text": "A consulta simulada confirma que o item 10 do pedido 4500001008 refere-se ao material MAT-008, no centro BR01 e local de armazenamento D001, com saldo disponível de 20 UN.",
+              "numbers": []
+            },
+            {
+              "text": "As regras do simulador permitem o recebimento positivo até o saldo disponível, exigindo confirmação humana explícita para execução.",
+              "numbers": [
+                1
+              ]
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [
+            "Aguardar a decisão do usuário no cartão de confirmação apresentado."
+          ],
+          "sources": [],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-in-sap-cloud-erp/using-date-checks-in-goods-receipt-processing-1",
+              "title": "Validade mínima e datas de entrega",
+              "numbers": [],
+              "ids": [
+                "K11"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+              "title": "Recebimento com referência ao pedido",
+              "numbers": [],
+              "ids": [
+                "K01"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/sap-s-4hana-sourcing-procurement-innovations/working-with-invoice-management_b94460d9-dd35-48cc-9c58-8a13ca751cd4",
+              "title": "Recebimento e verificação de fatura",
+              "numbers": [],
+              "ids": [
+                "K09"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-a-goods-receipt-with-reference",
+              "title": "Recebimento em tipos de estoque",
+              "numbers": [],
+              "ids": [
+                "K07"
+              ]
+            }
+          ],
+          "policies": [
+            {
+              "number": 1,
+              "title": "Regras do recebimento simulado"
+            }
+          ],
+          "transactions": [
+            {
+              "purchase_order": "4500001008",
+              "item": "10",
+              "material": "MAT-008",
+              "ordered": "20",
+              "received": "0",
+              "remaining": "20",
+              "unit": "UN",
+              "plant": "BR01",
+              "storage_location": "D001"
+            }
+          ],
+          "steps": [
+            "Solicitação recebida",
+            "Pedido e histórico simulados consultados",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas",
+            "Proposta validada; aguardando decisão humana"
+          ],
+          "latency_ms": 29036
+        }
+      },
+      "elapsed_ms": 37738
+    }
+  ],
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "errors": []
+}

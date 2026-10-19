@@ -1,0 +1,103 @@
+{
+  "id": "U01",
+  "scenario": "U01: pergunta geral com documento de material e contábil condicionado",
+  "date": "2026-10-19T03:08:33.882Z",
+  "status": "passed",
+  "method": "Microsoft Edge headless, interface React e API/Supabase/OpenRouter reais; cliques automatizados",
+  "questions": [
+    {
+      "question": "Quais documentos são gerados no recebimento com referência a pedido? Sempre há documento contábil?",
+      "answer": {
+        "id": "363d9452-469a-4ec6-82eb-c39d41252801",
+        "role": "assistant",
+        "content": "O recebimento com referência a pedido gera documento de material. O documento contábil é criado apenas em recebimentos valorizados, não sendo gerado em todos os casos. A geração depende da configuração de avaliação do material e do tipo de movimento. [1](https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt) [2](https://learning.sap.com/courses/executing-basic-erp-processes-with-sap-s-4hana/processing-a-goods-receipt-for-a-purchase-order)",
+        "attachment": null,
+        "error": false,
+        "proposal_id": null,
+        "correction": null,
+        "details": {
+          "confidence": "alta",
+          "confidence_reason": "As evidências K01 e K08 descrevem explicitamente a geração de documento de material e a condicionalidade do documento contábil (apenas para recebimentos valorizados).",
+          "facts": [
+            {
+              "text": "O lançamento de entrada de mercadoria atualiza o histórico do pedido e gera um documento de material.",
+              "numbers": [
+                1
+              ]
+            },
+            {
+              "text": "Recebimentos valorizados podem gerar documento contábil para atualizar o valor do estoque.",
+              "numbers": [
+                1
+              ]
+            },
+            {
+              "text": "O processo gera documento de material com dados como material, quantidade, centro e depósito, e documento contábil para atualizar o valor dos bens em estoque no cenário descrito.",
+              "numbers": [
+                2
+              ]
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [],
+          "sources": [
+            {
+              "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+              "title": "Recebimento com referência ao pedido",
+              "numbers": [
+                1
+              ],
+              "ids": [
+                "K01"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/executing-basic-erp-processes-with-sap-s-4hana/processing-a-goods-receipt-for-a-purchase-order",
+              "title": "Documentos gerados no recebimento",
+              "numbers": [
+                2
+              ],
+              "ids": [
+                "K08"
+              ]
+            }
+          ],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/sap-s-4hana-sourcing-procurement-innovations/working-with-invoice-management_b94460d9-dd35-48cc-9c58-8a13ca751cd4",
+              "title": "Recebimento e verificação de fatura",
+              "numbers": [],
+              "ids": [
+                "K09"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-cancellations-return-deliveries-and-returns",
+              "title": "Estorno de recebimento e devolução",
+              "numbers": [],
+              "ids": [
+                "K12"
+              ]
+            }
+          ],
+          "policies": [],
+          "transactions": [],
+          "steps": [
+            "Solicitação recebida",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas"
+          ],
+          "latency_ms": 20877
+        }
+      },
+      "elapsed_ms": 28421
+    }
+  ],
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "errors": []
+}

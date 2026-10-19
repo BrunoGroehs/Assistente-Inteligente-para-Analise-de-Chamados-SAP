@@ -1,0 +1,221 @@
+{
+  "id": "U03",
+  "scenario": "U03: C02 entrega parcial pede data e proposta completa pode ser recusada",
+  "date": "2026-10-19T03:09:54.175Z",
+  "status": "passed",
+  "method": "Microsoft Edge headless, interface React e API/Supabase/OpenRouter reais; cliques automatizados",
+  "questions": [
+    {
+      "question": "Como registro as 25 UN que chegaram neste pedido?",
+      "answer": {
+        "id": "313b4fa5-4d51-4660-9469-b92c54b31719",
+        "role": "assistant",
+        "content": "O usuário deseja registrar o recebimento de 25 UN do pedido 4500001002, item 10. A consulta indica saldo disponível de 80 UN. Para executar a simulação, é necessária a data de lançamento, que não foi informada. Sem essa informação, a operação não pode ser proposta. [1]\n\nData de lançamento para o recebimento",
+        "attachment": {
+          "id": "C02",
+          "title": "Conferir uma entrega parcial",
+          "reference": "SIM-C02"
+        },
+        "error": false,
+        "proposal_id": null,
+        "correction": {
+          "operation": "registrar_recebimento_simulado",
+          "ticket": "C02",
+          "expires_at": "2026-10-19T03:23:59.616837+00:00",
+          "purchase_order": "4500001002",
+          "item": "10",
+          "material": "MAT-002",
+          "unit": "UN",
+          "max_quantity": "80"
+        },
+        "details": {
+          "confidence": "media",
+          "confidence_reason": "Os dados do pedido e a quantidade são conhecidos, mas falta a data de lançamento obrigatória para executar a ação.",
+          "facts": [
+            {
+              "text": "O pedido 4500001002, item 10, possui saldo disponível de 80 UN para recebimento.",
+              "numbers": []
+            },
+            {
+              "text": "A quantidade solicitada para recebimento é de 25 UN.",
+              "numbers": []
+            },
+            {
+              "text": "A data de lançamento é um parâmetro obrigatório para o recebimento simulado e não foi fornecida.",
+              "numbers": [
+                1
+              ]
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [
+            "Data de lançamento para o recebimento"
+          ],
+          "next_steps": [
+            "Informar a data de lançamento desejada para prosseguir com a proposta de recebimento."
+          ],
+          "sources": [],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+              "title": "Conferência de quantidade e histórico",
+              "numbers": [],
+              "ids": [
+                "K02",
+                "K01"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-in-sap-cloud-erp/applying-tolerances-and-the-delivery-complete-indicator-1",
+              "title": "Tolerâncias e entrega concluída",
+              "numbers": [],
+              "ids": [
+                "K06"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-in-sap-cloud-erp/using-date-checks-in-goods-receipt-processing-1",
+              "title": "Validade mínima e datas de entrega",
+              "numbers": [],
+              "ids": [
+                "K11"
+              ]
+            }
+          ],
+          "policies": [
+            {
+              "number": 1,
+              "title": "Regras do recebimento simulado"
+            }
+          ],
+          "transactions": [
+            {
+              "purchase_order": "4500001002",
+              "item": "10",
+              "material": "MAT-002",
+              "ordered": "100",
+              "received": "20",
+              "remaining": "80",
+              "unit": "UN",
+              "plant": "BR01",
+              "storage_location": "D001"
+            }
+          ],
+          "steps": [
+            "Solicitação recebida",
+            "Pedido e histórico simulados consultados",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas",
+            "Correção identificada; aguardando dados para revisão humana"
+          ],
+          "latency_ms": 19685
+        }
+      },
+      "elapsed_ms": 27525
+    },
+    {
+      "question": "Use a data de lançamento 2026-10-18 e registre as 25 UN do pedido 4500001002, item 10.",
+      "answer": {
+        "id": "d1662a2f-f6ce-4929-adcc-8c825140425b",
+        "role": "assistant",
+        "content": "O usuário solicitou o registro de recebimento parcial de 25 UN para o pedido 4500001002, item 10, com data de lançamento 2026-10-18. A consulta simulada confirma saldo disponível de 80 UN, material MAT-002, planta BR01 e local D001. Todos os dados necessários estão presentes e válidos conforme as regras do simulador. [1]\n\nRevise a solicitação no cartão de aprovação abaixo.",
+        "attachment": {
+          "id": "C02",
+          "title": "Conferir uma entrega parcial",
+          "reference": "SIM-C02"
+        },
+        "error": false,
+        "proposal_id": "8295dfec-258f-4e0a-b84b-5c718e477525",
+        "correction": null,
+        "details": {
+          "confidence": "alta",
+          "confidence_reason": "Todos os parâmetros obrigatórios (pedido, item, quantidade, unidade, material, planta, local e data) foram fornecidos ou consultados com sucesso. A quantidade solicitada (25) é menor que o saldo disponível (80), atendendo às regras de validação do simulador.",
+          "facts": [
+            {
+              "text": "O usuário informou explicitamente a quantidade de 25 UN e a data de lançamento 2026-10-18 para o pedido 4500001002, item 10.",
+              "numbers": []
+            },
+            {
+              "text": "A consulta simulada indica que o item 10 possui saldo disponível de 80 UN, material MAT-002, planta BR01, local D001 e unidade UN.",
+              "numbers": []
+            },
+            {
+              "text": "As regras do simulador permitem o recebimento positivo até o saldo disponível, desde que a data seja informada e o item seja elegível.",
+              "numbers": [
+                1
+              ]
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [
+            "Aguardar a decisão do usuário no cartão de confirmação para registrar o recebimento simulado."
+          ],
+          "sources": [],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-in-sap-cloud-erp/using-date-checks-in-goods-receipt-processing-1",
+              "title": "Validade mínima e datas de entrega",
+              "numbers": [],
+              "ids": [
+                "K11"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-in-sap-cloud-erp/applying-tolerances-and-the-delivery-complete-indicator-1",
+              "title": "Tolerâncias e entrega concluída",
+              "numbers": [],
+              "ids": [
+                "K06"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+              "title": "Conferência de quantidade e histórico",
+              "numbers": [],
+              "ids": [
+                "K02",
+                "K01"
+              ]
+            }
+          ],
+          "policies": [
+            {
+              "number": 1,
+              "title": "Regras do recebimento simulado"
+            }
+          ],
+          "transactions": [
+            {
+              "purchase_order": "4500001002",
+              "item": "10",
+              "material": "MAT-002",
+              "ordered": "100",
+              "received": "20",
+              "remaining": "80",
+              "unit": "UN",
+              "plant": "BR01",
+              "storage_location": "D001"
+            }
+          ],
+          "steps": [
+            "Solicitação recebida",
+            "Pedido e histórico simulados consultados",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas",
+            "Proposta validada; aguardando decisão humana"
+          ],
+          "latency_ms": 31201
+        }
+      },
+      "elapsed_ms": 39464
+    }
+  ],
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "errors": []
+}

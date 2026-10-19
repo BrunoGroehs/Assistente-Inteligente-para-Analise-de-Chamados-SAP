@@ -1,0 +1,13 @@
+{
+  "id": "U15",
+  "scenario": "U15: diálogo no mobile, Escape, anexo e navegação sem chamadas adicionais",
+  "date": "2026-10-19T03:13:53.666Z",
+  "status": "passed",
+  "method": "Microsoft Edge headless, interface React e API/Supabase/OpenRouter reais; cliques automatizados",
+  "questions": [],
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "errors": []
+}

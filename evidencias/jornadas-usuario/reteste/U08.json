@@ -1,0 +1,119 @@
+{
+  "id": "U08",
+  "scenario": "U08: C07 só executa após Sim, preserva situação e Novo chat não reinicia negócio",
+  "date": "2026-10-19T03:19:57.671Z",
+  "status": "passed",
+  "method": "Microsoft Edge headless, interface React e API/Supabase/OpenRouter reais; cliques automatizados",
+  "questions": [
+    {
+      "question": "Registre o recebimento solicitado no chamado, com a data informada.",
+      "answer": {
+        "id": "0c6ead0e-6a30-4b62-8e55-24886ed87382",
+        "role": "assistant",
+        "content": "O chamado solicita o registro de recebimento simulado de 10 UN no pedido 4500001007, item 10, com data de lançamento em 2026-10-18. A consulta ao sistema indica saldo disponível de 30 UN e item elegível. Todos os dados necessários para a operação estão presentes e válidos conforme as regras do simulador. [1]\n\nRevise a solicitação no cartão de aprovação abaixo.",
+        "attachment": {
+          "id": "C07",
+          "title": "Registrar recebimento simulado",
+          "reference": "SIM-C07"
+        },
+        "error": false,
+        "proposal_id": "c06a4195-07d4-4c90-9c69-90176dcfa324",
+        "correction": null,
+        "details": {
+          "confidence": "alta",
+          "confidence_reason": "Todos os dados necessários (pedido, item, quantidade, unidade, data) foram fornecidos e validados contra o saldo disponível na consulta simulada. A operação está dentro das regras documentadas do simulador.",
+          "facts": [
+            {
+              "text": "O usuário solicitou o registro de recebimento de 10 UN no pedido 4500001007, item 10, com data de lançamento 2026-10-18.",
+              "numbers": []
+            },
+            {
+              "text": "A consulta simulada confirma que o item 10 do pedido 4500001007 possui saldo disponível de 30 UN, material MAT-007, planta BR01 e local de armazenamento D001.",
+              "numbers": []
+            },
+            {
+              "text": "As regras do simulador permitem o recebimento positivo até o saldo disponível, exigindo data de lançamento explícita e aprovação humana via cartão.",
+              "numbers": [
+                1
+              ]
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [
+            "Aguardar a decisão do usuário no cartão de confirmação para registrar o recebimento simulado."
+          ],
+          "sources": [],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-in-sap-cloud-erp/using-date-checks-in-goods-receipt-processing-1",
+              "title": "Validade mínima e datas de entrega",
+              "numbers": [],
+              "ids": [
+                "K11"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/executing-basic-erp-processes-with-sap-s-4hana/processing-a-goods-receipt-for-a-purchase-order",
+              "title": "Documentos gerados no recebimento",
+              "numbers": [],
+              "ids": [
+                "K08"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-cancellations-return-deliveries-and-returns",
+              "title": "Estorno de recebimento e devolução",
+              "numbers": [],
+              "ids": [
+                "K12"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-a-goods-receipt-with-reference",
+              "title": "Recebimento em tipos de estoque",
+              "numbers": [],
+              "ids": [
+                "K07"
+              ]
+            }
+          ],
+          "policies": [
+            {
+              "number": 1,
+              "title": "Regras do recebimento simulado"
+            }
+          ],
+          "transactions": [
+            {
+              "purchase_order": "4500001007",
+              "item": "10",
+              "material": "MAT-007",
+              "ordered": "50",
+              "received": "20",
+              "remaining": "30",
+              "unit": "UN",
+              "plant": "BR01",
+              "storage_location": "D001"
+            }
+          ],
+          "steps": [
+            "Solicitação recebida",
+            "Pedido e histórico simulados consultados",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas",
+            "Proposta validada; aguardando decisão humana"
+          ],
+          "latency_ms": 33306
+        }
+      },
+      "elapsed_ms": 41218
+    }
+  ],
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "errors": []
+}

@@ -1,0 +1,95 @@
+{
+  "id": "U12",
+  "scenario": "U12: consulta conceitual adicional",
+  "date": "2026-10-19T03:13:40.565Z",
+  "status": "passed",
+  "method": "Microsoft Edge headless, interface React e API/Supabase/OpenRouter reais; cliques automatizados",
+  "questions": [
+    {
+      "question": "O que determina a exigência de números de série no recebimento? Não altere configurações.",
+      "answer": {
+        "id": "ba10ae3e-9d26-470c-bc0b-bf8169af35f7",
+        "role": "assistant",
+        "content": "A exigência de números de série no recebimento é determinada pelo perfil de número de série atribuído ao cadastro do material. Esse perfil define o tratamento nas operações de negócio, permitindo a identificação individual das peças. O simulador não executa lançamentos de séries nem altera configurações. [1](https://learning.sap.com/courses/managing-technical-objects-in-sap-s-4hana-asset-management/working-with-serial-numbers_d13369ff-6846-4d1b-874f-c7eb6f127679)",
+        "attachment": null,
+        "error": false,
+        "proposal_id": null,
+        "correction": null,
+        "details": {
+          "confidence": "alta",
+          "confidence_reason": "A resposta baseia-se diretamente na síntese da fonte oficial K10, que explica o papel do perfil de número de série no cadastro do material.",
+          "facts": [
+            {
+              "text": "O perfil de número de série atribuído ao cadastro do material determina o tratamento nas operações de negócio, incluindo a exigência no recebimento.",
+              "numbers": [
+                1
+              ]
+            },
+            {
+              "text": "Números de série permitem identificar peças físicas individualmente durante movimentos como entrada de mercadorias.",
+              "numbers": [
+                1
+              ]
+            }
+          ],
+          "hypotheses": [],
+          "missing_information": [],
+          "next_steps": [],
+          "sources": [
+            {
+              "url": "https://learning.sap.com/courses/managing-technical-objects-in-sap-s-4hana-asset-management/working-with-serial-numbers_d13369ff-6846-4d1b-874f-c7eb6f127679",
+              "title": "Números de série no recebimento",
+              "numbers": [
+                1
+              ],
+              "ids": [
+                "K10"
+              ]
+            }
+          ],
+          "consulted_sources": [
+            {
+              "url": "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+              "title": "Recebimento com referência ao pedido",
+              "numbers": [],
+              "ids": [
+                "K01"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-a-goods-receipt-with-reference",
+              "title": "MIGO e aplicativo de recebimento",
+              "numbers": [],
+              "ids": [
+                "K03"
+              ]
+            },
+            {
+              "url": "https://learning.sap.com/courses/sap-s-4hana-sourcing-procurement-innovations/working-with-invoice-management_b94460d9-dd35-48cc-9c58-8a13ca751cd4",
+              "title": "Recebimento e verificação de fatura",
+              "numbers": [],
+              "ids": [
+                "K09"
+              ]
+            }
+          ],
+          "policies": [],
+          "transactions": [],
+          "steps": [
+            "Solicitação recebida",
+            "Busca híbrida e seleção de evidências concluídas",
+            "Cobertura do conhecimento verificada para a pergunta atual",
+            "Resposta estruturada e referências validadas"
+          ],
+          "latency_ms": 21507
+        }
+      },
+      "elapsed_ms": 30039
+    }
+  ],
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "errors": []
+}
