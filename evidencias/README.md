@@ -6,7 +6,19 @@ Resultados coletados em 18/10/2026. A aplicação não foi publicada externament
 
 As suítes em `tests/` exercitam contratos, gateway, recusa, vencimento, concorrência, rollback, isolamento, recuperação híbrida, falhas do provedor e componentes Streamlit via AppTest. O provedor controlado é exclusivo dos testes.
 
-Resultado atual: **121 testes aprovados, zero falhas, erros ou testes ignorados** em [testes-fontes-rag.xml](testes-fontes-rag.xml). Ruff não encontrou erros, e `pip check` confirmou compatibilidade das dependências instaladas. Python 3.12.10; dependências diretas fixadas nos arquivos requirements. Os relatórios de [75 testes](testes.xml) e [101 testes](testes-ampliados.xml) permanecem como histórico.
+Resultado atual: **133 testes aprovados, zero falhas, erros ou testes ignorados** em [testes-selecao-chamados.xml](testes-selecao-chamados.xml). Ruff não encontrou erros, e `pip check` confirmou compatibilidade das dependências instaladas. Python 3.12.10; dependências diretas fixadas nos arquivos requirements. Os relatórios de [75 testes](testes.xml), [101 testes](testes-ampliados.xml) e [121 testes](testes-fontes-rag.xml) permanecem como histórico.
+
+Os 12 novos testes cobrem perfis fictícios, campos ausentes, busca sem acentos e por documentos, apresentação sem escrita, compatibilidade de sessões antigas, seletor com prévia/cancelamento, lista/filtros/seleção de linha e preservação de histórico/aprovação. A seleção de linha no AppTest usa o estado nativo documentado do componente; não equivale a clicar numa tabela em navegador real.
+
+## Seleção de chamados e formato de suporte
+
+**Oito verificações aprovadas** com Supabase/OpenRouter reais em [verificacao-selecao-chamados.json](verificacao-selecao-chamados.json): busca/prévia/cancelamento, lista com seleção/filtro/detalhes, C07 com os novos perfis e proposta pendente, troca e retorno com a mesma aprovação/histórico, Sim com execução única, Não em C08, campos ausentes em C05 e abstinência em C06. Cliques e decisões foram simulados pelo AppTest; o provedor e a persistência são reais. Navegação não gerou chamadas ao modelo ou escrita de negócio; a aprovação foi a única etapa que registrou recebimento.
+
+Foram quatro requisições de embeddings e cinco de chat nessa rodada. Os hashes do catálogo externo ao schema `sap_chamados_ai` permaneceram iguais; nenhum dado de tabela externa foi lido. Nenhuma migração SQL foi necessária. A [verificação do formato SAP for Me](../instrucoes/02-processo-sap.md) usa documentação oficial, sem afirmar integração SAP ou homologação do formato local.
+
+A [primeira tentativa](verificacao-selecao-chamados-inicial.json) preserva uma falha do harness: exigia citação oficial em uma proposta sustentada pelas regras próprias do simulador. A proposta estava correta e pendente, sem execução. O teste passou a distinguir referências oficiais consultadas e efetivamente citadas, sem obrigar citação irrelevante. A resposta também orientava aguardar uma “frase exata”; o rascunho 2026-10-18.7 esclareceu que a pergunta pertence ao cartão e o consentimento ocorre pelos botões. O gateway já impedia autorização por texto. O reteste completo é o relatório de oito verificações acima.
+
+Reprodução com consumo de créditos: `.\.venv\Scripts\python.exe scripts/verify_case_navigation_live.py`. O teste cria uma sessão fictícia própria; sessões existentes não recebem os novos perfis retroativamente. Inspeção visual e navegação completa por teclado continuam pendentes.
 
 ## Ampliação do RAG e fontes diretas
 

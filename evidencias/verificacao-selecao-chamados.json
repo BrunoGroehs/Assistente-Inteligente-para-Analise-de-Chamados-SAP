@@ -1,0 +1,136 @@
+{
+  "date": "2026-10-19T01:34:36.778833+00:00",
+  "mode": "Navegação e HITL com Supabase/OpenRouter reais; consome créditos.\n\nCliques são automatizados pelo AppTest. A seleção de linha é injetada no estado\nnativo do componente, pois AppTest não oferece clique em tabela. Não é revisão\nvisual nem decisão de uma pessoa. Usa somente uma sessão fictícia nova.\n",
+  "checks": [
+    {
+      "check": "Seletor: busca, prévia e cancelamento",
+      "passed": true,
+      "details": {
+        "preview_and_cancel_read_only": true,
+        "api_calls": 0
+      },
+      "seconds": 9.02
+    },
+    {
+      "check": "Lista: seleção, filtros, detalhes e abertura",
+      "passed": true,
+      "details": {
+        "table_selection_state": "linha 4 → C04",
+        "priority_filter": "C05 sem prioridade",
+        "search_purchase_order": "4500001007 → C07",
+        "no_automatic_analysis": true
+      },
+      "seconds": 8.24
+    },
+    {
+      "check": "C07 real: metadados, fontes e proposta sem execução",
+      "passed": true,
+      "details": {
+        "proposal_pending": true,
+        "business_unchanged": true,
+        "cited_official_urls": [],
+        "consulted_official_urls": [
+          "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt",
+          "https://learning.sap.com/courses/executing-basic-erp-processes-with-sap-s-4hana/processing-a-goods-receipt-for-a-purchase-order",
+          "https://learning.sap.com/courses/inventory-management-and-physical-inventory-in-sap-s-4hana/posting-cancellations-return-deliveries-and-returns",
+          "https://learning.sap.com/courses/inventory-management-in-sap-cloud-erp/using-date-checks-in-goods-receipt-processing-1"
+        ],
+        "profile_in_real_model_context": true
+      },
+      "seconds": 36.23
+    },
+    {
+      "check": "Navegação preserva histórico e vínculo da aprovação",
+      "passed": true,
+      "details": {
+        "history_restored": true,
+        "proposal_bound_to_original_case": true,
+        "no_business_change_or_api_call": true
+      },
+      "seconds": 15.2
+    },
+    {
+      "check": "Sim executa uma vez; rerun não repete",
+      "passed": true,
+      "details": {
+        "single_receipt": true,
+        "rerun_idempotent": true,
+        "decision": "simulada pelo teste"
+      },
+      "seconds": 13.09
+    },
+    {
+      "check": "C08 real: Não preserva dados",
+      "passed": true,
+      "details": {
+        "refusal_preserves_business": true,
+        "decision": "simulada pelo teste"
+      },
+      "seconds": 52.95
+    },
+    {
+      "check": "C05 real: campos ausentes e esclarecimento",
+      "passed": true,
+      "details": {
+        "asks_for_missing_context": true,
+        "no_proposal": true,
+        "analysis": {
+          "summary": "Não tenho informações suficientes na base de conhecimento para responder a esta solicitação com segurança.",
+          "process": "recebimento_pedido_compra",
+          "facts": [],
+          "hypotheses": [],
+          "missing_information": [
+            "Você pode informar a mensagem completa, o aplicativo e a versão utilizada?"
+          ],
+          "next_steps": [
+            "Compartilhe uma fonte confiável ou documentação do caso para complementar a base."
+          ],
+          "references": [],
+          "confidence": "baixa",
+          "confidence_reason": "O RAG não forneceu suporte suficiente para a pergunta atual.",
+          "human_review": true,
+          "action": null
+        }
+      },
+      "seconds": 29.93
+    },
+    {
+      "check": "C06 real: código ausente no RAG impede diagnóstico",
+      "passed": true,
+      "details": {
+        "new_metadata_does_not_replace_rag": true,
+        "analysis": {
+          "summary": "Não tenho informações suficientes na base de conhecimento para responder a esta solicitação com segurança.",
+          "process": "recebimento_pedido_compra",
+          "facts": [],
+          "hypotheses": [],
+          "missing_information": [
+            "Você pode informar a mensagem completa, o aplicativo e a versão utilizada?"
+          ],
+          "next_steps": [
+            "Compartilhe uma fonte confiável ou documentação do caso para complementar a base."
+          ],
+          "references": [],
+          "confidence": "baixa",
+          "confidence_reason": "O RAG não forneceu suporte suficiente para a pergunta atual.",
+          "human_review": true,
+          "action": null
+        }
+      },
+      "seconds": 25.98
+    }
+  ],
+  "api_calls": {
+    "embeddings": 4,
+    "completions": 5
+  },
+  "chat_model": "qwen/qwen3.6-plus",
+  "embedding_model": "qwen/qwen3-embedding-8b",
+  "case_profiles": "SIM-C01 a SIM-C08; nova sessão, sem migração de sessões existentes",
+  "external_catalog_hashes": {
+    "before": "75b485015c8c815e3e3ff754f2d1990fafc04bbf48f9d866b699623efbb84043",
+    "after": "75b485015c8c815e3e3ff754f2d1990fafc04bbf48f9d866b699623efbb84043"
+  },
+  "external_catalog_unchanged": true,
+  "passed": true
+}
