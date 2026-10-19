@@ -8,7 +8,7 @@
       "functions": {
         "app.py": {
           "maxDuration": 300,
-          "excludeFiles": "{frontend/**,tests/**,scripts/**,evidencias/**,instrucoes/**,.local/**,.venv/**,.env,.env.*,**/__pycache__/**}"
+          "excludeFiles": "{Demo.mp4,frontend/**,tests/**,scripts/**,evidencias/**,instrucoes/**,.local/**,.venv/**,.env,.env.*,**/__pycache__/**}"
         }
       }
     },

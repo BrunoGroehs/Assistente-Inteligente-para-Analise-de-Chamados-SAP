@@ -32,6 +32,8 @@ O fluxo HITL pode ser testado antes do LLM real, usando propostas controladas. I
 
 ## Vercel Services e execução portátil
 
+`Demo.mp4` é armazenado no Git LFS e não é necessário para executar o app. O arquivo é excluído do envio e do bundle Python da Vercel; não incluir a mídia no pacote da função.
+
 **Decisão confirmada:** preparação Vercel solicitada após a D33; nomes/rotas/bindings seguem registrados em D37. A execução local normal está no [guia passo a passo](../README.md#testar-localmente-no-windows). Os comandos abaixo são alternativas de deploy/desenvolvimento, executados a partir da raiz.
 
 

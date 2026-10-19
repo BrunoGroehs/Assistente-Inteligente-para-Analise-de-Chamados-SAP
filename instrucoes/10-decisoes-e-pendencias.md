@@ -49,6 +49,8 @@
 
 ## Pendências e tratamento
 
+**Decisão confirmada — D40, 19/10/2026:** o usuário autorizou enviar os commits ao GitHub e atualizar a descrição do repositório. O vídeo adicionado pelo usuário excede o limite do Git comum e passa a Git LFS somente nos commits ainda não publicados, preservando seu conteúdo e o histórico remoto. Excluir essa mídia do deploy Vercel. Não publicar segredos; não usar force-push para esse envio.
+
 **Decisão confirmada — D39, 19/10/2026:** priorizar no README o teste local em sequência: dependências, `.env`, Supabase/RAG, build, execução, conferência no navegador e testes automatizados. Desenvolvimento com Vite e detalhes Vercel ficam separados. Incluir no início o link público fornecido pelo usuário; sua inclusão não comprova a disponibilidade dos serviços. Nenhuma alteração de prompts, código, banco ou credenciais faz parte desta atualização documental.
 
 **Correção técnica — D38, 19/10/2026:** após logs de falha em `lifespan` na Vercel, distinguir a etapa de inicialização por códigos seguros, sem expor exceções SQL/HTTP ou segredos. Conexão direta Supabase não deve ser confundida com Session pooler; conferir URL completa, usuário e rede. A recuperação no ambiente publicado depende da configuração e de novo deploy, sem alegar sucesso remoto com base em testes locais. Nenhuma credencial recebida pelo chat é incorporada ao repositório. [Execução e diagnóstico](09-execucao-e-entrega.md).
