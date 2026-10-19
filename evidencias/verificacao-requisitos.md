@@ -2,6 +2,8 @@
 
 **Data:** 18/10/2026. Este relatório relaciona a especificação às evidências, sem substituir a revisão humana das respostas. Os testes locais usam provedor controlado e SQLite temporário; os testes integrados usam Supabase e OpenRouter reais, com decisões humanas simuladas pelo harness.
 
+**Atualização React/FastAPI:** [152 testes Python](testes-api-react.xml), [12 testes React](testes-react.json) e [cinco verificações HTTP reais](verificacao-web-api.json) aprovados na migração. A interface Streamlit e seus testes não fazem parte da execução atual; evidências anteriores continuam históricas. Os contratos de RAG e HITL foram preservados. Revisão visual e publicação continuam pendentes.
+
 ## Requisitos do PDF
 
 | Requisito | Evidência e resultado observado |

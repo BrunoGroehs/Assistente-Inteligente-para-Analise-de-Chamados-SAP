@@ -9,8 +9,8 @@
 | D01 | Primeira entrega somente documental, com `AGENTS.md` e `instrucoes/` | Organizar requisitos antes da implementação; [índice](README.md). |
 | D02 | SAP MM, recebimento com referência a pedido de compra | Recorte coerente para diagnóstico, RAG e HITL; [processo](02-processo-sap.md). |
 | D03 | Oito chamados fictícios | Atende ao intervalo de 5 a 10 do PDF; [casos](02-processo-sap.md). |
-| D04 | Python + Streamlit | Direção do plano aprovado para concentrar esforço em SAP, IA e segurança; [arquitetura](03-arquitetura.md). |
-| D05 | Substituir a escolha inicial React + FastAPI | Alternativa discutida, inclusive Vercel; Streamlit foi escolhido no plano final aprovado; [entrega](09-execucao-e-entrega.md). |
+| D04 | Python + Streamlit — substituída por D33 | Direção do plano aprovado para concentrar esforço em SAP, IA e segurança; [arquitetura](03-arquitetura.md). |
+| D05 | Substituir a escolha inicial React + FastAPI — substituída por D33 | Alternativa discutida, inclusive Vercel; Streamlit foi escolhido no plano final aprovado; [entrega](09-execucao-e-entrega.md). |
 | D06 | Supabase/PostgreSQL com pgvector | Persistência externa e recuperação vetorial; [RAG](04-rag-e-fontes.md). |
 | D07 | Qwen3.6 Plus via OpenRouter | Modelo indicado pelo usuário; embeddings inicialmente Qwen3 Embedding 0.6B pela mesma plataforma; [arquitetura](03-arquitetura.md). |
 | D08 | Lista lateral de chamados — substituída por D29 | Histórico da navegação anterior; chat atual usa anexo opcional sem painel lateral. |
@@ -35,9 +35,11 @@
 | D27 | Selecionar chamados junto ao chat e pela lista completa — refinada por D29 | Histórico: a seleção abria a conversa do caso e mantinha a lateral. Usuário esclareceu que deseja anexar/remover o chamado na mesma conversa. |
 | D28 | Aproximar o formato dos chamados do SAP for Me | Pedido do usuário: conferir uso SAP de “ticket”. Fontes oficiais usam case; perfis fictícios incluem contexto, componente sugerido, prioridade, impacto e reprodução. IDs/situações permanecem locais, sem envio à SAP nem migração de sessões antigas; [processo](02-processo-sap.md). |
 | D29 | Chat único, sem painel lateral, com chamado como anexo opcional | Esclarecimento explícito do usuário: botão lista chamados, detalhes e Anexar ao chat; cartão removível como arquivo do GPT; perguntas gerais sem anexo. Histórico preservado com contexto por mensagem; sem anexo não há consulta transacional ou proposta de negócio. Substitui D08 e o fluxo de navegação de D27; [interface](06-interface.md). |
-| D30 | Reduzir consultas repetidas nos cliques — recomendação técnica implementada | Usuário relatou lag e apontou Streamlit. Medição: cinco SELECTs e cerca de 2,7 s por interação simples. Snapshot exclusivo da sessão, leitura em lote e invalidação após análise/decisão/Atualizar; autorização sempre revalidada no banco. Manter o Streamlit nesta correção, sem decidir uma migração de interface não solicitada. [Arquitetura](03-arquitetura.md). |
+| D30 | Reduzir consultas repetidas nos cliques — recomendação técnica implementada | Usuário relatou lag e apontou Streamlit. Medição: cinco SELECTs e cerca de 2,7 s por interação simples. Snapshot exclusivo da sessão, leitura em lote e invalidação após análise/decisão/Atualizar; autorização sempre revalidada no banco. A manutenção de Streamlit nesta correção foi substituída por D33 após o novo pedido do usuário. [Arquitetura](03-arquitetura.md). |
 | D31 | Novo chat com contexto independente | Pedido explícito: limpar conversa, anexo e rascunho sem apagar histórico nem resetar dados de negócio. Histórico, cache e propostas vinculados à conversa; nenhuma autorização é transferida. [Arquitetura](03-arquitetura.md). |
 | D32 | Respostas com menos opções e blocos | Pedido explícito: resumo direto, um próximo passo quando útil e um único Fontes e detalhes fechado por padrão. Não remover alertas, fundamentação ou o cartão de aprovação. [Interface](06-interface.md) e [prompts](05-prompts.md). |
+
+**Decisão confirmada — D33, 18/10/2026:** remover Streamlit por travadas percebidas pelo usuário. A stack atual é React + TypeScript/Vite na interface e Python/FastAPI na API, preservando Supabase, OpenRouter, RAG e HITL. Substitui escolhas anteriores de Streamlit e Community Cloud; essas linhas permanecem como histórico. Entregar sem plataforma de deploy definida; o usuário adicionará hospedagem manualmente. Navegação local no navegador, etapas por NDJSON, cookie HttpOnly e build servido na mesma origem. Não publicar nem deixar processo local de teste ativo. Ver [arquitetura](03-arquitetura.md) e [execução](09-execucao-e-entrega.md).
 
 ## Pendências e tratamento
 
@@ -52,8 +54,9 @@
 | P05 | Modelos atuais verificados | Chat Qwen3.6 Plus e embeddings 8B/4.096 dimensões testados; saídas e referências validadas pelo servidor. Revalidar se o provedor mudar. |
 | P06 | Parâmetros iniciais implementados; calibração ampla pendente | Quatro sínteses mais duas políticas, busca textual/cosseno, RRF 60 e checagem de cobertura; avaliar relevância, falsos bloqueios e sustentação com rótulos fora do índice. |
 | P07 | Fixtures executáveis concluídas | Oito chamados com datas explícitas em C07/C08, perfis de suporte fictícios para novas sessões e gabaritos fora da base; C05 preserva lacunas. |
-| P08 | Código e validação funcional; revisão estética pendente | 158 testes locais e quatro verificações reais de Novo chat/respostas compactas. Rodadas anteriores de anexos, RAG, cache/HITL e desempenho preservadas. Novo chat não transfere histórico ou aprovação nem reinicia negócio; fontes/verificações em um único bloco. Revisão visual/teclado ainda pendente. |
+| P08 | Código e validação funcional; revisão estética pendente | Rodada anterior: 158 testes locais e quatro verificações reais de Novo chat/respostas compactas. Migração React/FastAPI: 152 testes Python, 12 React e cinco verificações HTTP com serviços reais aprovados; build e análise estática aprovados. Rodadas anteriores de anexos, RAG, cache/HITL e desempenho preservadas. Novo chat não transfere histórico ou aprovação nem reinicia negócio; fontes/verificações em um único bloco. Revisão visual/teclado ainda pendente. |
 | P09 | Publicação, acesso da banca e limites de consumo | Configurar na etapa de publicação, validar hospedado e ensaiar apresentação. |
+| P10 | PDF original ausente no diretório de trabalho | Remoção já existente fora desta migração; mantida fora dos commits. O link em `01-desafio.md` depende de disponibilizar novamente o arquivo. Requisitos transcritos foram preservados. |
 
 ## Como incorporar novos pedidos
 

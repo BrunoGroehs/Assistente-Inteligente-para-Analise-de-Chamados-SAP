@@ -2,33 +2,52 @@
 
 ## Stack e responsabilidades
 
-**Decisão confirmada:** Python + Streamlit; Supabase com PostgreSQL/pgvector; OpenRouter para chat e embeddings. O HITL será um módulo do servidor, sem microsserviço obrigatório. A regra de autorização independe da interface.
+**Decisão confirmada:** Python/FastAPI + React/TypeScript/Vite; Supabase com PostgreSQL/pgvector; OpenRouter para chat e embeddings. O HITL será um módulo do servidor, sem microsserviço obrigatório. A regra de autorização independe da interface.
 
-**Estado implementado em 18/10/2026:** núcleo em `sap_assistant/`, interface em `app.py`, fontes em `conhecimento/` e prompt versionado em `prompts/system.txt`. Persistência SQLAlchemy com seis tabelas no schema exclusivo `sap_chamados_ai`. SQLite é usado somente nos testes; a configuração de execução exige PostgreSQL/Supabase. A inicialização recusa schema sem identificação compatível e não altera objetos de outros projetos.
+**Estado implementado em 18/10/2026:** núcleo em `sap_assistant/`, interface em `frontend/` e entrada ASGI em `app.py`, fontes em `conhecimento/` e prompt versionado em `prompts/system.txt`. Persistência SQLAlchemy com seis tabelas no schema exclusivo `sap_chamados_ai`. SQLite é usado somente nos testes; a configuração de execução exige PostgreSQL/Supabase. A inicialização recusa schema sem identificação compatível e não altera objetos de outros projetos.
 
 **Atualização implementada:** 12 guias; recuperação de até quatro sínteses oficiais e duas políticas do simulador. `grounding.py` verifica a suficiência antes da geração, com contrato `KnowledgeAssessment` e parágrafos identificados. O adaptador OpenRouter faz uma chamada de cobertura e, somente se aprovada, uma chamada de análise. Ausência ou prova inválida de suporte produz abstinência padronizada, sem proposta. A UI mostra links diretos, sem conteúdo ou popup de fonte.
 
-**Atualização implementada:** `cases.py` faz busca, filtragem e apresentação de chamados em memória, sem escrita de negócio. `fixtures.py` acrescenta perfis de suporte inspirados no SAP for Me somente às novas sessões, no JSON de `sap_workspaces`; não requer tabelas adicionais nem migração SQL. Sessões antigas sem perfil permanecem válidas. `service.py` trata os metadados de abertura como relato fictício, separado de dados atuais e conhecimento. Seletores de chat/lista são estado de interface e não invocam o atendimento automaticamente.
+**Atualização implementada:** `cases.py` padroniza referências e campos de apresentação, sem escrita de negócio. A busca e os filtros da interface atual são locais no React. `fixtures.py` acrescenta perfis de suporte inspirados no SAP for Me somente às novas sessões, no JSON de `sap_workspaces`; não requer tabelas adicionais nem migração SQL. Sessões antigas sem perfil permanecem válidas. `service.py` trata os metadados de abertura como relato fictício, separado de dados atuais e conhecimento. Seletores de chat/lista são estado de interface e não invocam o atendimento automaticamente.
 
 **Decisão confirmada e implementada, substituindo a seleção obrigatória:** chat único com anexo de chamado opcional. `analyze(context, None, message)` atende perguntas gerais do escopo pelo RAG, sem consultar pedidos simulados ou carregar o histórico de chamados anteriores. Mensagens gerais usam o canal interno `__geral__` no campo de texto existente; não é um chamado nem um novo registro de negócio. Não há migração SQL.
 
-A apresentação carrega a linha do tempo completa da sessão por `messages(context)`; o contexto enviado ao modelo continua filtrado pelo chamado anexado ou pelo canal geral. Cada mensagem nova guarda `details.attachment` com ID, referência e título, ou `null`. Remover o anexo afeta apenas as próximas perguntas e não reescreve mensagens, propostas ou dados do chamado. Leituras globais de mensagens/propostas continuam exigindo autorização da sessão. Histórico antigo segue legível pelo vínculo já persistido.
+A apresentação carrega a linha do tempo da conversa autorizada por `Store.snapshot(context, chat_id)`; o contexto enviado ao modelo continua filtrado pelo chamado anexado ou pelo canal geral. Cada mensagem nova guarda `details.attachment` com ID, referência e título, ou `null`. Remover o anexo afeta apenas as próximas perguntas e não reescreve mensagens, propostas ou dados do chamado. Leituras globais de mensagens/propostas continuam exigindo autorização da sessão. Histórico antigo segue legível pelo vínculo já persistido.
 
 Sem anexo, `ticket=null` e `case_attached=false` chegam ao provedor; a recuperação usa a pergunta, sem título/relato de um caso anterior e sem evidência `DATA`. A exigência de suporte no RAG permanece. Propostas sem chamado são bloqueadas pelo servidor antes do gateway; o modelo não escolhe um chamado por conta própria. Aprovação pendente só mostra botões de decisão quando seu chamado está anexado; remover o anexo permite conversar no canal geral sem conceder ou cancelar autorização.
 
 **Decisão confirmada — conversas independentes:** Novo chat cria um UUID no servidor, limpa o contexto visual e mantém o mesmo workspace/dados de negócio. `details.chat_id` identifica mensagens; `payload.chat_id` identifica a proposta e integra seu hash de integridade. Mensagens e propostas legadas, sem campo ou com `null`, pertencem à conversa inicial. Filtros JSON selecionam a conversa atual na leitura de apresentação e no histórico do LLM; a autorização de workspace permanece obrigatória. O cache inclui o ID de conversa. Não há novas tabelas, alteração de schema ou migração SQL.
 
-O identificador vem da sessão do servidor, fora dos argumentos do modelo. A chave de submissão não pode ser reutilizada em outra conversa. Deduplicar propostas somente dentro da mesma conversa; decidir exige correspondência com a conversa da proposta, além de todas as validações anteriores. Conversas vazias só precisam do estado de interface; os registros persistem quando há mensagens/propostas. Novo chat não apaga nem resolve o atendimento anterior, não renova sua aprovação e não reinicia cotas da sessão.
+O identificador vem do endpoint de conversa no servidor, fora dos argumentos do modelo. A chave de submissão não pode ser reutilizada em outra conversa. Deduplicar propostas somente dentro da mesma conversa; decidir exige correspondência com a conversa da proposta, além de todas as validações anteriores. Conversas vazias só precisam do estado de interface; os registros persistem quando há mensagens/propostas. Novo chat não apaga nem resolve o atendimento anterior, não renova sua aprovação e não reinicia cotas da sessão.
 
 **Apresentação compacta:** `render_analysis` produz resumo, citações e um único próximo passo ou pergunta de esclarecimento, preservando avisos obrigatórios. `detailed=True` disponibiliza os fatos e verificações completos para o expansível da UI. O contrato estruturado e os snapshots de evidências continuam integrais. Respostas históricas já salvas não são reescritas.
 
+## Fronteira web atual
+
+**Decisão confirmada:** Streamlit removido por solicitação do usuário devido às travadas percebidas. React mantém interações locais; FastAPI fornece API e serve o build Vite. Hospedagem sem plataforma definida, com deploy manual posterior pelo usuário. Não houve alteração de tabelas ou migração do banco.
+
+| Endpoint | Contrato |
+| --- | --- |
+| `GET /api/health`, `GET /api/config` | Saúde do processo e indicação de exigência de código; sem credenciais. |
+| `POST /api/session`, `GET /api/session` | Criação/validação de sessão; cookie opaco HttpOnly, SameSite estrito, Secure fora de local. |
+| `POST /api/chats` | Novo identificador de conversa, preservando o workspace. |
+| `GET /api/chats/{id}` | Projeção pública da conversa, casos e propostas, sem textos brutos de evidência. `initial` representa a conversa legada. |
+| `POST /api/chats/{id}/messages` | Mensagem, anexo opcional e UUID de submissão; NDJSON com etapas, heartbeat e resultado validado. |
+| `POST /api/chats/{id}/proposals/{id}/decision` | Somente `approve: boolean`; operação e parâmetros vêm da proposta persistida. |
+
+Mutações exigem cabeçalho da aplicação e verificação de Origin/Host quando Origin está presente. Sem CORS aberto. Sessão é autorizada no banco; a identidade nunca vem do modelo. A resposta pública omite tokens, DSN, conteúdo de documentos e envelopes internos. Erros não expõem stack trace ou detalhes do provedor.
+
+As análises rodam em executor limitado a quatro tarefas por processo e uma por workspace; a API continua atendendo consultas e navegação. Falha de rede não reenvia a análise automaticamente. Após falha ou sucesso, a tela tenta reler o estado durável. Etapas não contêm resposta técnica parcial. Aguardar humano não ocupa tarefa: o resultado pendente é persistido e a requisição termina.
+
+A sessão é validada por cookie; `sessionStorage` guarda apenas conversa/anexo, nunca token. Reiniciar o servidor permite retomar enquanto o cookie válido existir. Não há autenticação individual ou retomada entre dispositivos. Escala com múltiplos processos exigirá coordenação compartilhada do limite de tarefas; o gateway mantém sua idempotência transacional independentemente desse limite.
+
 ## Desempenho da apresentação
 
-**Diagnóstico medido:** cada rerun da tela repetia cinco SELECTs em três acessos separados ao Supabase (`state`, `messages`, `proposals`), com nova autorização/conexão/transação por acesso. No AppTest com banco real, selecionar/anexar/remover demorava cerca de 2,7 segundos, sem LLM. O [modelo de execução do Streamlit](https://docs.streamlit.io/develop/concepts/architecture/caching) contribui ao reexecutar o script nas interações; o custo de rede repetido era evitável.
+**Diagnóstico histórico da versão substituída:** cada rerun da tela repetia cinco SELECTs em três acessos separados ao Supabase (`state`, `messages`, `proposals`), com nova autorização/conexão/transação por acesso. No AppTest com banco real, selecionar/anexar/remover demorava cerca de 2,7 segundos, sem LLM. O [modelo de execução do Streamlit](https://docs.streamlit.io/develop/concepts/architecture/caching) contribui ao reexecutar o script nas interações; o custo de rede repetido era evitável.
 
-**Recomendação técnica implementada:** `Store.snapshot(context)` lê estado, mensagens e propostas com autorização e três SELECTs na mesma conexão, sem `FOR UPDATE`, escrita ou decisão. A interface mantém esse resultado apenas em `st.session_state`, associado ao contexto completo. Não usar cache compartilhado para dados privados. Navegar, buscar, anexar e remover reutilizam a leitura. Análises, decisões (inclusive falhas) e o botão Atualizar invalidam a cópia visual; mudança de sessão exige nova leitura autorizada.
+**Recomendação técnica implementada:** `Store.snapshot(context)` lê estado, mensagens e propostas com autorização e três SELECTs na mesma conexão, sem `FOR UPDATE`, escrita ou decisão. A interface mantém a projeção pública desse resultado no estado React, associada à sessão e à conversa. Não usar cache compartilhado para dados privados. Navegar, buscar, anexar e remover reutilizam a leitura. Análises, decisões (inclusive falhas) e o botão Atualizar invalidam a cópia visual; mudança de sessão exige nova leitura autorizada.
 
-Isso é uma cópia para exibição, sem atualização automática de mudanças externas: usar Atualizar nesses casos. Toda decisão continua consultando o Supabase atual sob os bloqueios do gateway, mesmo quando o cartão exibido está antigo. `visible_proposals` deriva vencimento a cada render pelo relógio do servidor, sem mutar o snapshot/banco ou renovar prazo. O gateway valida o vencimento novamente ao decidir. A auditoria persistida de expiração ocorre nos caminhos existentes de decisão/leitura de propostas, não por navegação em memória.
+Isso é uma cópia para exibição, sem atualização automática de mudanças externas: usar Atualizar nesses casos. Toda decisão continua consultando o Supabase atual sob os bloqueios do gateway, mesmo quando o cartão exibido está antigo. `visible_proposals` deriva vencimento a cada leitura pelo relógio do servidor; a tela avança o prazo localmente, calibrada pelo horário enviado na resposta, sem mutar o snapshot/banco ou renovar prazo. O gateway valida o vencimento novamente ao decidir. A auditoria persistida de expiração ocorre nos caminhos existentes de decisão/leitura de propostas, não por navegação em memória.
 
 `synchronize_knowledge` carrega os documentos próprios em lote antes de comparar hashes, evitando 12 consultas sequenciais de inicialização. A análise mantém busca, verificação de cobertura e geração separadas; não se remove uma validação para aparentar rapidez. Um callback do servidor informa as etapas reais na tela, sem transmitir JSON/resposta técnica antes da validação. Medidas e limitações em [evidências](../evidencias/README.md).
 
@@ -38,7 +57,7 @@ Contratos implementados: `Analysis`, `Evidence`, `ReceiptRequest`, `StatusReques
 
 | Componente | Responsabilidade | Limite |
 | --- | --- | --- |
-| Interface Streamlit | Seleção do chamado, mensagens, evidências e decisão humana | Não decide autorização pelo texto do modelo. |
+| Interface React e API FastAPI | Seleção do chamado, mensagens, evidências e decisão humana | Não decide autorização pelo texto do modelo. |
 | Atendimento | Coordena interpretação, consultas, esclarecimento e resposta | Não executa escritas diretamente. |
 | Recuperação | Busca textual/vetorial e seleção de evidências | Não indexa instruções do projeto ou gabaritos. |
 | Cobertura | Avaliação semântica dos trechos e validação de seus IDs de parágrafo | Não gerar análise técnica sem suporte; políticas simuladas não provam comportamento do SAP real. |
@@ -53,8 +72,9 @@ Fluxo conceitual da implementação atual:
 
 ```mermaid
 flowchart TD
-    U[Usuário] --> UI[Streamlit: chat e anexo opcional de chamado]
-    UI --> A[Atendimento Python]
+    U[Usuário] --> UI[React: chat e anexo opcional de chamado]
+    UI --> API[FastAPI: sessão e endpoints HTTP]
+    API --> A[Atendimento Python]
     A --> R[Recuperação híbrida]
     R <--> DB[(Supabase: PostgreSQL e pgvector)]
     A --> READ[Consulta ao SAP simulado]
@@ -83,7 +103,7 @@ Não manter uma requisição ou chamada de LLM aberta enquanto se espera o human
 
 ## Contratos mínimos
 
-**Recomendação:** contratos internos tipados; não são endpoints implementados. Identificadores de sessão/autorização são fornecidos pelo servidor, fora dos argumentos controláveis pelo modelo.
+**Estado implementado:** contratos internos tipados e fronteira HTTP validada com Pydantic. Identificadores de sessão/autorização são fornecidos pelo servidor, fora dos argumentos controláveis pelo modelo.
 
 | Contrato | Campos e comportamento |
 | --- | --- |
@@ -99,7 +119,7 @@ Interfaces conceituais: analisar chamado, consultar pedido, buscar evidências, 
 
 ## Persistência e isolamento
 
-**Decisão confirmada:** banco externo durável para conversas, aprovações e auditoria. `session_state` mantém seleção e referências de interface, não prova de aprovação. O Streamlit Cloud não garante [persistência local](https://docs.streamlit.io/develop/concepts/connections/connecting-to-data).
+**Decisão confirmada:** banco externo durável para conversas, aprovações e auditoria. O estado React mantém seleção e referências de interface, nunca prova de aprovação. Arquivos locais não são armazenamento durável.
 
 **Recomendação:** separar documentos/trechos compartilhados e imutáveis dos dados de cada sessão: chamados, mensagens, execuções de análise, evidências utilizadas, propostas, decisões e eventos de auditoria. Versionar os registros de negócio e usar restrições únicas para execução de uma proposta.
 
@@ -111,4 +131,4 @@ Na retomada após reinício, reconstruir estado a partir do banco somente quando
 
 **Recomendação:** registrar IDs de correlação, modelo solicitado/efetivo, versão do prompt e da base, fontes recuperadas/utilizadas, latência, uso informado pelo provedor e estado da proposta. Dados ausentes de consumo devem ficar como indisponíveis, nunca como zero estimado.
 
-Aplicar timeout e tentativas limitadas a chamadas de leitura/LLM. Falha do banco impede escrita e aprovação; falha do LLM produz erro claro sem fabricar resposta. Validar integralmente a saída antes de criar propostas. Reruns do Streamlit não podem repetir cobranças ou operações já concluídas: correlacionar cada submissão com um ID e recuperar seu resultado.
+Aplicar timeout e tentativas limitadas a chamadas de leitura/LLM. Falha do banco impede escrita e aprovação; falha do LLM produz erro claro sem fabricar resposta. Validar integralmente a saída antes de criar propostas. Reenvios HTTP não podem repetir cobranças ou operações já concluídas: correlacionar cada submissão com um ID e recuperar seu resultado.

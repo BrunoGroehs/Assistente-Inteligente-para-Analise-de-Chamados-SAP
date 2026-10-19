@@ -1,10 +1,9 @@
-"""Compatibilidade: executa a verificação atual de chat com anexos opcionais.
+"""Entrada compatível: verifica a API web atual, com serviços reais.
 
-O seletor antigo com painel lateral foi substituído. Relatórios anteriores são
-históricos; a execução atual consome créditos e grava verificacao-anexos-chat.json.
+Consome créditos. Relatório em verificacao-web-api.json; relatórios anteriores
+continuam históricos. Interações do React têm testes separados em frontend/.
 """
-from verify_chat_attachments_live import main
-
+from verify_web_live import main
 
 if __name__ == "__main__":
     main()

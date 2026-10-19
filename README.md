@@ -1,12 +1,12 @@
 # Assistente SAP MM
 
-Protótipo para análise de chamados de recebimento de mercadorias com referência a pedidos de compra. Python e Streamlit na aplicação; Supabase/PostgreSQL com pgvector na persistência; Qwen3.6 Plus e Qwen3 Embedding 8B pelo OpenRouter.
+Protótipo para análise de chamados de recebimento de mercadorias com referência a pedidos de compra. React + TypeScript na interface e Python/FastAPI na API; Supabase/PostgreSQL com pgvector na persistência; Qwen3.6 Plus e Qwen3 Embedding 8B pelo OpenRouter.
 
 O SAP é simulado. Nenhuma chamada executa transações SAP reais. Oito chamados fictícios estão disponíveis, com histórico isolado por sessão, fontes consultadas e propostas que precisam de aprovação humana.
 
 ## Executar no Windows
 
-Python 3.12 é a versão validada. Na raiz do repositório:
+Python 3.12 e Node.js 24.14 são as versões validadas. Não é necessário instalar banco local. Na raiz do repositório:
 
 ```powershell
 python -m venv .venv
@@ -41,10 +41,14 @@ Se precisar codificar uma senha, use uma ferramenta local, não um site externo.
 ```powershell
 .\.venv\Scripts\python.exe -m sap_assistant.cli init-db
 .\.venv\Scripts\python.exe -m sap_assistant.cli ingest
-.\.venv\Scripts\python.exe -m streamlit run app.py --server.address 127.0.0.1 --server.port 8507
+cd frontend
+npm.cmd ci
+npm.cmd run build
+cd ..
+.\.venv\Scripts\python.exe -m uvicorn app:app --host 127.0.0.1 --port 8000
 ```
 
-Abra `http://127.0.0.1:8507`. O chat inicia sem chamado anexado e permite perguntas gerais sobre o processo pelo RAG. A ingestão gera embeddings com cobrança do OpenRouter; documentos inalterados usam o cache. A aplicação também prepara os guias automaticamente e gera embeddings faltantes na primeira consulta. Reinicie o processo após mudar o `.env`.
+Abra `http://127.0.0.1:8000`. A API serve a interface compilada e os endpoints na mesma origem. Encerre com Ctrl+C. O chat inicia sem chamado anexado e permite perguntas gerais sobre o processo pelo RAG. A ingestão gera embeddings com cobrança do OpenRouter; documentos inalterados usam o cache. A aplicação também prepara os guias automaticamente e gera embeddings faltantes na primeira consulta. Reinicie o processo após mudar o `.env`.
 
 Não há painel lateral. Use **Chamados** no compositor para listar/buscar os casos, **Ver detalhes** para consultar e **Anexar ao chat** para incluir o contexto. O chamado aparece como um cartão removível, semelhante a um arquivo anexado. Você pode substituir ou **Remover anexo** e continuar perguntando na mesma conversa. Cada mensagem preserva seu contexto; novas perguntas sem anexo não herdam dados do caso anterior. Para analisar o anexo, escreva ou clique em **Analisar chamado**. Anexar/remover não chama a IA nem decide aprovações.
 
@@ -68,7 +72,7 @@ O LLM devolve uma proposta tipada, sem URL/SQL arbitrário. O gateway valida ope
 
 Sem chamado anexado, não há proposta de alteração nem consulta aos pedidos simulados. Remover o anexo preserva a proposta anterior e permite perguntas gerais; para decidir, reanexe o chamado original pelo cartão. A decisão continua vinculada à proposta exata, com a mesma validade.
 
-A navegação reutiliza uma cópia visual exclusiva da sessão para evitar consultas ao banco em cada clique. Ela é recarregada após análise/decisão ou pelo botão **Atualizar**, usado também para mudanças externas. Essa cópia nunca autoriza operações: o gateway sempre verifica o Supabase atual antes de executar. Durante a análise, o status informa a etapa em andamento. [Medições de desempenho](evidencias/README.md).
+A navegação reutiliza uma cópia visual exclusiva da sessão no navegador para evitar consultas ao banco em cada clique. Ela é recarregada após análise/decisão ou pelo botão **Atualizar**, usado também para mudanças externas. Essa cópia nunca autoriza operações: o gateway sempre verifica o Supabase atual antes de executar. Durante a análise, o status informa a etapa em andamento. [Medições de desempenho](evidencias/README.md).
 
 O “passo a passo” mostra operações observáveis, evidências e justificativas resumidas. Raciocínio interno bruto não é exibido ou usado como auditoria.
 
@@ -86,7 +90,11 @@ Antes de gerar a análise, uma chamada estruturada verifica se os trechos cobrem
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 .\.venv\Scripts\python.exe -m pytest -q
-.\.venv\Scripts\python.exe -m ruff check sap_assistant app.py tests
+.\.venv\Scripts\python.exe -m ruff check sap_assistant app.py tests scripts
+cd frontend
+npm.cmd test
+npm.cmd run build
+cd ..
 ```
 
 Os testes padrão usam banco temporário e provedor controlado: não leem a chave nem consomem créditos. Não comprovam sozinhos a qualidade do modelo real. Não existe fallback de produção para respostas mockadas ou para outro modelo.
@@ -97,18 +105,39 @@ Para reproduzir a verificação ampliada com os serviços reais configurados no 
 .\.venv\Scripts\python.exe scripts/verify_live.py
 ```
 
-Esse comando **consome créditos** e cria sessões fictícias próprias no schema do projeto. Verifica fontes diretas, novos conteúdos, perguntas sem suporte, regressões dos chamados e cliques Sim/Não, além de concorrência, isolamento, adulteração, expiração e rollback. Não altera tabelas externas nem injeta documentos na base compartilhada. Resultados atuais em [verificação de fontes/RAG](evidencias/verificacao-fontes-rag.json); cobertura e limites em [verificação dos requisitos](evidencias/verificacao-requisitos.md). Propostas pendentes anteriores ao novo envelope de integridade exigem nova análise; não são executadas usando o formato antigo.
+Esse comando **consome créditos** e cria sessões fictícias próprias no schema do projeto. Verifica fontes diretas, novos conteúdos, perguntas sem suporte, regressões dos chamados e cliques Sim/Não, além de concorrência, isolamento, adulteração, expiração e rollback. Não altera tabelas externas nem injeta documentos na base compartilhada. O histórico do núcleo está em [verificação de fontes/RAG](evidencias/verificacao-fontes-rag.json); cobertura e limites em [verificação dos requisitos](evidencias/verificacao-requisitos.md). A execução atual desse script gera `evidencias/verificacao-ampliada-web.json`, preservando o relatório anterior. Propostas pendentes anteriores ao novo envelope de integridade exigem nova análise; não são executadas usando o formato antigo.
 
-Para verificar especificamente o chat único, perguntas gerais e anexos opcionais com os serviços reais: `.\.venv\Scripts\python.exe scripts/verify_chat_attachments_live.py`. Resultado desta rodada em [verificação dos anexos](evidencias/verificacao-anexos-chat.json). Os cliques são automatizados pelo AppTest; não representam revisão visual ou consentimento de uma pessoa.
+Para verificar a API atual com Supabase/OpenRouter reais:
 
-Novo chat, isolamento de conversas e resposta compacta: `.\.venv\Scripts\python.exe scripts/verify_new_chat_live.py`, também com consumo de créditos. [Resultado real](evidencias/verificacao-novo-chat.json).
+```powershell
+.\.venv\Scripts\python.exe scripts/verify_web_live.py
+```
 
-## Publicar posteriormente
+Consome créditos; testa RAG geral, fontes diretas, abstinência, Sim/Não, duplicação e Novo chat em sessões fictícias próprias. O relatório é [verificacao-web-api.json](evidencias/verificacao-web-api.json). As decisões desse teste são simuladas, não cliques de uma pessoa. Os testes React exercitam busca, detalhes, anexo, resposta compacta e cartões. Relatórios antigos de Streamlit são históricos; não comprovam a interface atual.
 
-No Streamlit Community Cloud, use `app.py` como entrada e Python 3.12. Defina as configurações do `.env` em **Secrets**, no formato TOML, com `APP_ENV = "cloud"` e `DEMO_ACCESS_CODE` de pelo menos 12 caracteres. PostgreSQL externo é obrigatório. Não publique `.env`, não altere permissões de outros schemas e não use a chave do banco no navegador.
+## Arquitetura atual
 
-O código de acesso é uma proteção simples para uma demonstração restrita à banca; não substitui autenticação individual de produção. As sessões são isoladas, mas recarregar completamente a página pode iniciar outra sessão. A primeira versão não recupera histórico entre dispositivos.
+```mermaid
+flowchart LR
+    UI[React e TypeScript] -->|HTTP e cookie HttpOnly| API[FastAPI /api]
+    API --> CORE[Atendimento Python]
+    CORE --> RAG[Busca híbrida e verificação de cobertura]
+    RAG <--> DB[(Supabase e pgvector)]
+    RAG <--> OR[OpenRouter: embeddings e Qwen]
+    CORE --> PROPOSTA[Proposta validada]
+    UI -->|Sim ou Não para proposta exata| HITL[Gateway determinístico]
+    PROPOSTA --> HITL
+    HITL -->|Aprovação válida| SAP[SAP simulado no Supabase]
+```
 
-O Supabase Free suporta o armazenamento/busca vetorial com pgvector dentro das cotas do plano; embeddings e chat são cobrados pelo OpenRouter. Confira as condições ao publicar: [Supabase](https://supabase.com/pricing), [pgvector](https://supabase.com/docs/guides/database/extensions/pgvector). Não há promessa de operação integralmente gratuita.
+Busca, filtros, detalhes e anexos são estado React local; não chamam Python nem o banco. A análise envia etapas observáveis por NDJSON enquanto o núcleo consulta o Supabase e o OpenRouter em uma tarefa separada. A resposta técnica aparece depois de validada. O RAG e o gateway permanecem no núcleo Python, sem ferramentas de execução ou aprovação para o modelo. [Arquitetura e contratos](instrucoes/03-arquitetura.md).
 
-Limitações: base pequena, versões SAP não identificadas com precisão, confiança qualitativa, ausência de integração SAP real e necessidade de revisão humana para recomendações críticas. Similaridade vetorial e citações existentes não garantem a correção de cada afirmação. Os prompts implementados continuam abertos ao debate.
+Para desenvolver a interface com atualização automática, mantenha a API na porta 8000 e execute `npm.cmd run dev` em `frontend/` em outro terminal. Abra a URL indicada pelo Vite (normalmente porta 5173); o proxy encaminha `/api` sem expor segredos. Para executar normalmente, basta o build e um processo Uvicorn, sem servidor Vite. No Linux/macOS, use `npm` em lugar de `npm.cmd` e o Python do ambiente correspondente.
+
+## Deploy manual, sem plataforma definida
+
+O usuário escolherá a hospedagem posteriormente. O contrato portátil é: instalar dependências Python, executar `npm ci && npm run build` em `frontend/`, manter `frontend/dist` junto do projeto e iniciar `python -m uvicorn app:app --host 0.0.0.0 --port PORTA_ESCOLHIDA`. Compilar antes de iniciar a API. Nenhum arquivo específico de plataforma foi imposto; não houve publicação automática.
+
+Configure as variáveis do `.env.example` somente no servidor, `APP_ENV=cloud`, `DEMO_ACCESS_CODE` com pelo menos 12 caracteres e HTTPS. O cookie de sessão é HttpOnly, SameSite estrito e Secure fora do ambiente local. Mantenha interface e `/api` na mesma origem, preservando Host/Origin no proxy, streaming sem buffering e timeout compatível com a análise. O código de demonstração não substitui login individual de produção.
+
+O limite de quatro análises simultâneas e uma por sessão é por processo. Use inicialmente um processo; escalar exigirá coordenação compartilhada de tarefas. A idempotência de escritas continua transacional no Supabase. Nenhuma migração adicional ou tabela nova foi necessária nesta troca de interface.

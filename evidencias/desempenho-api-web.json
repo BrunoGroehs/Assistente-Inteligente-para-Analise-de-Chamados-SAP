@@ -1,0 +1,28 @@
+{
+  "method": "Mede API com Supabase real; --with-analysis consome créditos OpenRouter.\n\nNão mede renderização ou latência de navegador. Relatório histórico preservado.\n",
+  "runtime_initialization_seconds": 9.609,
+  "measurements": [
+    {
+      "request": "criar_sessao",
+      "seconds": 0.774,
+      "sql_statements": 1
+    },
+    {
+      "request": "carregar_conversa",
+      "seconds": 2.131,
+      "sql_statements": 4
+    },
+    {
+      "request": "atualizacao_explicita",
+      "seconds": 2.312,
+      "sql_statements": 4
+    },
+    {
+      "request": "novo_chat",
+      "seconds": 0.783,
+      "sql_statements": 1
+    }
+  ],
+  "api_calls": {},
+  "passed": true
+}

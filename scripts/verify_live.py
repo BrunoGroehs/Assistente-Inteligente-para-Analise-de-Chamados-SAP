@@ -20,12 +20,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from pydantic import TypeAdapter
 from sqlalchemy import text
 from sqlalchemy.orm import object_session
-import streamlit as st
-from streamlit.testing.v1 import AppTest
+from verify_web_live import verify_web_services
 
 from sap_assistant import runtime
 from sap_assistant.approvals import ApprovalGateway, PolicyError, canonical_phrase
-from sap_assistant.citations import message_citations
 from sap_assistant.config import Settings
 from sap_assistant.contracts import ActionRequest, Evidence
 from sap_assistant.database import AccessDenied, Proposal, SessionContext, Store, Workspace, utcnow
@@ -37,7 +35,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--only", nargs="+", help="Executar checagens cujo nome contém os textos indicados; a proposta-base sempre é verificada.")
     parser.add_argument("--update-report", action="store_true", help="Atualizar somente as checagens executadas no relatório atual.")
-    parser.add_argument("--report-name", default="verificacao-fontes-rag.json", help="Nome do arquivo JSON em evidencias/.")
+    parser.add_argument("--report-name", default="verificacao-ampliada-web.json", help="Nome do arquivo JSON em evidencias/.")
     args = parser.parse_args()
     if Path(args.report_name).name != args.report_name or not args.report_name.endswith(".json"):
         parser.error("Use somente um nome de arquivo .json para o relatório.")
@@ -397,63 +395,12 @@ def main():
 
     run("HITL: pedido divergente e operação não permitida", forbidden_input)
 
-    def ui():
-        created = []
-        factory = runtime.create_runtime
+    def web_api():
+        result = verify_web_services(settings, (store, assistant, gateway))
+        assert result["passed"]
+        return result
 
-        def wrapped(settings):
-            result = factory(settings)
-            instrument(result[1])
-            created.append(result)
-            return result
-
-        def click(app, label):
-            next(x for x in app.button if x.label == label).click().run(timeout=180)
-            assert not app.exception
-
-        def attach(app, key):
-            click(app, "Chamados")
-            app.selectbox(key="dialog_case").set_value(key).run()
-            click(app, "Anexar ao chat")
-
-        st.cache_resource.clear()
-        with patch.object(runtime, "create_runtime", wrapped):
-            app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=180).run()
-            assert not app.exception and not app.sidebar.radio and app.session_state["attached_case"] is None
-            ui_store, _, _ = created[0]
-            context = app.session_state["context"]
-            attach(app, "C01")
-            click(app, "Analisar chamado")
-            latest = ui_store.messages(context, "C01")[-1]
-            citations = message_citations(latest["details"])
-            assert citations
-            before_calls = dict(calls)
-            before_state = ui_store.state(context)
-            urls = {x.source_url for x in citations if x.source_url}
-            assert app.get("link_button") and urls
-            assert urls <= {x.proto.url for x in app.get("link_button")}
-            assert not app.text and not app.get("dialog")
-            app.run()
-            assert ui_store.state(context) == before_state and dict(calls) == before_calls
-            attach(app, "C07")
-            click(app, "Analisar chamado")
-            assert app.chat_input[0].disabled and not ui_store.state(context)["receipts"]
-            click(app, "Sim, autorizar")
-            assert len(ui_store.state(context)["receipts"]) == 1
-            calls_after_approval = dict(calls)
-            app.run()
-            assert len(ui_store.state(context)["receipts"]) == 1 and dict(calls) == calls_after_approval
-            attach(app, "C08")
-            click(app, "Analisar chamado")
-            before_refusal = ui_store.state(context)
-            click(app, "Não, recusar")
-            assert ui_store.state(context) == before_refusal
-            assert not any(x.label == "Sim, autorizar" for x in app.button)
-            return {"source_ids": [x.id for x in citations], "official_urls": sorted(urls),
-                    "direct_source_links": True, "no_content_or_popup": True, "source_render_no_api_calls": True,
-                    "approval_once": True, "refusal_unchanged": True, "method": "AppTest; não revisão visual"}
-
-    run("UI real: links oficiais sem conteúdo, Sim, Não e rerun", ui)
+    run("API HTTP real: fontes, contexto, Sim, Não e novo chat", web_api)
     outside_after = outside_catalog()
     report["external_catalog_unchanged"] = outside_before == outside_after
     report["external_catalog_hashes"] = {"before": outside_before, "after": outside_after}

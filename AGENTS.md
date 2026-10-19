@@ -33,7 +33,7 @@ Antes de trabalhar, ler o [índice das instruções](instrucoes/README.md) e os 
 
 ## Limites técnicos e de autonomia
 
-- **Decisão confirmada:** Python, Streamlit, Supabase/PostgreSQL com pgvector; OpenRouter com `qwen/qwen3.6-plus` e embeddings `qwen/qwen3-embedding-8b`. A versão 8B substitui a 0.6B, sem endpoint disponível, com autorização explícita do usuário.
+- **Decisão confirmada:** Python com FastAPI, React + TypeScript com Vite, Supabase/PostgreSQL com pgvector; OpenRouter com `qwen/qwen3.6-plus` e embeddings `qwen/qwen3-embedding-8b`. A versão 8B substitui a 0.6B, sem endpoint disponível, com autorização explícita do usuário.
 - O aplicativo usa Supabase também no desenvolvimento. SQLite é exclusivo de testes temporários, nunca alternativa automática de execução.
 - Preservar todos os dados e tabelas dos outros projetos do usuário. Criar e manipular somente objetos deste projeto no schema `sap_chamados_ai`, verificado por identificação própria. Não executar DROP, reset global, migrações em `public`, alterações de roles ou limpeza de tabelas externas. A extensão vector é ativada pelo usuário; o aplicativo apenas verifica sua existência.
 - Toda alteração de negócio no SAP simulado ou nos chamados exige aprovação humana específica, validada no servidor. O modelo só propõe; nunca aprova nem acessa diretamente o executor.
@@ -48,6 +48,8 @@ Antes de trabalhar, ler o [índice das instruções](instrucoes/README.md) e os 
 - **Decisão confirmada:** aproximar os dados do formato de suporte SAP for Me: resumo, ambiente, componente sugerido, prioridade, impacto e reprodução. Exibir referências `SIM-Cxx` e situações locais; não fingir case SAP real. Valores ausentes são “Não informado”. Ver [processo e fontes verificadas](instrucoes/02-processo-sap.md).
 - **Recomendação técnica implementada:** navegação usa snapshot de apresentação exclusivo da sessão, sem consultar banco ou LLM por clique. Recarregar após análise, decisão ou Atualizar; trocar a identidade da sessão invalida o snapshot. Cache nunca autoriza alterações: o gateway continua lendo e validando dados atuais no Supabase. Prazo visual usa o relógio do servidor. Ver [desempenho](instrucoes/03-arquitetura.md).
 - **Decisão confirmada:** oferecer Novo chat, sem apagar histórico ou reiniciar dados de negócio. Limpar anexo, rascunho e contexto da conversa; vincular histórico, cache e propostas à conversa atual. Respostas curtas, com no máximo um próximo passo em destaque, e um único bloco Fontes e detalhes recolhido. Preservar alertas, fontes e aprovação; ver [interface](instrucoes/06-interface.md).
+
+- **Decisão confirmada:** Streamlit removido, inclusive da dependência de execução. Aplicação portátil, sem escolher provedor de hospedagem; o usuário fará o deploy manual posteriormente. Não publicar nem deixar servidor local rodando ao terminar. A interface é compilada em `frontend/dist` e servida pela API na mesma origem; segredos ficam exclusivamente no Python.
 
 ## Fontes indisponíveis e colaboração
 

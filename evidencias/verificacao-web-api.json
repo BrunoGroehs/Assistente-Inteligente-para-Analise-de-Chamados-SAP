@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-19T02:44:38.537366+00:00",
+  "mode": "Verifica API HTTP com Supabase/OpenRouter reais; consome créditos.\n\nDecisões simuladas pelo teste em sessões fictícias próprias, sem consentimento\nhumano real. Não modifica o corpus nem tabelas externas. Não é revisão visual.\n",
+  "api_calls": {
+    "embeddings": 4,
+    "completions": 6
+  },
+  "checks": [
+    {
+      "check": "RAG geral: fontes oficiais sem conteúdo bruto",
+      "passed": true,
+      "details": {
+        "source_urls": [
+          "https://learning.sap.com/courses/business-processes-in-sap-s-4hana-sourcing-procurement/posting-a-goods-receipt"
+        ],
+        "business_unchanged": true,
+        "latency_ms": 23347
+      },
+      "seconds": 34.953
+    },
+    {
+      "check": "RAG insuficiente: abstinência sem proposta",
+      "passed": true,
+      "details": {
+        "abstention": true,
+        "no_proposal": true
+      },
+      "seconds": 20.239
+    },
+    {
+      "check": "HITL: contexto exato e Sim idempotente",
+      "passed": true,
+      "details": {
+        "no_write_before_decision": true,
+        "wrong_chat_rejected": true,
+        "receipts_after_double_click": 1
+      },
+      "seconds": 48.126
+    },
+    {
+      "check": "HITL: Não impede alteração",
+      "passed": true,
+      "details": {
+        "refusal_unchanged": true,
+        "later_yes_does_not_override": true
+      },
+      "seconds": 43.523
+    },
+    {
+      "check": "Novo chat preserva histórico e negócio",
+      "passed": true,
+      "details": {
+        "independent_conversation": true,
+        "history_and_business_preserved": true
+      },
+      "seconds": 8.468
+    }
+  ],
+  "external_catalog_unchanged": true,
+  "external_catalog_hashes": {
+    "before": "75b485015c8c815e3e3ff754f2d1990fafc04bbf48f9d866b699623efbb84043",
+    "after": "75b485015c8c815e3e3ff754f2d1990fafc04bbf48f9d866b699623efbb84043"
+  },
+  "passed": true
+}

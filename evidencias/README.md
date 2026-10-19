@@ -1,12 +1,40 @@
 # Evidências de validação
 
+## Migração atual: React + FastAPI
+
+**Executado em 18/10/2026 (horário de São Paulo).** Streamlit removido do código, das dependências e do ambiente virtual deste projeto. Nenhum deploy realizado; nenhum servidor local de teste ficou em execução.
+
+| Verificação | Resultado |
+| --- | --- |
+| Python: domínio, RAG, HITL e API HTTP | **152 aprovados**, zero falhas/ignorados; [XML](testes-api-react.xml). Os antigos testes Streamlit foram substituídos por testes HTTP; contagens históricas não são cumulativas. |
+| React: diálogo, filtros, anexo, Novo chat, fontes e aprovações | **12 aprovados**; [relatório](testes-react.json), testes em [App](../frontend/src/App.test.tsx) e [cliente HTTP](../frontend/src/api.test.ts). |
+| TypeScript e build Vite | `npm.cmd run build` aprovado; bundle JS 363,59 kB / 112,54 kB gzip e CSS 10,05 kB / 3,10 kB gzip nesta rodada. |
+| Análise estática e dependências | Ruff aprovado em aplicação, testes e scripts; `pip check` sem conflitos; `npm audit` sem vulnerabilidades reportadas nesta execução. |
+| Supabase + OpenRouter reais via HTTP | **Cinco verificações aprovadas** em [verificacao-web-api.json](verificacao-web-api.json). Quatro chamadas de embeddings, seis de chat. |
+| Medição de API com Supabase real | [desempenho-api-web.json](desempenho-api-web.json); não mede cliques ou renderização do navegador. |
+
+A rodada integrada verificou pergunta geral com URL SAP oficial sem conteúdo bruto, pergunta sem suporte com abstinência e sem proposta, proposta real de recebimento sem escrita prévia, bloqueio da conversa errada, Sim idempotente, Não preservando negócio mesmo após tentativa de Sim e Novo chat preservando histórico/dados. Os dois consentimentos foram simulados pelo harness em seu workspace fictício, não feitos por uma pessoa. O hash do catálogo de objetos externos ficou idêntico; isso verifica estruturas externas, não é uma comparação de conteúdo de todas as tabelas de outros projetos. Nenhum comando do aplicativo escreve nesses schemas.
+
+Os testes HTTP também cobrem cookie/sessão, origem indevida, parâmetros inválidos, outra sessão, replay, isolamento de conversa, proposta vencida, dados alterados após apresentação, build estático e erro seguro. Um provedor bloqueado por evento comprova que a API continua respondendo e rejeita uma segunda análise da mesma sessão. Os testes React comprovam navegação sem novas chamadas, fontes recolhidas e ausência de botões de consentimento antes de reanexar ou após vencimento. Resposta de uma análise antiga não invade o Novo chat.
+
+Nesta amostra, inicializar os recursos levou 9,609 s; carregar/atualizar o snapshot autenticado, 2,131/2,312 s com quatro SELECTs; Novo chat no servidor, 0,783 s. Essas operações são explícitas: buscar, consultar detalhes e anexar/remover não enviam requisições. O atendimento geral mediu 23,347 s no serviço, incluindo RAG, cobertura e geração, sem contar todo o fluxo HTTP do teste. React elimina reruns da apresentação; não elimina a espera do Supabase ou OpenRouter. Amostra única, sem promessa de SLA.
+
+Não houve revisão estética em navegador real, teste de hospedagem, comparação estatística ou integração SAP real. Layout responsivo e foco foram implementados, mas a revisão visual/teclado continua pendente. Scripts antigos de verificação de interface agora encaminham para o harness HTTP atual; não reproduzem mais o Streamlit. Seus relatórios antigos permanecem abaixo como histórico.
+
+Na revisão documental, 202 links locais foram conferidos: 201 destinos existem; a referência ao PDF original está pendente porque o arquivo já estava removido no diretório de trabalho. A remoção não integra os commits desta migração. Blocos Markdown e `git diff --check` passaram.
+
+## Histórico das versões anteriores com Streamlit
+
+As seções seguintes e seus resultados são históricos. Comandos e scripts citados nelas devem ser consultados na versão Git correspondente; para a versão atual use `scripts/verify_web_live.py`, `scripts/benchmark_ui.py` e os comandos do README principal.
+
+
 Resultados coletados em 18/10/2026. A aplicação não foi publicada externamente.
 
 ## Testes locais
 
 As suítes em `tests/` exercitam contratos, gateway, recusa, vencimento, concorrência, rollback, isolamento, recuperação híbrida, falhas do provedor e componentes Streamlit via AppTest. O provedor controlado é exclusivo dos testes.
 
-Resultado atual: **158 testes aprovados, zero falhas, erros ou testes ignorados** em [testes-novo-chat.xml](testes-novo-chat.xml). Ruff não encontrou erros, e `pip check` confirmou compatibilidade das dependências instaladas. Python 3.12.10; dependências diretas fixadas nos arquivos requirements. Os relatórios de [75 testes](testes.xml), [101 testes](testes-ampliados.xml), [121 testes](testes-fontes-rag.xml), [133 testes](testes-selecao-chamados.xml), [140 testes](testes-anexos-chat.xml) e [147 testes](testes-desempenho.xml) permanecem como histórico.
+Resultado da versão anterior: **158 testes aprovados, zero falhas, erros ou testes ignorados** em [testes-novo-chat.xml](testes-novo-chat.xml). Ruff não encontrou erros, e `pip check` confirmou compatibilidade das dependências instaladas. Python 3.12.10; dependências diretas fixadas nos arquivos requirements. Os relatórios de [75 testes](testes.xml), [101 testes](testes-ampliados.xml), [121 testes](testes-fontes-rag.xml), [133 testes](testes-selecao-chamados.xml), [140 testes](testes-anexos-chat.xml) e [147 testes](testes-desempenho.xml) permanecem como histórico.
 
 Os testes de interface foram adaptados ao chat único com anexo opcional; sete cenários adicionais do serviço cobrem RAG geral sem `DATA`, separação de histórico, propostas forjadas de recebimento/status sem anexo, idempotência/vínculo da submissão, isolamento e base vazia. A seleção de linha no AppTest usa o estado nativo documentado do componente; não equivale a clicar numa tabela em navegador real.
 

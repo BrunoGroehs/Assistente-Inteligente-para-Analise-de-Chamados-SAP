@@ -2,17 +2,17 @@
 
 ## Direção confirmada
 
-**Decisão confirmada:** interface organizada, clean e inspirada em iOS, sem excesso de elementos decorativos. A implementação será em Streamlit, preservando os componentes nativos e sua acessibilidade. Inspiração visual não significa replicar integralmente um aplicativo Apple.
+**Decisão confirmada:** interface organizada, clean e inspirada em iOS, sem excesso de elementos decorativos. A interface usa React/TypeScript com Vite, API Python/FastAPI e componentes HTML sem dependência de Streamlit. Inspiração visual não significa replicar integralmente um aplicativo Apple.
 
 **Recomendação:** fundo neutro claro, superfícies discretas, tipografia consistente, espaçamento confortável, bordas suaves e uma cor de destaque contida. Usar vermelho para erro/recusa e outros estados por necessidade semântica. Não depender apenas da cor para comunicar estado.
 
-Evitar gradientes chamativos, banners grandes, emojis em excesso, sombras fortes, menus duplicados, cartões para todo parágrafo e painéis de métricas sem função no atendimento. Preferir CSS pequeno e estável; não depender de seletores internos frágeis para a experiência principal. Não adicionar componentes React personalizados nesta versão.
+Evitar gradientes chamativos, banners grandes, emojis em excesso, sombras fortes, menus duplicados, cartões para todo parágrafo e painéis de métricas sem função no atendimento. Preferir CSS pequeno e estável; não depender de seletores internos frágeis para a experiência principal. Manter componentes pequenos e estado local para navegação; nenhuma consulta por clique de seleção.
 
 ## Organização e anexo opcional
 
 **Decisão confirmada, substituindo a navegação lateral e a tela separada de lista:** uma única conversa central, sem painel lateral e sem chamado selecionado automaticamente. O chat inicia livre para perguntas gerais sobre recebimento em SAP MM, com a mesma exigência de evidência no RAG. Não ampliar o escopo para assuntos sem documentação.
 
-O compositor contém o botão **Chamados**, com ícone de identificação. Ele abre um diálogo com todos os chamados, busca por referência/resumo/pedido/material/sistema/componente e filtro de prioridade. A tabela mostra referência, resumo, prioridade, situação local, sistema e componente sugerido. Clicar numa linha escolhe o candidato; um seletor equivalente fica disponível. Filtrar troca o conjunto de linhas e não reutiliza um índice de outro conjunto.
+O compositor contém o botão **Chamados**, com ícone de identificação. Ele abre um diálogo com todos os chamados, busca por referência/resumo/pedido/material/sistema/componente e filtro de prioridade. A lista mostra referência, resumo, prioridade e situação local; detalhes incluem sistema e componente sugerido. Clicar numa linha escolhe o candidato com botão acessível por teclado. Filtrar troca o conjunto de linhas e não reutiliza um índice de outro conjunto.
 
 **Ver detalhes** abre/recolhe o contexto completo no próprio diálogo: descrição, produto/release, sistema/mandante/ambiente, aplicativo, prioridade/impacto, solicitante/empresa/data, resultado esperado e relatado, erro, reprodução, ações tentadas, pedido/item/quantidades atuais e anexos. Valores ausentes ficam explícitos. **Anexar ao chat** é uma ação separada da consulta. **Cancelar** ou fechar mantém o anexo atual. Não navegar para uma tela de outro chamado.
 
@@ -26,9 +26,9 @@ A linha do tempo não desaparece ao remover/substituir o anexo. Cada pergunta mo
 
 Uma proposta pendente continua junto à resposta original. Com outro anexo ou sem anexo, o cartão oferece reanexar o chamado para revisão, sem botões de consentimento ativos. Reanexar o chamado correto restaura **Sim/Não** e o chat desse contexto permanece pausado até decidir. É possível remover o anexo e perguntar no canal geral. Remoção e troca nunca concedem, cancelam ou transferem aprovação. A validade original continua correndo.
 
-Em telas estreitas, preservar leitura, detalhes e botões, sem depender de uma barra lateral ou de rolagem horizontal para informações essenciais. Usar componentes nativos; a tabela é uma visão resumida, com detalhes em texto acessível. Ver [formato inspirado no SAP for Me](02-processo-sap.md) e [aprovações](07-aprovacoes-humanas.md).
+Em telas estreitas, preservar leitura, detalhes e botões, sem depender de uma barra lateral ou de rolagem horizontal para informações essenciais. Usar componentes nativos; a lista é uma visão resumida, com detalhes em texto acessível. Ver [formato inspirado no SAP for Me](02-processo-sap.md) e [aprovações](07-aprovacoes-humanas.md).
 
-**Recomendação técnica implementada para reduzir lag:** manter a cópia de apresentação na sessão; cliques simples não recarregam o Supabase. **Atualizar**, com ícone discreto junto ao compositor, recarrega a conversa explicitamente. A cópia também é renovada após análise/decisão. Mudanças externas precisam desse botão; cartões antigos nunca dispensam a validação atual do gateway. Durante análise, o status distingue consulta de contexto, busca no RAG, verificação de suporte, preparação da resposta e salvamento. Não apresentar raciocínio interno nem resposta parcial ainda não validada.
+**Recomendação técnica implementada para reduzir lag:** manter a projeção pública no estado React da conversa; cliques simples não recarregam o Supabase. **Atualizar**, com ícone discreto junto ao compositor, recarrega a conversa explicitamente. A cópia também é renovada após análise/decisão. Mudanças externas precisam desse botão; cartões antigos nunca dispensam a validação atual do gateway. Durante análise, o status distingue consulta de contexto, busca no RAG, verificação de suporte, preparação da resposta e salvamento. Não apresentar raciocínio interno nem resposta parcial ainda não validada.
 
 ## Fontes e etapas observáveis
 
@@ -58,6 +58,6 @@ Após decisão, desabilitar ambos os botões e mostrar o resultado confirmado pe
 
 **Recomendação:** definir estados vazios, carregamento, falha do provedor, falta de evidência, sessão perdida e indisponibilidade do banco. Mostrar orientação curta e preservar o histórico possível; não exibir stack traces ou segredos.
 
-Aceite: chat e lista localizáveis imediatamente; conteúdo sem sobreposição ou corte; contraste e foco de teclado legíveis; botões acessíveis por teclado; aprovação não depende apenas de cor; fontes podem ser abertas; troca de chamado não troca sua proposta; rerun não duplica mensagens nem ações.
+Aceite: chat e lista localizáveis imediatamente; conteúdo sem sobreposição ou corte; contraste e foco de teclado legíveis; botões acessíveis por teclado; aprovação não depende apenas de cor; fontes podem ser abertas; troca de chamado não troca sua proposta; reenvio não duplica mensagens nem ações.
 
 **Decisão confirmada:** dúvidas materiais sobre o fluxo devem ser discutidas com o usuário. Detalhes menores de espaçamento e apresentação seguem essa direção e podem ser refinados com uma primeira captura real da interface.

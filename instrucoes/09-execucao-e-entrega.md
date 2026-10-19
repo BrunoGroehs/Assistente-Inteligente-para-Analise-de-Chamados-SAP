@@ -4,7 +4,7 @@
 
 **Decisão confirmada:** implementação autorizada em 18/10/2026. O aplicativo executável, os comandos e as configurações atuais estão no [README principal](../README.md). Este documento preserva o roteiro e os critérios de evolução; os resultados concluídos estão nas [evidências](../evidencias/README.md).
 
-**Estado implementado:** Python 3.12, dependências diretas fixadas após validar compatibilidade e entrada Streamlit na raiz. Domínio, infraestrutura, interface, conhecimento e testes estão separados. O README principal contém os comandos de preparação e execução; manter suas instruções alinhadas ao código e aos resultados verificados.
+**Estado implementado:** Python 3.12, dependências diretas fixadas após validar compatibilidade e API FastAPI na raiz e frontend React/TypeScript compilado com Vite. Domínio, infraestrutura, interface, conhecimento e testes estão separados. O README principal contém os comandos de preparação e execução; manter suas instruções alinhadas ao código e aos resultados verificados.
 
 | Configuração proposta | Finalidade | Tratamento |
 | --- | --- | --- |
@@ -14,7 +14,7 @@
 | `DATABASE_URL` | PostgreSQL no Supabase | Conexão segura com pool adequado ao ambiente e privilégio mínimo. |
 | `DEMO_ACCESS_CODE` | Acesso restrito à demonstração | Recomendação de acesso simples para banca, validado no servidor e nunca enviado ao LLM. |
 
-Não solicitar segredos no chat. O usuário configurou `.env` localmente e ativou vector. O aplicativo usa Supabase em desenvolvimento e hospedagem; somente os testes usam SQLite temporário. Todos os objetos próprios ficam em `sap_chamados_ai`, com verificação de identificação; não modificar tabelas dos outros projetos, executar DROP ou reset global. Publicação externa ainda não foi solicitada. Para uso público além da banca, reavaliar autenticação, limites e privacidade.
+Não solicitar segredos no chat. O usuário configurou `.env` localmente e ativou vector. O aplicativo usa Supabase em desenvolvimento e hospedagem; somente os testes usam SQLite temporário. Todos os objetos próprios ficam em `sap_chamados_ai`, com verificação de identificação; não modificar tabelas dos outros projetos, executar DROP ou reset global. O usuário fará o deploy manual posteriormente; não publicar nem escolher plataforma nesta etapa. Para uso público além da banca, reavaliar autenticação, limites e privacidade.
 
 ## Etapas e saídas verificáveis
 
@@ -29,13 +29,15 @@ Não solicitar segredos no chat. O usuário configurou `.env` localmente e ativo
 
 O fluxo HITL pode ser testado antes do LLM real, usando propostas controladas. Isso valida a barreira; não substitui a rodada integrada com o OpenRouter.
 
-## Hospedagem escolhida e alternativas
+## Aplicação portátil e publicação manual
 
-**Decisão confirmada do plano aprovado:** Streamlit Community Cloud para a aplicação e Supabase/PostgreSQL com pgvector para persistência externa. Configurar dependências, arquivo de entrada e secrets pelo ambiente da hospedagem. A [documentação de publicação](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy) descreve o vínculo com GitHub. Revalidar condições e disponibilidade dos serviços na ocasião; não prometer gratuidade permanente.
+**Decisão confirmada, substituindo Streamlit/Community Cloud:** entregar aplicativo normal sem plataforma definida. React é compilado em `frontend/dist`; FastAPI serve a interface e `/api` na mesma origem. Comandos completos no [README](../README.md). Python 3.12 e Node.js 24.14 foram usados na validação. O usuário escolherá e configurará a hospedagem pelo site do serviço posteriormente.
 
-**Recomendação:** validar primeiro conexão ao banco, esquema, geração de embeddings e chamada de chat. Ingestão deve ser uma operação controlada, sem reconstruir embeddings a cada rerun. Dados locais podem ser cache descartável, nunca prova durável de autorização.
+**Recomendação:** executar build antes de iniciar Uvicorn; manter o diretório compilado no artefato; instalar dependências Python no servidor; configurar somente os segredos do `.env.example` no ambiente. Usar HTTPS, `APP_ENV=cloud` e código de demonstração de pelo menos 12 caracteres. Proxy deve preservar origem/host e streaming NDJSON, sem buffering e com timeout adequado. Não colocar chave ou conexão de banco em variáveis Vite do navegador.
 
-React + FastAPI na Vercel foi considerado e substituído pela simplicidade de Streamlit para o desafio; não é inviável. A [Vercel documenta FastAPI](https://vercel.com/docs/frameworks/backend/fastapi). Rever a decisão se a interface exigir recursos que Streamlit não atender; registrar a mudança e preservar o núcleo Python e o gateway de autorização.
+Para execução normal há um único processo Uvicorn, sem Vite ativo. O servidor de desenvolvimento do Vite é opcional. Não deixar servidores locais de teste rodando ao encerrar o trabalho. Não há publicação automática, Docker obrigatório, configuração de plataforma ou mudança do Supabase nesta etapa.
+
+Inicializar/verificar somente o schema do projeto e ingerir documentos alterados sem reconstruir embeddings desnecessariamente. A fila limitada é por processo; usar um processo inicialmente e avaliar coordenação distribuída antes de escalar. Testes React/HTTP não equivalem a revisão estética em navegador ou validação do ambiente hospedado.
 
 ## Riscos e evolução
 
@@ -45,7 +47,7 @@ React + FastAPI na Vercel foi considerado e substituído pela simplicidade de St
 | LLM inventar causa ou citar fonte inadequada | Recuperação, contratos, verificação factual e abstinência quando faltar evidência. |
 | Documento ou página inacessível | Retentativa, alternativa oficial e colaboração do usuário conforme [RAG](04-rag-e-fontes.md). |
 | Custo ou indisponibilidade do provedor | Acesso restrito, limites por sessão, cache de embeddings e falha explícita. |
-| Reinício e rerun | Estado durável, IDs de submissão e execução idempotente. |
+| Reinício e reenvio HTTP | Estado durável, IDs de submissão e execução idempotente. |
 | Exposição de credenciais ou sessões | Segredos no servidor, escopo por sessão e logs sem credenciais. |
 | Simulação confundida com integração SAP | Aviso discreto, resultados identificados como simulados e limitações na apresentação. |
 
