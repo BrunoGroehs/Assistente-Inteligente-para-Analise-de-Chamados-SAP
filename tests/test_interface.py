@@ -1,466 +1,228 @@
-from pathlib import Path
+"""A interface React tem testes próprios; este arquivo testa sua fronteira HTTP."""
+import json
+from concurrent.futures import ThreadPoolExecutor
+from copy import deepcopy
+from datetime import timedelta
+from threading import Event
 
+from fastapi.testclient import TestClient
 import pytest
-import streamlit as st
-from streamlit.testing.v1 import AppTest
 
-from sap_assistant import runtime
+from sap_assistant.api import create_app, COOKIE
 from sap_assistant.approvals import ApprovalGateway
 from sap_assistant.config import Settings
+from sap_assistant.database import SessionContext, Workspace, new_id, utcnow
 from sap_assistant.retrieval import Retriever
 from sap_assistant.service import AssistantService
-from conftest import ControlledProvider, ReceiptProvider
+from conftest import ControlledProvider, ReceiptProvider, receipt_request
 
-APP = Path(__file__).resolve().parents[1] / "app.py"
+HEADERS = {"X-Requested-With": "sap-assistant"}
 
 
 @pytest.fixture
-def ui(store, monkeypatch):
-    st.cache_resource.clear()
-    settings = Settings(database_url="postgresql+psycopg://test.invalid/db", api_key="test-only", environment="local")
-    monkeypatch.setattr(Settings, "load", classmethod(lambda cls, secrets=None: settings))
+def web(store):
     provider = ControlledProvider()
     service = AssistantService(store, Retriever(store, provider), provider)
-    monkeypatch.setattr(runtime, "create_runtime", lambda _: (store, service, ApprovalGateway(store)))
-    yield store, service, settings
-    st.cache_resource.clear()
+    settings = Settings(database_url="postgresql+psycopg://test.invalid/db", environment="local")
+    gateway = ApprovalGateway(store)
+    app = create_app(settings, (store, service, gateway))
+    with TestClient(app) as client:
+        client.headers.update(HEADERS)
+        yield client, store, service, gateway
 
 
-def button(app, label):
-    return next(x for x in app.button if x.label == label)
+def login(client):
+    assert client.post("/api/session", json={}).status_code == 200
+    workspace, token = client.cookies[COOKIE].split(".", 1)
+    return SessionContext(workspace, token)
 
 
-def attach(app, key):
-    button(app, "Chamados").click().run()
-    app.selectbox(key="dialog_case").set_value(key).run()
-    button(app, "Anexar ao chat").click().run()
-    assert not app.exception and not app.error
-    assert app.session_state["attached_case"] == key
+def send(client, chat="initial", text="Explique recebimento com pedido.", ticket=None, submission=None):
+    response = client.post(f"/api/chats/{chat}/messages", json={"message": text,
+        "ticket_id": ticket, "submission_id": submission or new_id()})
+    assert response.status_code == 200
+    return [json.loads(line) for line in response.text.splitlines() if line]
 
 
-def test_configuration_without_credentials_shows_setup(monkeypatch):
-    monkeypatch.setattr(Settings, "load", classmethod(lambda cls, secrets=None: Settings(database_url="")))
-    app = AppTest.from_file(str(APP)).run()
-    assert not app.exception
-    assert app.title[0].value == "Assistente SAP"
-    assert app.info
-    assert not app.chat_input
+def test_session_cookie_and_public_configuration(web):
+    client, _, _, _ = web
+    assert client.get("/api/config").json() == {"requires_access_code": False}
+    assert client.get("/api/session").status_code == 401
+    context = login(client)
+    assert context.token not in client.get("/api/session").text
+    assert client.get("/api/session").json() == {"authenticated": True}
+    assert "HttpOnly" in client.post("/api/session", json={}).headers["set-cookie"]
+    assert client.get("/api/chats/initial").headers["cache-control"] == "no-store"
 
 
-def test_database_failure_shows_safe_configuration_screen(ui, monkeypatch):
-    st.cache_resource.clear()
-
-    def unavailable(_):
-        raise RuntimeError("postgresql://secret-user:secret-password@private.invalid/db")
-
-    monkeypatch.setattr(runtime, "create_runtime", unavailable)
-    app = AppTest.from_file(str(APP)).run()
-    assert not app.exception and not app.chat_input
-    assert any("conectar ao banco" in x.value for x in app.info)
-    assert not any("secret-user" in x.value or "secret-password" in x.value or "private.invalid" in x.value
-                   for x in [*app.info, *app.markdown])
+def test_access_gate_precedes_workspace_creation(store):
+    settings = Settings(database_url="postgresql+psycopg://test.invalid/db", environment="local", access_code="test-access-code")
+    provider = ControlledProvider()
+    services = (store, AssistantService(store, Retriever(store, provider), provider), ApprovalGateway(store))
+    with TestClient(create_app(settings, services)) as client:
+        client.headers.update(HEADERS)
+        assert client.post("/api/session", json={"access_code": "wrong"}).status_code == 401
+        assert COOKIE not in client.cookies
+        assert client.post("/api/session", json={"access_code": "test-access-code"}).status_code == 200
 
 
-def test_single_chat_starts_without_sidebar_or_attachment(ui):
-    app = AppTest.from_file(str(APP), default_timeout=15).run()
-    assert not app.exception and not app.sidebar.radio and not app.radio
-    assert len(app.chat_input) == 1 and app.session_state["attached_case"] is None
-    assert not any(x.label == "Analisar chamado" for x in app.button)
-    assert not any(x.label.startswith("Sim") or x.label.startswith("Não") for x in app.button)
-    app.chat_input[0].set_value("O que é recebimento com referência ao pedido?").run()
-    assert len(app.chat_message) == 2
-    assert [x.label for x in app.expander] == ["Fontes e detalhes"]
-    assert not app.expander[0].proto.expanded
-    attach(app, "C01")
-    assert len(app.chat_message) == 2
-    button(app, "Analisar chamado").click().run()
-    assert len(app.chat_message) == 4
-    attach(app, "C02")
-    assert len(app.chat_message) == 4 and not app.exception
+def test_csrf_and_cross_origin_requests_are_rejected(web):
+    client, _, _, _ = web
+    assert client.post("/api/session", json={}, headers={"X-Requested-With": "wrong"}).status_code == 403
+    assert client.post("/api/session", json={}, headers={"Origin": "https://external.invalid"}).status_code == 403
+    assert client.post("/api/session", json={}, headers={"Origin": "http://testserver"}).status_code == 200
 
 
-def test_approval_button_executes_once_and_disappears(ui):
-    store, service, _ = ui
-    provider = ReceiptProvider()
-    service.provider = provider
-    service.retriever = Retriever(store, provider)
-    app = AppTest.from_file(str(APP), default_timeout=15).run()
-    attach(app, "C07")
-    button(app, "Analisar chamado").click().run()
-    assert not app.exception
-    context = app.session_state["context"]
-    assert not store.state(context)["receipts"]
-    assert app.chat_input[0].disabled
-    button(app, "Sim, autorizar").click().run()
-    assert not app.exception
-    assert len(store.state(context)["receipts"]) == 1
-    assert not any(x.label == "Sim, autorizar" for x in app.button)
-    app.run()
-    assert len(store.state(context)["receipts"]) == 1
+def test_snapshot_has_cases_without_messages_and_no_secrets(web):
+    client, _, _, _ = web
+    context = login(client)
+    response = client.get("/api/chats/initial")
+    view = response.json()
+    assert len(view["cases"]) == 8 and not view["messages"] and not view["proposals"]
+    assert view["cases"][4]["support"]["application"] is None
+    assert context.token not in response.text and context.workspace_id not in response.text
+    assert "database_url" not in response.text and "api_key" not in response.text
 
 
-def test_refusal_preserves_data_and_removes_buttons(ui):
-    store, service, _ = ui
-    provider = ReceiptProvider()
-    service.provider = provider
-    service.retriever = Retriever(store, provider)
-    app = AppTest.from_file(str(APP), default_timeout=15).run()
-    attach(app, "C07")
-    button(app, "Analisar chamado").click().run()
-    context = app.session_state["context"]
+def test_stream_has_observable_progress_and_only_validated_answer_in_snapshot(web):
+    client, _, _, _ = web
+    login(client)
+    events = send(client)
+    assert events[-1] == {"type": "completed", "state": "completed"}
+    assert any(item["type"] == "progress" for item in events)
+    assert not any("facts" in item or "content" in item for item in events)
+    message = client.get("/api/chats/initial").json()["messages"][-1]
+    assert message["details"]["sources"] and message["details"]["steps"]
+    assert "evidence" not in message["details"] and "provider" not in message["details"]
+    assert not any("content" in source for source in message["details"]["sources"])
+
+
+def test_new_chat_preserves_business_and_excludes_history_and_proposals(web):
+    client, store, _, gateway = web
+    context = login(client)
+    send(client)
+    proposal = gateway.propose(context, "C07", receipt_request(store, context))
     before = store.state(context)
-    button(app, "Não, recusar").click().run()
-    assert not app.exception
-    assert store.state(context) == before
-    assert not any(x.label == "Sim, autorizar" for x in app.button)
-
-
-def test_shared_access_gate_precedes_runtime(ui):
-    _, _, settings = ui
-    object.__setattr__(settings, "access_code", "test-access-code-only")
-    app = AppTest.from_file(str(APP)).run()
-    assert not app.exception
-    assert not app.chat_input
-    app.text_input[0].set_value("wrong")
-    button(app, "Entrar").click().run()
-    assert app.error
-    app.text_input[0].set_value("test-access-code-only")
-    button(app, "Entrar").click().run()
-    assert app.chat_input
-
-
-def test_sources_link_directly_without_showing_content(ui):
-    store, service, _ = ui
-    app = AppTest.from_file(str(APP), default_timeout=15).run()
-    attach(app, "C01")
-    button(app, "Analisar chamado").click().run()
-    context = app.session_state["context"]
-    message = store.messages(context, "C01")[-1]
-    expected = [x for x in message["details"]["evidence"] if x.get("source_url")]
-    links = app.get("link_button")
-    assert links and {x.proto.url for x in links} <= {x["source_url"] for x in expected}
-    assert not app.get("dialog") and not app.text
-    assert not any(x.key and str(x.key).startswith("source_") for x in app.button)
-    before = store.state(context)
-    calls = service.provider.calls
-    app.run()
-    assert not app.exception
-    assert store.messages(context, "C01")[-1]["details"]["evidence"] == message["details"]["evidence"]
-    assert service.provider.calls == calls
+    chat = client.post("/api/chats", json={}).json()["chat_id"]
+    assert not client.get(f"/api/chats/{chat}").json()["messages"]
+    assert not client.get(f"/api/chats/{chat}").json()["proposals"]
+    send(client, chat=chat)
+    assert len(client.get(f"/api/chats/{chat}").json()["messages"]) == 2
+    assert len(client.get("/api/chats/initial").json()["messages"]) == 2
+    assert client.post(f"/api/chats/{chat}/proposals/{proposal}/decision", json={"approve": True}).status_code == 401
     assert store.state(context) == before
 
 
-def test_source_links_do_not_authorize_pending_action(ui):
-    store, service, _ = ui
+@pytest.mark.parametrize("approve,expected", [(True,"executada"), (False,"recusada")])
+def test_human_decision_requires_specific_proposal_and_is_idempotent(web, approve, expected):
+    client, store, service, _ = web
+    context = login(client)
     provider = ReceiptProvider()
     service.provider, service.retriever = provider, Retriever(store, provider)
-    app = AppTest.from_file(str(APP), default_timeout=15).run()
-    attach(app, "C07")
-    button(app, "Analisar chamado").click().run()
-    context = app.session_state["context"]
-    assert app.get("link_button")
-    app.run()
-    assert not app.exception
-    assert not store.state(context)["receipts"]
-    assert store.proposals(context, "C07")[0]["state"] == "pendente"
-    assert provider.calls == 1
-    button(app, "Sim, autorizar").click().run()
-    assert len(store.state(context)["receipts"]) == 1
+    send(client, ticket="C07", text="Registre 10 UN em 2026-10-18.")
+    view = client.get("/api/chats/initial").json()
+    proposal = view["proposals"][0]
+    assert proposal["state"] == "pendente" and not store.state(context)["receipts"]
+    assert "snapshot" not in proposal and "payload" not in proposal
+    url = f"/api/chats/initial/proposals/{proposal['id']}/decision"
+    assert client.post(url, json={"approve": "sim"}).status_code == 422
+    assert client.post(url, json={"approve": approve}).json()["state"] == expected
+    client.post(url, json={"approve": True})
+    assert len(store.state(context)["receipts"]) == (1 if approve else 0)
 
 
-def test_sources_keep_original_url_when_knowledge_changes(ui):
-    from sqlalchemy import select
-    from sap_assistant.database import Chunk
-
-    store, service, _ = ui
-    app = AppTest.from_file(str(APP), default_timeout=15).run()
-    attach(app, "C01")
-    button(app, "Analisar chamado").click().run()
-    context = app.session_state["context"]
-    original = store.messages(context, "C01")[-1]
-    expected = {x["source_url"] for x in original["details"]["evidence"] if x.get("source_url")}
-    # Simula nova revisão da base: o snapshot antigo deve continuar legível.
-    with store.transaction() as db:
-        for row in db.scalars(select(Chunk)):
-            row.content = "Nova revisão que não pertence ao atendimento antigo."
-            row.attributes = {**row.attributes, "source_url": "https://help.sap.com/nova-revisao"}
-    app.run()
-    assert not app.exception
-    assert {x.proto.url for x in app.get("link_button")} <= expected
-    assert not app.text
+def test_wrong_session_cannot_read_or_decide_other_session(web):
+    client, store, _, gateway = web
+    first = login(client)
+    proposal = gateway.propose(first, "C07", receipt_request(store, first))
+    login(client)
+    assert not client.get("/api/chats/initial").json()["proposals"]
+    assert client.post(f"/api/chats/initial/proposals/{proposal}/decision", json={"approve": True}).status_code == 401
+    assert not store.state(first)["receipts"]
 
 
-def test_picker_lists_all_cases_and_details_without_attaching(ui):
-    store, service, _ = ui
-    app = AppTest.from_file(str(APP), default_timeout=15).run()
-    context = app.session_state["context"]
-    before = store.state(context)
-    button(app, "Chamados").click().run()
-    assert len(app.dataframe[0].value) == 8
-    app.selectbox(key="dialog_case").set_value("C04").run()
-    button(app, "Ver detalhes").click().run()
-    assert app.session_state["attached_case"] is None
-    assert any(x.value == "Sistema: QAS" for x in app.markdown)
-    assert any(x.value == "Componente sugerido: MM-IM-GR-PO" for x in app.markdown)
-    assert any("Passos de reprodução" in x.value for x in app.markdown)
-    assert any("Impacto no negócio" in x.value for x in app.markdown)
-    button(app, "Anexar ao chat").click().run()
-    assert app.session_state["attached_case"] == "C04" and not app.get("dialog")
-    assert app.button(key="attached_case_details").label.startswith("SIM-C04")
-    assert store.state(context) == before and service.provider.calls == 0
-
-
-def test_picker_search_filters_cancel_and_empty_results(ui):
-    store, service, _ = ui
-    app = AppTest.from_file(str(APP), default_timeout=15).run()
-    context = app.session_state["context"]
-    before = store.state(context)
-    button(app, "Chamados").click().run()
-    app.selectbox(key="dialog_priority").set_value("missing").run()
-    assert app.selectbox(key="dialog_case").value == "C05"
-    button(app, "Ver detalhes").click().run()
-    assert any(x.value == "Aplicativo: Não informado" for x in app.markdown)
-    app.selectbox(key="dialog_priority").set_value("all").run()
-    app.text_input(key="dialog_search").set_value("4500001007").run()
-    assert app.selectbox(key="dialog_case").value == "C07"
-    app.text_input(key="dialog_search").set_value("nenhum-chamado").run()
-    assert not app.dataframe and any("Nenhum chamado" in x.value for x in app.info)
-    button(app, "Cancelar").click().run()
-    assert app.session_state["attached_case"] is None and not app.get("dialog")
-    assert store.state(context) == before and service.provider.calls == 0
-
-
-def test_attachment_can_be_replaced_removed_and_inspected_without_analysis(ui):
-    store, service, _ = ui
-    app = AppTest.from_file(str(APP), default_timeout=15).run()
-    context = app.session_state["context"]
-    before = store.state(context)
-    attach(app, "C07")
-    app.button(key="attached_case_details").click().run()
-    assert any(x.value == "**Impacto no negócio**" for x in app.markdown)
-    button(app, "Cancelar").click().run()
-    assert app.session_state["attached_case"] == "C07"
-    attach(app, "C08")
-    assert app.button(key="attached_case_details").label.startswith("SIM-C08")
-    button(app, "Remover anexo").click().run()
-    assert app.session_state["attached_case"] is None
-    assert not any(x.key == "attached_case_details" for x in app.button)
-    assert not app.chat_input[0].disabled and not app.chat_message
-    assert store.state(context) == before and service.provider.calls == 0
-
-
-def test_picker_table_selection_matches_case_and_dropdown_can_override(ui):
-    store, service, _ = ui
-    app = AppTest.from_file(str(APP), default_timeout=15).run()
-    context = app.session_state["context"]
-    before = store.state(context)
-    button(app, "Chamados").click().run()
-    table_key = "case_table_" + "_".join(before["tickets"])
-    # AppTest não oferece clique em linha; injeta o estado nativo do componente.
-    app.session_state[table_key] = {"selection": {"rows": [3], "columns": [], "cells": []}}
-    app.run()
-    assert not app.exception and app.selectbox(key="dialog_case").value == "C04"
-    app.selectbox(key="dialog_case").set_value("C06").run()
-    assert app.selectbox(key="dialog_case").value == "C06"
-    assert not app.session_state[table_key]["selection"]["rows"]
-    button(app, "Anexar ao chat").click().run()
-    assert app.session_state["attached_case"] == "C06"
-    assert store.state(context) == before and service.provider.calls == 0
-
-
-def test_detaching_pending_case_keeps_proposal_and_unlocks_general_chat(ui):
-    store, service, _ = ui
-    provider = ReceiptProvider()
-    service.provider, service.retriever = provider, Retriever(store, provider)
-    app = AppTest.from_file(str(APP), default_timeout=15).run()
-    attach(app, "C07")
-    button(app, "Analisar chamado").click().run()
-    context = app.session_state["context"]
-    proposal = store.proposals(context, "C07")[0]["id"]
-    before = store.state(context)
-    assert app.chat_input[0].disabled
-    button(app, "Remover anexo").click().run()
-    assert len(app.chat_message) == 2 and not app.chat_input[0].disabled
-    assert not any(x.label == "Sim, autorizar" for x in app.button)
-    assert store.proposals(context, "C07")[0]["id"] == proposal
-    attach(app, "C08")
-    assert not app.chat_input[0].disabled and not any(x.label == "Sim, autorizar" for x in app.button)
-    attach(app, "C07")
-    assert app.chat_input[0].disabled and len(app.chat_message) == 2
-    assert store.state(context) == before and provider.calls == 1
-    button(app, "Sim, autorizar").click().run()
-    assert len(store.state(context)["receipts"]) == 1
-
-
-def test_conversation_keeps_old_attachment_labels_after_detach(ui):
-    store, service, _ = ui
-    app = AppTest.from_file(str(APP), default_timeout=15).run()
-    attach(app, "C01")
-    button(app, "Analisar chamado").click().run()
-    button(app, "Remover anexo").click().run()
-    app.chat_input[0].set_value("O que é um documento de material?").run()
-    assert not app.exception and len(app.chat_message) == 4
-    captions = [x.value for x in app.caption]
-    assert any("Chamado anexado · SIM-C01" in value for value in captions)
-    assert "Sem chamado anexado" in captions
-    context = app.session_state["context"]
-    assert len(store.messages(context)) == 4
-    assert store.messages(context)[0]["details"]["attachment"]["id"] == "C01"
-    assert store.messages(context)[-1]["details"]["attachment"] is None
-    assert service.provider.calls == 2
-
-
-def test_legacy_workspace_and_history_remain_readable_without_migration(ui):
-    from copy import deepcopy
-
-    store, service, _ = ui
-    context = store.create_workspace()
-    service.analyze(context, "C01", "Explique o saldo do pedido.")
-    with store.transaction() as db:
-        workspace = store.authorize(db, context, lock=True)
-        data = deepcopy(workspace.data)
-        for ticket in data["tickets"].values():
-            ticket.pop("support")
-        workspace.data = data
-    before = store.state(context)
-    app = AppTest.from_file(str(APP), default_timeout=15)
-    app.session_state["context"] = context
-    app.run()
-    assert not app.exception and len(app.chat_message) == 2
-    assert app.session_state["attached_case"] is None
-    button(app, "Chamados").click().run()
-    button(app, "Ver detalhes").click().run()
-    assert len(app.dataframe[0].value) == 8
-    assert any(x.value == "Sistema: Não informado" for x in app.markdown)
-    assert store.state(context) == before and service.provider.calls == 1
-
-
-def test_navigation_uses_no_database_roundtrips_and_refresh_reads_once(ui):
-    from sqlalchemy import event
-
-    store, _, _ = ui
-    app = AppTest.from_file(str(APP), default_timeout=15).run()
-    statements = []
-
-    def count(*args):
-        statements.append(1)
-
-    event.listen(store.engine, "before_cursor_execute", count)
-    try:
-        app.run()
-        button(app, "Chamados").click().run()
-        app.selectbox(key="dialog_case").set_value("C07").run()
-        button(app, "Ver detalhes").click().run()
-        button(app, "Anexar ao chat").click().run()
-        button(app, "Remover anexo").click().run()
-        assert not app.exception and not statements
-        button(app, "Atualizar").click().run()
-        assert not app.exception and len(statements) == 3
-    finally:
-        event.remove(store.engine, "before_cursor_execute", count)
-
-
-def test_manual_refresh_updates_external_changes_without_shared_cache(ui):
-    store, service, _ = ui
-    app = AppTest.from_file(str(APP), default_timeout=15).run()
-    context = app.session_state["context"]
-    service.analyze(context, None, "Explique recebimento.")
-    app.run()
-    assert not app.chat_message  # Snapshot de apresentação não é a fonte de verdade.
-    button(app, "Atualizar").click().run()
-    assert len(app.chat_message) == 2
-    other = store.create_workspace()
-    app.session_state["context"] = other
-    app.run()
-    assert not app.exception and not app.chat_message
-    assert app.session_state["ui_view"]["context"] == other
-
-
-def test_cached_approval_still_validates_current_business_data_on_server(ui):
-    from copy import deepcopy
-
-    store, service, _ = ui
-    provider = ReceiptProvider()
-    service.provider, service.retriever = provider, Retriever(store, provider)
-    app = AppTest.from_file(str(APP), default_timeout=15).run()
-    attach(app, "C07")
-    button(app, "Analisar chamado").click().run()
-    context = app.session_state["context"]
-    with store.transaction() as db:
-        workspace = store.authorize(db, context, lock=True)
-        data = deepcopy(workspace.data)
-        data["orders"]["4500001007/10"]["received"] = "21"
-        workspace.data = data
-    button(app, "Sim, autorizar").click().run()
-    assert not app.exception
-    assert not store.state(context)["receipts"]
-    assert store.proposals(context, "C07")[0]["state"] == "invalidada"
-    assert app.session_state["ui_view"]["snapshot"]["state"]["orders"]["4500001007/10"]["received"] == "21"
-    assert not any(x.label == "Sim, autorizar" for x in app.button)
-
-
-def test_cached_proposal_expires_visually_without_database_query(ui, monkeypatch):
-    from datetime import datetime
-    from sap_assistant import presentation
-
-    store, service, _ = ui
-    provider = ReceiptProvider()
-    service.provider, service.retriever = provider, Retriever(store, provider)
-    app = AppTest.from_file(str(APP), default_timeout=15).run()
-    attach(app, "C07")
-    button(app, "Analisar chamado").click().run()
-    cached = app.session_state["ui_view"]["snapshot"]
-    expiry = datetime.fromisoformat(cached["proposals"][0]["expires_at"])
-    monkeypatch.setattr(presentation, "utcnow", lambda: expiry)
-    app.run()
-    assert not app.exception and not app.chat_input[0].disabled
-    assert not any(x.label == "Sim, autorizar" for x in app.button)
-    assert any(x.value == "**Expirada**" for x in app.markdown)
-    assert cached["proposals"][0]["state"] == "pendente"  # Derivação não altera snapshot/persistência.
-
-
-def test_new_chat_clears_timeline_attachment_and_cache_without_changing_tickets(ui):
-    store, service, _ = ui
-    app = AppTest.from_file(str(APP), default_timeout=15).run()
-    attach(app, "C01")
-    button(app, "Analisar chamado").click().run()
-    context = app.session_state["context"]
-    before = store.state(context)
-    old_messages = store.messages(context)
-    app.chat_input[0].set_value("Rascunho antigo que não deve ser enviado no novo chat.")
-    button(app, "Novo chat").click().run()
-    assert not app.exception and not app.error and not app.chat_message
-    assert app.session_state["context"] == context and app.session_state["attached_case"] is None
-    first = app.session_state["active_chat_id"]
-    assert not app.chat_input[0].disabled
-    assert store.state(context) == before and store.messages(context) == old_messages
+def test_submission_replay_does_not_call_model_again(web):
+    client, _, service, _ = web
+    login(client)
+    submission = new_id()
+    send(client, submission=submission)
+    send(client, submission=submission)
     assert service.provider.calls == 1
-    app.chat_input[0].set_value("Explique recebimento.").run()
-    assert len(app.chat_message) == 2 and len(store.messages(context)) == 4
-    assert all(x["details"]["chat_id"] == first for x in store.snapshot(context, first)["messages"])
-    button(app, "Novo chat").click().run()
-    assert app.session_state["active_chat_id"] != first and not app.chat_message
+    assert len(client.get("/api/chats/initial").json()["messages"]) == 2
 
 
-def test_new_chat_keeps_old_pending_proposal_without_displaying_or_reusing_it(ui):
-    store, service, _ = ui
-    provider = ReceiptProvider()
-    service.provider, service.retriever = provider, Retriever(store, provider)
-    app = AppTest.from_file(str(APP), default_timeout=15).run()
-    attach(app, "C07")
-    button(app, "Analisar chamado").click().run()
-    context = app.session_state["context"]
-    previous = store.proposals(context, "C07")[0]
+def test_bad_input_and_forged_cookie_are_safe(web):
+    client, _, _, _ = web
+    login(client)
+    assert client.get("/api/chats/not-a-uuid").status_code == 422
+    assert client.post("/api/chats/initial/messages", json={"message":"x", "submission_id":"bad"}).status_code == 422
+    assert client.post("/api/chats/initial/messages", json={"message":" ", "submission_id":new_id()}).status_code == 422
+    client.cookies.set(COOKIE, "not-a-valid-session", path="/api")
+    assert client.get("/api/chats/initial").status_code == 401
+
+
+def test_missing_build_does_not_show_stack_trace(web):
+    client, _, _, _ = web
+    response = client.get("/api/does-not-exist")
+    assert response.status_code == 404
+    assert "Traceback" not in response.text
+
+
+def test_compiled_interface_and_assets_are_served_by_same_app(web, tmp_path):
+    _, store, service, gateway = web
+    (tmp_path / "assets").mkdir()
+    (tmp_path / "index.html").write_text('<html lang="pt-BR"><div id="root"></div></html>', encoding="utf-8")
+    (tmp_path / "assets/main.js").write_text('console.log("interface")', encoding="utf-8")
+    settings = Settings(database_url="postgresql+psycopg://test.invalid/db", environment="local")
+    with TestClient(create_app(settings, (store, service, gateway), tmp_path)) as client:
+        assert 'lang="pt-BR"' in client.get("/").text
+        assert client.get("/assets/main.js").status_code == 200
+        assert client.get("/api/health").json() == {"status": "ok"}
+        assert client.get("/assets/../../.env").status_code == 404
+    with TestClient(create_app(settings, (store, service, gateway), tmp_path / "unbuilt")) as client:
+        assert client.get("/").status_code == 503
+
+
+def test_api_stays_responsive_and_rejects_concurrent_analysis_in_same_session(web, monkeypatch):
+    client, _, service, _ = web
+    login(client)
+    entered, release = Event(), Event()
+    original = service.provider.analyze
+
+    def blocked(*args):
+        entered.set()
+        assert release.wait(timeout=10)
+        return original(*args)
+
+    monkeypatch.setattr(service.provider, "analyze", blocked)
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(send, client)
+        try:
+            assert entered.wait(timeout=10)
+            assert client.get("/api/health").json() == {"status": "ok"}
+            assert len(client.get("/api/chats/initial").json()["cases"]) == 8
+            duplicate = client.post("/api/chats/initial/messages", json={"message": "Outra pergunta",
+                "submission_id": new_id()})
+            assert duplicate.status_code == 409
+        finally:
+            release.set()
+        assert future.result(timeout=10)[-1]["type"] == "completed"
+    assert not client.app.state.active
+
+
+@pytest.mark.parametrize("change,expected", [("expired", "expirada"), ("stale", "invalidada")])
+def test_api_decision_rechecks_expiry_and_current_business_data(web, change, expected):
+    client, store, _, gateway = web
+    context = login(client)
+    when = utcnow() - timedelta(minutes=16) if change == "expired" else utcnow()
+    proposal = gateway.propose(context, "C07", receipt_request(store, context), now=when)
+    if change == "stale":
+        with store.transaction() as db:
+            row = db.get(Workspace, context.workspace_id)
+            state = deepcopy(row.data)
+            state["orders"]["4500001007/10"]["received"] = "5"
+            row.data = state
     before = store.state(context)
-    button(app, "Novo chat").click().run()
-    assert not app.chat_input[0].disabled and not app.chat_message
-    assert not any(x.label in {"Sim, autorizar", "Não, recusar", "Anexar SIM-C07"} for x in app.button)
-    assert store.proposals(context, "C07")[0] == previous and store.state(context) == before
-    attach(app, "C07")
-    assert not app.chat_input[0].disabled
-    button(app, "Analisar chamado").click().run()
-    current = store.snapshot(context, app.session_state["active_chat_id"])["proposals"][0]
-    assert current["id"] != previous["id"] and len(app.chat_message) == 2
-    button(app, "Não, recusar").click().run()
-    assert store.snapshot(context, app.session_state["active_chat_id"])["proposals"][0]["state"] == "recusada"
-    assert store.proposals(context, "C07")[0]["state"] == "pendente" and store.state(context) == before
+    response = client.post(f"/api/chats/initial/proposals/{proposal}/decision", json={"approve": True})
+    assert response.status_code == 200 and response.json()["state"] == expected
+    assert store.state(context) == before and not before["receipts"]

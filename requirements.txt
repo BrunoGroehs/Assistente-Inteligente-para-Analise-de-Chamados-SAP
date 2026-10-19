@@ -1,4 +1,5 @@
-streamlit==1.66.0
+fastapi==0.146.0
+uvicorn==0.54.0
 pydantic==2.14.1
 SQLAlchemy==2.0.55
 httpx==0.28.1
